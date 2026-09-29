@@ -5,7 +5,6 @@
   "installCommand": null,
   "framework": null,
   "regions": ["cdg1"],
-  "functions": {},
   "headers": [
     {
       "source": "/api/(.*)",
