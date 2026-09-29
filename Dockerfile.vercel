@@ -1,0 +1,49 @@
+# Dockerfile.vercel
+# Vercel Docker hosting entrypoint for the Precision Agriculture Drone GCS.
+# Vercel auto-detects this file, builds the single image, and routes all traffic
+# to the running container. Constraints honoured:
+#   - HTTP server bound to $PORT (Vercel injects it; defaults to 80)
+#   - Stateless: no VOLUMEs, all mutable state lives in ephemeral $DATA_DIR (/tmp)
+#   - Single image, no docker-compose
+#   - Fits Hobby limits (2 GB RAM / 300 s function ceiling, small image layers)
+
+FROM python:3.12-slim AS runtime
+
+# Container hygiene: unbuffered logs, no .pyc clutter, no pip cache layers.
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1
+
+# The GCS dashboard (gcs_server.py) runs on the Python standard library only
+# (http.server + sqlite3), so no third-party wheels are installed here.
+# PyTorch / OpenCV stay on the edge device (Raspberry Pi) and are intentionally
+# excluded to keep the image small and cold starts fast.
+RUN groupadd --system app && useradd --system --gid app --home-dir /app --shell /usr/sbin/nologin app
+
+WORKDIR /app
+
+# Copy only what the web process actually needs (see .dockerignore for the rest).
+COPY --chown=app:app gcs_server.py db_init.py prescription_engine.py \
+     crop_health_edge.db camera_config.json \
+     field_prescription_log.csv field_prescription_map.geojson \
+     ./
+
+# Ephemeral scratch space for the stateless container (SQLite WAL + exports).
+# World-writable so the process can write even if the platform forces its own UID.
+ENV DATA_DIR=/tmp/gcs
+RUN mkdir -p "$DATA_DIR" && chown -R app:app "$DATA_DIR" && chmod -R 1777 "$DATA_DIR"
+
+# Intentionally NOT switching to `USER app`: the documented Vercel default is
+# PORT=80, and binding a privileged port requires root. The app user exists so
+# the image can still be run with `docker run --user app` against a PORT > 1024.
+
+# Vercel injects PORT at runtime; 80 is the documented platform default.
+ENV PORT=80
+EXPOSE 80
+
+# Stdlib-only liveness probe (curl is not present in the slim base image).
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD python -c "import os,urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:'+os.environ.get('PORT','80')+'/healthz', timeout=4).status==200 else 1)" || exit 1
+
+# Exec form so SIGTERM from the platform reaches Python for graceful shutdown.
+CMD ["python", "gcs_server.py"]

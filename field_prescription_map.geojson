@@ -1,0 +1,725 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.912875,
+          5.0377
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 08:55:08",
+        "altitude": 5.0,
+        "pest_name": "Corn_(maize)___Common_rust_",
+        "severity_pct": 48.5,
+        "chemical": "Azoxystrobin 23% SC",
+        "dosage_ml_per_l": 1.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.91295,
+          5.0377
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 08:55:08",
+        "altitude": 5.0,
+        "pest_name": "Corn_(maize)___Fall_Armyworm_lesion",
+        "severity_pct": 48.5,
+        "chemical": "Chlorantraniliprole 18.5% SC",
+        "dosage_ml_per_l": 0.5
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.913,
+          5.0377
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 08:55:08",
+        "altitude": 5.0,
+        "pest_name": "Cassava___Cassava_Mosaic_Disease",
+        "severity_pct": 48.5,
+        "chemical": "Acetamiprid 20% SP + Roguing Rogue Nodes",
+        "dosage_ml_per_l": 0.6
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.913075,
+          5.0377
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 08:55:08",
+        "altitude": 5.0,
+        "pest_name": "Tomato___Early_blight",
+        "severity_pct": 48.5,
+        "chemical": "Difenoconazole 25% EC",
+        "dosage_ml_per_l": 0.8
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.91315,
+          5.0377
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 08:55:08",
+        "altitude": 5.0,
+        "pest_name": "Potato___Late_blight",
+        "severity_pct": 48.5,
+        "chemical": "Dimethomorph 50% WP",
+        "dosage_ml_per_l": 1.5
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.91325,
+          5.0377
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 08:55:08",
+        "altitude": 5.0,
+        "pest_name": "Corn_(maize)___Common_rust_",
+        "severity_pct": 48.5,
+        "chemical": "Azoxystrobin 23% SC",
+        "dosage_ml_per_l": 1.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.91325,
+          5.037725
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 08:55:08",
+        "altitude": 5.0,
+        "pest_name": "Corn_(maize)___Fall_Armyworm_lesion",
+        "severity_pct": 48.5,
+        "chemical": "Chlorantraniliprole 18.5% SC",
+        "dosage_ml_per_l": 0.5
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.9132,
+          5.037725
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 08:55:08",
+        "altitude": 5.0,
+        "pest_name": "Cassava___Cassava_Mosaic_Disease",
+        "severity_pct": 48.5,
+        "chemical": "Acetamiprid 20% SP + Roguing Rogue Nodes",
+        "dosage_ml_per_l": 0.6
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.913125,
+          5.037725
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 08:55:09",
+        "altitude": 5.0,
+        "pest_name": "Tomato___Early_blight",
+        "severity_pct": 48.5,
+        "chemical": "Difenoconazole 25% EC",
+        "dosage_ml_per_l": 0.8
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.91305,
+          5.037725
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 08:55:09",
+        "altitude": 5.0,
+        "pest_name": "Potato___Late_blight",
+        "severity_pct": 48.5,
+        "chemical": "Dimethomorph 50% WP",
+        "dosage_ml_per_l": 1.5
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.912875,
+          5.0377
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 10:06:18",
+        "altitude": 5.0,
+        "pest_name": "Corn_(maize)___Common_rust_",
+        "severity_pct": 48.5,
+        "chemical": "Azoxystrobin 23% SC",
+        "dosage_ml_per_l": 1.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.91295,
+          5.0377
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 10:06:18",
+        "altitude": 5.0,
+        "pest_name": "Corn_(maize)___Fall_Armyworm_lesion",
+        "severity_pct": 48.5,
+        "chemical": "Chlorantraniliprole 18.5% SC",
+        "dosage_ml_per_l": 0.5
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.913,
+          5.0377
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 10:06:18",
+        "altitude": 5.0,
+        "pest_name": "Cassava___Cassava_Mosaic_Disease",
+        "severity_pct": 48.5,
+        "chemical": "Acetamiprid 20% SP + Roguing Rogue Nodes",
+        "dosage_ml_per_l": 0.6
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.913075,
+          5.0377
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 10:06:18",
+        "altitude": 5.0,
+        "pest_name": "Tomato___Early_blight",
+        "severity_pct": 48.5,
+        "chemical": "Difenoconazole 25% EC",
+        "dosage_ml_per_l": 0.8
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.91315,
+          5.0377
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 10:06:18",
+        "altitude": 5.0,
+        "pest_name": "Potato___Late_blight",
+        "severity_pct": 48.5,
+        "chemical": "Dimethomorph 50% WP",
+        "dosage_ml_per_l": 1.5
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.91325,
+          5.0377
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 10:06:18",
+        "altitude": 5.0,
+        "pest_name": "Corn_(maize)___Common_rust_",
+        "severity_pct": 48.5,
+        "chemical": "Azoxystrobin 23% SC",
+        "dosage_ml_per_l": 1.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.91325,
+          5.037725
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 10:06:18",
+        "altitude": 5.0,
+        "pest_name": "Corn_(maize)___Fall_Armyworm_lesion",
+        "severity_pct": 48.5,
+        "chemical": "Chlorantraniliprole 18.5% SC",
+        "dosage_ml_per_l": 0.5
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.9132,
+          5.037725
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 10:06:18",
+        "altitude": 5.0,
+        "pest_name": "Cassava___Cassava_Mosaic_Disease",
+        "severity_pct": 48.5,
+        "chemical": "Acetamiprid 20% SP + Roguing Rogue Nodes",
+        "dosage_ml_per_l": 0.6
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.913125,
+          5.037725
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 10:06:19",
+        "altitude": 5.0,
+        "pest_name": "Tomato___Early_blight",
+        "severity_pct": 48.5,
+        "chemical": "Difenoconazole 25% EC",
+        "dosage_ml_per_l": 0.8
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.91305,
+          5.037725
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 10:06:19",
+        "altitude": 5.0,
+        "pest_name": "Potato___Late_blight",
+        "severity_pct": 48.5,
+        "chemical": "Dimethomorph 50% WP",
+        "dosage_ml_per_l": 1.5
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.912875,
+          5.0377
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 10:12:44",
+        "altitude": 5.0,
+        "pest_name": "Corn_(maize)___Common_rust_",
+        "severity_pct": 48.5,
+        "chemical": "Azoxystrobin 23% SC",
+        "dosage_ml_per_l": 1.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.91295,
+          5.0377
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 10:12:46",
+        "altitude": 5.0,
+        "pest_name": "Corn_(maize)___Fall_Armyworm_lesion",
+        "severity_pct": 48.5,
+        "chemical": "Chlorantraniliprole 18.5% SC",
+        "dosage_ml_per_l": 0.5
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.913,
+          5.0377
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 10:12:46",
+        "altitude": 5.0,
+        "pest_name": "Cassava___Cassava_Mosaic_Disease",
+        "severity_pct": 48.5,
+        "chemical": "Acetamiprid 20% SP + Roguing Rogue Nodes",
+        "dosage_ml_per_l": 0.6
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.913075,
+          5.0377
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 10:12:48",
+        "altitude": 5.0,
+        "pest_name": "Tomato___Early_blight",
+        "severity_pct": 48.5,
+        "chemical": "Difenoconazole 25% EC",
+        "dosage_ml_per_l": 0.8
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.91315,
+          5.0377
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 10:12:50",
+        "altitude": 5.0,
+        "pest_name": "Potato___Late_blight",
+        "severity_pct": 48.5,
+        "chemical": "Dimethomorph 50% WP",
+        "dosage_ml_per_l": 1.5
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.91325,
+          5.0377
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 10:12:52",
+        "altitude": 5.0,
+        "pest_name": "Corn_(maize)___Common_rust_",
+        "severity_pct": 48.5,
+        "chemical": "Azoxystrobin 23% SC",
+        "dosage_ml_per_l": 1.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.91325,
+          5.037725
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 10:12:55",
+        "altitude": 5.0,
+        "pest_name": "Corn_(maize)___Fall_Armyworm_lesion",
+        "severity_pct": 48.5,
+        "chemical": "Chlorantraniliprole 18.5% SC",
+        "dosage_ml_per_l": 0.5
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.9132,
+          5.037725
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 10:12:56",
+        "altitude": 5.0,
+        "pest_name": "Cassava___Cassava_Mosaic_Disease",
+        "severity_pct": 48.5,
+        "chemical": "Acetamiprid 20% SP + Roguing Rogue Nodes",
+        "dosage_ml_per_l": 0.6
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.913125,
+          5.037725
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 10:12:58",
+        "altitude": 5.0,
+        "pest_name": "Tomato___Early_blight",
+        "severity_pct": 48.5,
+        "chemical": "Difenoconazole 25% EC",
+        "dosage_ml_per_l": 0.8
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.91305,
+          5.037725
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 10:12:59",
+        "altitude": 5.0,
+        "pest_name": "Potato___Late_blight",
+        "severity_pct": 48.5,
+        "chemical": "Dimethomorph 50% WP",
+        "dosage_ml_per_l": 1.5
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.912875,
+          5.0377
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 21:54:36",
+        "altitude": 5.0,
+        "pest_name": "Corn_(maize)___Common_rust_",
+        "severity_pct": 48.5,
+        "chemical": "Azoxystrobin 23% SC",
+        "dosage_ml_per_l": 1.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.91295,
+          5.0377
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 21:54:36",
+        "altitude": 5.0,
+        "pest_name": "Corn_(maize)___Fall_Armyworm_lesion",
+        "severity_pct": 48.5,
+        "chemical": "Chlorantraniliprole 18.5% SC",
+        "dosage_ml_per_l": 0.5
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.913,
+          5.0377
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 21:54:36",
+        "altitude": 5.0,
+        "pest_name": "Cassava___Cassava_Mosaic_Disease",
+        "severity_pct": 48.5,
+        "chemical": "Acetamiprid 20% SP + Roguing Rogue Nodes",
+        "dosage_ml_per_l": 0.6
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.913075,
+          5.0377
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 21:54:36",
+        "altitude": 5.0,
+        "pest_name": "Tomato___Early_blight",
+        "severity_pct": 48.5,
+        "chemical": "Difenoconazole 25% EC",
+        "dosage_ml_per_l": 0.8
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.91315,
+          5.0377
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 21:54:36",
+        "altitude": 5.0,
+        "pest_name": "Potato___Late_blight",
+        "severity_pct": 48.5,
+        "chemical": "Dimethomorph 50% WP",
+        "dosage_ml_per_l": 1.5
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.91325,
+          5.0377
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 21:54:36",
+        "altitude": 5.0,
+        "pest_name": "Corn_(maize)___Common_rust_",
+        "severity_pct": 48.5,
+        "chemical": "Azoxystrobin 23% SC",
+        "dosage_ml_per_l": 1.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.91325,
+          5.037725
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 21:54:36",
+        "altitude": 5.0,
+        "pest_name": "Corn_(maize)___Fall_Armyworm_lesion",
+        "severity_pct": 48.5,
+        "chemical": "Chlorantraniliprole 18.5% SC",
+        "dosage_ml_per_l": 0.5
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.9132,
+          5.037725
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 21:54:36",
+        "altitude": 5.0,
+        "pest_name": "Cassava___Cassava_Mosaic_Disease",
+        "severity_pct": 48.5,
+        "chemical": "Acetamiprid 20% SP + Roguing Rogue Nodes",
+        "dosage_ml_per_l": 0.6
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.913125,
+          5.037725
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 21:54:37",
+        "altitude": 5.0,
+        "pest_name": "Tomato___Early_blight",
+        "severity_pct": 48.5,
+        "chemical": "Difenoconazole 25% EC",
+        "dosage_ml_per_l": 0.8
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.91305,
+          5.037725
+        ]
+      },
+      "properties": {
+        "timestamp": "2026-09-28 21:54:37",
+        "altitude": 5.0,
+        "pest_name": "Potato___Late_blight",
+        "severity_pct": 48.5,
+        "chemical": "Dimethomorph 50% WP",
+        "dosage_ml_per_l": 1.5
+      }
+    }
+  ]
+}

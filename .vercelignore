@@ -1,0 +1,12 @@
+# Files excluded from the archive the Vercel CLI uploads.
+# Everything here is analysis/edge-only and would waste bandwidth on limited data.
+*.ipynb
+*.pth
+*.docx
+__pycache__/
+*.py[cod]
+.git/
+.env
+.env.*
+test_crop_health.db*
+test_prescription_*

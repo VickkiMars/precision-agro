@@ -1,0 +1,29 @@
+{
+  "camera_module": "Raspberry Pi Camera Module 2 (Sony IMX219)",
+  "resolution": {
+    "width": 1280,
+    "height": 720
+  },
+  "framerate": 30,
+  "sensor_mode": 5,
+  "exposure_mode": "auto",
+  "metering_mode": "matrix",
+  "white_balance": "auto",
+  "iso": 100,
+  "shutter_speed_us": 0,
+  "saturation": 0,
+  "sharpness": 0,
+  "contrast": 0,
+  "brightness": 50,
+  "harmattan_dust_adaptive_mode": {
+    "enabled": true,
+    "contrast_boost": 15,
+    "saturation_boost": 10,
+    "exposure_compensation": 2,
+    "color_temperature_k": 5500
+  },
+  "hsv_canopy_filter": {
+    "lower_green": [35, 40, 40],
+    "upper_green": [85, 255, 255]
+  }
+}
