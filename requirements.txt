@@ -1,0 +1,4 @@
+# GCS Dashboard — stdlib-only HTTP server, no third-party web framework needed.
+# This file exists so Docker / Vercel build pipelines have a standard dep manifest.
+# Edge-device inference deps (torch, torchvision, opencv-python, numpy) live on
+# the Raspberry Pi companion computer and are intentionally NOT listed here.

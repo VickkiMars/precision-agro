@@ -1,0 +1,18 @@
+services:
+  gcs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: precision_agro_gcs
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - DATA_DIR=/tmp/gcs
+      - HOST=0.0.0.0
+    volumes:
+      - gcs_state:/tmp/gcs
+
+volumes:
+  gcs_state:

@@ -1,9 +1,8 @@
 # ==============================================================================
-# Precision Agriculture GCS - Vercel Container Deployment
-# Target: Vercel Dockerfile Deployment (Hobby & Pro)
+# Precision Agriculture GCS - Production Dockerfile
 # Base: Python 3.12 Slim Linux Container
-# Runtime: stdlib http.server — zero third-party wheels, fast cold starts
-# Port: Listens dynamically on $PORT (defaults to 80 for Vercel)
+# Runtime: stdlib http.server (zero third-party deps for the cloud dashboard)
+# Port: 8000 (local/production); Vercel variant uses port 80 (see Dockerfile.vercel)
 # ==============================================================================
 
 FROM python:3.12-slim
@@ -12,7 +11,7 @@ FROM python:3.12-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
-    PORT=80 \
+    PORT=8000 \
     DATA_DIR=/tmp/gcs
 
 # Install system dependencies (curl for healthcheck probe)
@@ -25,7 +24,8 @@ RUN groupadd -r gcs && useradd -r -g gcs -u 1000 -d /app gcs
 
 WORKDIR /app
 
-# Copy dependency manifest and install (no-op for stdlib-only server)
+# Copy dependency manifest (stdlib-only; pip install is a no-op but keeps the
+# pattern consistent with all other Python projects in this workspace)
 COPY requirements.txt /app/
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
@@ -44,17 +44,14 @@ COPY gcs_server.py db_init.py prescription_engine.py \
 # Create writable state directory and assign ownership
 RUN mkdir -p /tmp/gcs && chown -R gcs:gcs /app /tmp/gcs
 
-# Vercel runs containers as root by default (port 80 requires it).
-# The gcs user exists so local `docker run --user gcs -p 8080:8080 -e PORT=8080` works.
+USER gcs
 
-# Vercel defaults HTTP traffic to port 80
-EXPOSE 80
+EXPOSE 8000
 
 # Healthcheck probing the /healthz endpoint
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
-    CMD curl -f http://localhost:${PORT:-80}/healthz || exit 1
+    CMD curl -f http://localhost:${PORT:-8000}/healthz || exit 1
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 
-# Bind dynamically to $PORT (Vercel injects it; defaults to 80)
 CMD ["sh", "-c", "exec python gcs_server.py"]

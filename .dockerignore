@@ -1,45 +1,38 @@
-# Keep the Docker build context (uploaded on every Vercel build) minimal.
-# Notebooks, the 26 MB ResNet-9 checkpoint and the DOCX are only used on the
-# edge device / in analysis, never by the web container.
+.git
+.gitignore
+.vercel
+.vercelignore
+venv
+.venv
+env
+*.pyc
+__pycache__
+*.pyo
+*.pyd
+.Python
+.coverage
+.pytest_cache/
+*.log
+.env
+.env.local
+.vscode/
+.idea/
+*.swp
 
-# --- Heavy artifacts not needed by the GCS container ---
+# Heavy edge-device-only artifacts (never shipped to the cloud container)
 *.pth
 *.h5
 *.pt
-*.ipynb_checkpoints/
 *.ipynb
+*.ipynb_checkpoints/
 *.docx
 *.pdf
 
-# --- Python noise ---
-__pycache__/
-*.py[cod]
-*.egg-info/
-.eggs/
-build/
-dist/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-venv/
-.venv/
-env/
-
-# --- Test scratch output ---
+# Test scratch output
 test_crop_health.db*
 test_prescription_log.csv
 test_prescription_map.geojson
 
-# --- Local / platform config that must not ship ---
-.git/
-.gitignore
-.vercel/
-.vercelignore
-.env
-.env.*
-*.log
-.DS_Store
-
-# --- Edge-only hardware bindings (no MAVLink / CSI camera in a container) ---
+# Edge-only hardware bindings (MAVLink / CSI camera — not in a cloud container)
 flight_controller.py
 mission_runner.py
