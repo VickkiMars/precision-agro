@@ -84,10 +84,12 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
         path = parsed_url.path
 
         if path == '/' or path == '/index.html':
+            body = self.render_dashboard().encode('utf-8')
             self.send_response(200)
             self.send_header('Content-type', 'text/html; charset=utf-8')
+            self.send_header('Content-Length', str(len(body)))
             self.end_headers()
-            self.wfile.write(self.render_dashboard().encode('utf-8'))
+            self.wfile.write(body)
 
         elif path == '/api/diagnostics':
             self.send_json(self.get_diagnostics())
@@ -167,23 +169,27 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.send_error(404, "Endpoint not found")
 
     def send_json(self, data, code=200):
+        body = json.dumps(data).encode('utf-8')
         self.send_response(code)
         self.send_header('Content-type', 'application/json')
+        self.send_header('Content-Length', str(len(body)))
         self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
-        self.wfile.write(json.dumps(data).encode('utf-8'))
+        self.wfile.write(body)
 
     def serve_file(self, filename, content_type):
         if not os.path.exists(filename):
             self.send_error(404, "File not generated yet.")
             return
+        with open(filename, 'rb') as f:
+            content = f.read()
         self.send_response(200)
         self.send_header('Content-type', content_type)
+        self.send_header('Content-Length', str(len(content)))
         self.send_header('Content-Disposition',
                          f'attachment; filename="{os.path.basename(filename)}"')
         self.end_headers()
-        with open(filename, 'rb') as f:
-            self.wfile.write(f.read())
+        self.wfile.write(content)
 
     # Data Extractors
     def get_diagnostics(self):
