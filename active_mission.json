@@ -1,47 +1,528 @@
 {
-  "mission_id": "mission_uyo_default",
-  "created_at": "2026-10-01T17:20:00Z",
-  "field_name": "Demarcated Field (Uyo, Akwa Ibom)",
-  "pattern_preset": "serpentine",
-  "area_hectares": 2.0,
+  "mission_id": "mission_1790875804456",
+  "created_at": "2026-10-01T17:30:04.456Z",
+  "field_name": "Farmer Demarcated Parcel",
+  "pattern_preset": "long_axis",
+  "area_hectares": 3.2403377144851695,
   "flight_parameters": {
     "altitude_agl_m": 5.0,
     "speed_mps": 2.5,
     "side_overlap_pct": 60,
     "camera_hfov_deg": 62.2,
     "swath_width_m": 6.03,
-    "track_spacing_m": 2.41
+    "track_spacing_m": 2.41,
+    "alt": 5.0,
+    "speed": 2.5
   },
   "boundary_geojson": {
     "type": "Polygon",
     "coordinates": [
       [
-        [7.912800, 5.037700],
-        [7.914300, 5.037700],
-        [7.914300, 5.039450],
-        [7.912800, 5.039450],
-        [7.912800, 5.037700]
+        [
+          7.9128,
+          5.0377
+        ],
+        [
+          7.9143,
+          5.0377
+        ],
+        [
+          7.9143,
+          5.03945
+        ],
+        [
+          7.9128,
+          5.03945
+        ],
+        [
+          7.9128,
+          5.0377
+        ],
+        [
+          7.9128,
+          5.0377
+        ]
       ]
     ]
   },
   "waypoints": [
-    {"index": 1, "lat": 5.037700, "lon": 7.912800, "alt": 5.0, "command": "TAKEOFF"},
-    {"index": 2, "lat": 5.037700, "lon": 7.914300, "alt": 5.0, "command": "WAYPOINT"},
-    {"index": 3, "lat": 5.037950, "lon": 7.914300, "alt": 5.0, "command": "WAYPOINT"},
-    {"index": 4, "lat": 5.037950, "lon": 7.912800, "alt": 5.0, "command": "WAYPOINT"},
-    {"index": 5, "lat": 5.038200, "lon": 7.912800, "alt": 5.0, "command": "WAYPOINT"},
-    {"index": 6, "lat": 5.038200, "lon": 7.914300, "alt": 5.0, "command": "WAYPOINT"},
-    {"index": 7, "lat": 5.038450, "lon": 7.914300, "alt": 5.0, "command": "WAYPOINT"},
-    {"index": 8, "lat": 5.038450, "lon": 7.912800, "alt": 5.0, "command": "WAYPOINT"},
-    {"index": 9, "lat": 5.038700, "lon": 7.912800, "alt": 5.0, "command": "WAYPOINT"},
-    {"index": 10, "lat": 5.038700, "lon": 7.914300, "alt": 5.0, "command": "WAYPOINT"},
-    {"index": 11, "lat": 5.038950, "lon": 7.914300, "alt": 5.0, "command": "WAYPOINT"},
-    {"index": 12, "lat": 5.038950, "lon": 7.912800, "alt": 5.0, "command": "WAYPOINT"},
-    {"index": 13, "lat": 5.039200, "lon": 7.912800, "alt": 5.0, "command": "WAYPOINT"},
-    {"index": 14, "lat": 5.039200, "lon": 7.914300, "alt": 5.0, "command": "WAYPOINT"},
-    {"index": 15, "lat": 5.039450, "lon": 7.914300, "alt": 5.0, "command": "WAYPOINT"},
-    {"index": 16, "lat": 5.039450, "lon": 7.912800, "alt": 5.0, "command": "WAYPOINT"}
+    {
+      "index": 1,
+      "lat": 5.036227507045872,
+      "lon": 7.914278204645194,
+      "alt": 5,
+      "command": "TAKEOFF"
+    },
+    {
+      "index": 2,
+      "lat": 5.039471711138908,
+      "lon": 7.914278204645194,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 3,
+      "lat": 5.039515133416722,
+      "lon": 7.914234613935581,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 4,
+      "lat": 5.0362709293236865,
+      "lon": 7.914234613935581,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 5,
+      "lat": 5.036314351601501,
+      "lon": 7.914191023225969,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 6,
+      "lat": 5.039558555694535,
+      "lon": 7.914191023225969,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 7,
+      "lat": 5.0396019779723495,
+      "lon": 7.914147432516357,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 8,
+      "lat": 5.036357773879315,
+      "lon": 7.914147432516357,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 9,
+      "lat": 5.0364011961571284,
+      "lon": 7.914103841806744,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 10,
+      "lat": 5.039645400250164,
+      "lon": 7.914103841806744,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 11,
+      "lat": 5.039688822527977,
+      "lon": 7.914060251097132,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 12,
+      "lat": 5.036444618434943,
+      "lon": 7.914060251097132,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 13,
+      "lat": 5.036488040712757,
+      "lon": 7.91401666038752,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 14,
+      "lat": 5.0397322448057915,
+      "lon": 7.91401666038752,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 15,
+      "lat": 5.039775667083606,
+      "lon": 7.913973069677907,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 16,
+      "lat": 5.03653146299057,
+      "lon": 7.913973069677907,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 17,
+      "lat": 5.036574885268385,
+      "lon": 7.913929478968295,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 18,
+      "lat": 5.03981908936142,
+      "lon": 7.913929478968295,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 19,
+      "lat": 5.0398625116392335,
+      "lon": 7.913885888258682,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 20,
+      "lat": 5.036618307546199,
+      "lon": 7.913885888258682,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 21,
+      "lat": 5.036661729824013,
+      "lon": 7.9138422975490705,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 22,
+      "lat": 5.039905933917048,
+      "lon": 7.9138422975490705,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 23,
+      "lat": 5.039949356194862,
+      "lon": 7.913798706839458,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 24,
+      "lat": 5.036705152101827,
+      "lon": 7.913798706839458,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 25,
+      "lat": 5.036748574379641,
+      "lon": 7.913755116129845,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 26,
+      "lat": 5.0399927784726755,
+      "lon": 7.913755116129845,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 27,
+      "lat": 5.04003620075049,
+      "lon": 7.913711525420233,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 28,
+      "lat": 5.036791996657455,
+      "lon": 7.913711525420233,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 29,
+      "lat": 5.036835418935269,
+      "lon": 7.913667934710621,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 30,
+      "lat": 5.040079623028304,
+      "lon": 7.913667934710621,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 31,
+      "lat": 5.040123045306117,
+      "lon": 7.913624344001009,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 32,
+      "lat": 5.036878841213083,
+      "lon": 7.913624344001009,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 33,
+      "lat": 5.036922263490897,
+      "lon": 7.913580753291396,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 34,
+      "lat": 5.040166467583932,
+      "lon": 7.913580753291396,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 35,
+      "lat": 5.040209889861746,
+      "lon": 7.913537162581784,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 36,
+      "lat": 5.036965685768711,
+      "lon": 7.913537162581784,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 37,
+      "lat": 5.037009108046525,
+      "lon": 7.913493571872172,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 38,
+      "lat": 5.04025331213956,
+      "lon": 7.913493571872172,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 39,
+      "lat": 5.040296734417374,
+      "lon": 7.913449981162559,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 40,
+      "lat": 5.037052530324339,
+      "lon": 7.913449981162559,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 41,
+      "lat": 5.0370959526021535,
+      "lon": 7.913406390452947,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 42,
+      "lat": 5.040340156695188,
+      "lon": 7.913406390452947,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 43,
+      "lat": 5.040383578973002,
+      "lon": 7.913362799743335,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 44,
+      "lat": 5.037139374879967,
+      "lon": 7.913362799743335,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 45,
+      "lat": 5.037182797157781,
+      "lon": 7.913319209033722,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 46,
+      "lat": 5.040427001250816,
+      "lon": 7.913319209033722,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 47,
+      "lat": 5.04047042352863,
+      "lon": 7.91327561832411,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 48,
+      "lat": 5.0372262194355955,
+      "lon": 7.91327561832411,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 49,
+      "lat": 5.037269641713409,
+      "lon": 7.913232027614497,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 50,
+      "lat": 5.040513845806444,
+      "lon": 7.913232027614497,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 51,
+      "lat": 5.0405572680842585,
+      "lon": 7.9131884369048855,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 52,
+      "lat": 5.037313063991223,
+      "lon": 7.9131884369048855,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 53,
+      "lat": 5.037356486269037,
+      "lon": 7.913144846195273,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 54,
+      "lat": 5.040600690362072,
+      "lon": 7.913144846195273,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 55,
+      "lat": 5.040644112639886,
+      "lon": 7.91310125548566,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 56,
+      "lat": 5.037399908546852,
+      "lon": 7.91310125548566,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 57,
+      "lat": 5.037443330824665,
+      "lon": 7.913057664776048,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 58,
+      "lat": 5.0406875349177005,
+      "lon": 7.913057664776048,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 59,
+      "lat": 5.040730957195514,
+      "lon": 7.913014074066436,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 60,
+      "lat": 5.037486753102479,
+      "lon": 7.913014074066436,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 61,
+      "lat": 5.037530175380294,
+      "lon": 7.9129704833568235,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 62,
+      "lat": 5.040774379473328,
+      "lon": 7.9129704833568235,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 63,
+      "lat": 5.0408178017511425,
+      "lon": 7.912926892647211,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 64,
+      "lat": 5.037573597658107,
+      "lon": 7.912926892647211,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 65,
+      "lat": 5.037617019935921,
+      "lon": 7.912883301937598,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 66,
+      "lat": 5.040861224028957,
+      "lon": 7.912883301937598,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 67,
+      "lat": 5.04090464630677,
+      "lon": 7.912839711227987,
+      "alt": 5,
+      "command": "WAYPOINT"
+    },
+    {
+      "index": 68,
+      "lat": 5.037660442213736,
+      "lon": 7.912839711227987,
+      "alt": 5,
+      "command": "WAYPOINT"
+    }
   ],
-  "estimated_distance_m": 1285.0,
-  "estimated_duration_s": 514.0
+  "estimated_distance_m": 12504,
+  "estimated_duration_s": 5002
 }

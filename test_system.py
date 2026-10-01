@@ -147,8 +147,10 @@ class TestPrecisionAgroSystem(unittest.TestCase):
         self.assertIn("boundary_geojson", plan)
 
         params = plan["flight_parameters"]
-        self.assertAlmostEqual(params["altitude_agl_m"], 5.0)
-        self.assertAlmostEqual(params["speed_mps"], 2.5)
+        alt = params.get("altitude_agl_m", params.get("alt"))
+        speed = params.get("speed_mps", params.get("speed"))
+        self.assertAlmostEqual(alt, 5.0)
+        self.assertAlmostEqual(speed, 2.5)
         print(f"[Test 6] Active Mission Plan Verified: {len(plan['waypoints'])} waypoints across {plan['area_hectares']} ha.")
 
 

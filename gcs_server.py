@@ -294,13 +294,15 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
   <style>
     :root {
       --bg-color: #0d1117;
-      --card-bg: rgba(22, 27, 34, 0.88);
+      --card-bg: rgba(22, 27, 34, 0.92);
       --card-solid: #161b22;
       --border-color: #30363d;
       --border-focus: #58a6ff;
       --text-main: #f0f6fc;
-      --text-muted: #8b949e;
+      --text-muted: #9da7b3; /* High outdoor sunlight contrast: >= 4.5:1 ratio */
+      --text-dim: #768390;
       --accent-green: #2ea043;
+      --accent-green-bright: #3fb950;
       --accent-green-glow: rgba(46, 160, 67, 0.25);
       --accent-blue: #58a6ff;
       --accent-red: #f85149;
@@ -308,6 +310,28 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
       --sidebar-width: 270px;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    ::selection {
+      background: rgba(88, 166, 255, 0.35);
+      color: #ffffff;
+    }
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-color);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #30363d;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #484f58;
+    }
+    :focus-visible {
+      outline: 2px solid var(--accent-blue);
+      outline-offset: 2px;
+    }
     body {
       background-color: var(--bg-color);
       color: var(--text-main);
@@ -337,15 +361,15 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
       letter-spacing: -0.01em;
     }
     .brand-icon {
-      width: 32px;
-      height: 32px;
+      width: 34px;
+      height: 34px;
       background: linear-gradient(135deg, rgba(46, 160, 67, 0.25), rgba(88, 166, 255, 0.25));
       border: 1px solid var(--border-color);
       border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--accent-green);
+      color: var(--accent-green-bright);
     }
     .nav-tabs {
       list-style: none;
@@ -355,6 +379,7 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
       gap: 4px;
     }
     .nav-tabs li {
+      min-height: 44px;
       padding: 10px 14px;
       cursor: pointer;
       display: flex;
@@ -365,6 +390,7 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
       color: var(--text-muted);
       border-radius: 6px;
       transition: all 0.15s ease-in-out;
+      user-select: none;
     }
     .nav-tabs li svg {
       width: 18px;
@@ -383,7 +409,7 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
       font-weight: 600;
     }
     .nav-tabs li.active svg {
-      color: var(--accent-green);
+      color: var(--accent-green-bright);
     }
     #main-content {
       flex: 1;
@@ -394,7 +420,7 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       padding-bottom: 18px;
       border-bottom: 1px solid var(--border-color);
     }
@@ -414,7 +440,7 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
       align-items: center;
       gap: 8px;
       background: rgba(46, 160, 67, 0.12);
-      color: #3fb950;
+      color: var(--accent-green-bright);
       padding: 6px 14px;
       border-radius: 9999px;
       font-size: 0.82rem;
@@ -425,7 +451,7 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
     .status-pulse-dot {
       width: 8px;
       height: 8px;
-      background: #3fb950;
+      background: var(--accent-green-bright);
       border-radius: 50%;
       box-shadow: 0 0 0 0 rgba(63, 185, 80, 0.6);
       animation: pulse-ring 2s infinite;
@@ -478,10 +504,12 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
       width: 100%;
       border-collapse: collapse;
       font-size: 0.88rem;
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum" 1;
     }
     th, td {
       text-align: left;
-      padding: 11px 14px;
+      padding: 12px 14px;
       border-bottom: 1px solid var(--border-color);
     }
     th {
@@ -493,25 +521,32 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
       letter-spacing: 0.04em;
     }
     tr:last-child td { border-bottom: none; }
-    tbody tr:hover { background: rgba(110, 118, 129, 0.06); }
+    tbody tr:hover { background: rgba(110, 118, 129, 0.08); }
     .btn {
       background: var(--accent-green);
       color: #fff;
       border: 1px solid rgba(255, 255, 255, 0.1);
-      padding: 8px 16px;
+      padding: 10px 18px;
+      min-height: 42px;
       border-radius: 6px;
       cursor: pointer;
       font-size: 0.88rem;
-      font-weight: 500;
+      font-weight: 600;
       transition: all 0.15s ease;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
+      line-height: 1.2;
     }
     .btn:hover {
       background: #34b34b;
       transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(46, 160, 67, 0.25);
+    }
+    .btn:active {
+      transform: translateY(0);
     }
     .btn-secondary {
       background: #21262d;
@@ -521,17 +556,19 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
     .btn-secondary:hover {
       background: #30363d;
       border-color: #8b949e;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
     label {
       display: block;
       font-size: 0.8rem;
       color: var(--text-muted);
-      margin-bottom: 5px;
+      margin-bottom: 6px;
       font-weight: 500;
     }
-    input, select {
+    input, select, textarea {
       width: 100%;
-      padding: 9px 12px;
+      min-height: 42px;
+      padding: 10px 12px;
       background: #0d1117;
       border: 1px solid var(--border-color);
       border-radius: 6px;
@@ -539,11 +576,13 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
       font-size: 0.88rem;
       margin-bottom: 14px;
       outline: none;
-      transition: border-color 0.15s ease;
+      caret-color: var(--accent-green-bright);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
       font-family: inherit;
     }
-    input:focus, select:focus {
+    input:focus, select:focus, textarea:focus {
       border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.18);
     }
     input[readonly] {
       background: #161b22;
@@ -554,31 +593,56 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
       list-style: none;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
       font-size: 0.9rem;
     }
     .check-item {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 6px;
+      background: #0d1117;
+      border: 1px solid var(--border-color);
       color: var(--text-main);
+      cursor: pointer;
+      min-height: 44px;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+      user-select: none;
+    }
+    .check-item:hover {
+      background: #1c2128;
+      border-color: #484f58;
+    }
+    .check-item:active {
+      transform: scale(0.99);
     }
     .check-icon {
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
       background: rgba(46, 160, 67, 0.15);
       border: 1px solid rgba(46, 160, 67, 0.4);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--accent-green);
+      color: var(--accent-green-bright);
       flex-shrink: 0;
+      transition: all 0.15s ease;
+    }
+    .check-item:not(.inspected) .check-icon {
+      background: rgba(248, 81, 73, 0.12);
+      border-color: rgba(248, 81, 73, 0.4);
+      color: var(--accent-red);
+    }
+    .check-item:not(.inspected) .item-text {
+      color: var(--text-muted);
+      text-decoration: line-through rgba(248, 81, 73, 0.4);
     }
     .check-icon svg {
-      width: 12px;
-      height: 12px;
-      stroke-width: 3;
+      width: 13px;
+      height: 13px;
+      stroke-width: 2.8;
     }
     /* Dark Theme Leaflet.draw & Mission Planner Styling */
     .leaflet-draw-toolbar a {
@@ -600,37 +664,86 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
     .leaflet-draw-actions a:hover {
       background-color: #21262d !important;
     }
+    .leaflet-popup-content-wrapper {
+      background: #161b22 !important;
+      color: #f0f6fc !important;
+      border: 1px solid #30363d !important;
+      border-radius: 8px !important;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6) !important;
+    }
+    .leaflet-popup-tip {
+      background: #161b22 !important;
+    }
+    .leaflet-popup-content {
+      font-size: 0.88rem !important;
+      line-height: 1.5 !important;
+      margin: 12px 14px !important;
+    }
     .metric-badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 4px 10px;
+      padding: 5px 11px;
       border-radius: 6px;
       font-size: 0.8rem;
       font-weight: 600;
       background: rgba(88, 166, 255, 0.1);
       color: #58a6ff;
       border: 1px solid rgba(88, 166, 255, 0.25);
+      font-variant-numeric: tabular-nums;
     }
     .metric-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 8px 0;
+      padding: 9px 0;
       border-bottom: 1px solid rgba(48, 54, 61, 0.6);
-      font-size: 0.85rem;
+      font-size: 0.86rem;
     }
     .metric-row:last-child {
       border-bottom: none;
     }
-    #mission-alert {
+    .metric-row span:last-child {
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum" 1;
+    }
+    #global-alert {
       display: none;
-      margin-top: 14px;
-      padding: 10px 14px;
+      margin-bottom: 20px;
+      padding: 12px 16px;
       border-radius: 6px;
       font-size: 0.88rem;
       font-weight: 500;
       transition: all 0.2s ease;
+    }
+    .empty-state-cell {
+      text-align: center;
+      padding: 42px 20px !important;
+      color: var(--text-muted);
+    }
+    .empty-state-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      max-width: 440px;
+      margin: 0 auto;
+    }
+    .empty-state-icon {
+      width: 36px;
+      height: 36px;
+      color: var(--text-dim);
+      margin-bottom: 4px;
+    }
+    .empty-state-title {
+      color: var(--text-main);
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+    .empty-state-desc {
+      font-size: 0.84rem;
+      line-height: 1.45;
+      color: var(--text-muted);
     }
   </style>
 </head>
@@ -704,6 +817,7 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
         <span class="status-label">System Ready</span>
       </div>
     </div>
+    <div id="global-alert"></div>
 
     <!-- MODULE 1: MISSION PLANNER -->
     <div id="module1" class="tab-pane active">
@@ -949,38 +1063,46 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
           </form>
         </div>
         <div class="card">
-          <h3>Preventive Maintenance Inspection Log</h3>
-          <p style="color:var(--text-muted); margin-bottom:16px; font-size:0.88rem;">Scheduled structural and electrical diagnostics cycle.</p>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+            <h3>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><polyline points="9 15 11 17 15 13"/></svg>
+              Preventive Maintenance & Pre-Flight Checklist
+            </h3>
+            <span id="checklist-summary" class="metric-badge" style="background:rgba(46,160,67,0.15); color:#3fb950; border-color:rgba(46,160,67,0.35);">
+              5 / 5 Pre-Flight Clear
+            </span>
+          </div>
+          <p style="color:var(--text-muted); margin-bottom:16px; font-size:0.88rem;">Scheduled structural and electrical diagnostics cycle. Click or tap any item to toggle clearance verification.</p>
           <div class="check-list">
-            <div class="check-item">
+            <div class="check-item inspected" onclick="toggleCheckItem(this)">
               <span class="check-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
               </span>
-              <span>Carbon-fiber motor mount torque inspection</span>
+              <span class="item-text">Carbon-fiber motor mount torque inspection (tightness verification)</span>
             </div>
-            <div class="check-item">
+            <div class="check-item inspected" onclick="toggleCheckItem(this)">
               <span class="check-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
               </span>
-              <span>Brushless 800KV motor bearing lubrication</span>
+              <span class="item-text">Brushless 800KV motor bearing smooth rotation &amp; lubrication</span>
             </div>
-            <div class="check-item">
+            <div class="check-item inspected" onclick="toggleCheckItem(this)">
               <span class="check-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
               </span>
-              <span>Camera optical lens cleaning with isopropanol</span>
+              <span class="item-text">Sony IMX219 optical lens inspection &amp; isopropanol wipe</span>
             </div>
-            <div class="check-item">
+            <div class="check-item inspected" onclick="toggleCheckItem(this)">
               <span class="check-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
               </span>
-              <span>LiPo internal cell resistance test (&lt; 5mΩ/cell)</span>
+              <span class="item-text">LiPo internal cell resistance check (&lt; 5mΩ/cell parity balance)</span>
             </div>
-            <div class="check-item">
+            <div class="check-item inspected" onclick="toggleCheckItem(this)">
               <span class="check-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
               </span>
-              <span>SQLite WAL database vacuum &amp; indexing</span>
+              <span class="item-text">SQLite WAL database integrity, vacuum &amp; indexes verified</span>
             </div>
           </div>
         </div>
@@ -1458,7 +1580,16 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
         field_name: "Farmer Demarcated Parcel",
         pattern_preset: document.getElementById('plan-pattern').value,
         area_hectares: currentAreaHa,
-        flight_parameters: currentOpticalParams,
+        flight_parameters: {
+          altitude_agl_m: currentOpticalParams.alt,
+          speed_mps: currentOpticalParams.speed,
+          side_overlap_pct: currentOpticalParams.overlapPct,
+          camera_hfov_deg: currentOpticalParams.hfov,
+          swath_width_m: currentOpticalParams.swathWidth,
+          track_spacing_m: currentOpticalParams.trackSpacing,
+          alt: currentOpticalParams.alt,
+          speed: currentOpticalParams.speed
+        },
         boundary_geojson: {
           type: "Polygon",
           coordinates: [
@@ -1572,7 +1703,7 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
     }
 
     function showAlert(msg, type) {
-      const el = document.getElementById('mission-alert');
+      const el = document.getElementById('global-alert') || document.getElementById('mission-alert');
       if (!el) return;
       el.style.display = 'block';
       el.innerText = msg;
@@ -1590,6 +1721,35 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
         el.style.color = '#58a6ff';
       }
       setTimeout(() => { el.style.display = 'none'; }, 6000);
+    }
+
+    function toggleCheckItem(el) {
+      el.classList.toggle('inspected');
+      const icon = el.querySelector('.check-icon');
+      if (el.classList.contains('inspected')) {
+        icon.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+      } else {
+        icon.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+      }
+      updateInspectionCount();
+    }
+
+    function updateInspectionCount() {
+      const total = document.querySelectorAll('.check-item').length;
+      const inspected = document.querySelectorAll('.check-item.inspected').length;
+      const badge = document.getElementById('checklist-summary');
+      if (badge) {
+        badge.innerText = `${inspected} / ${total} Pre-Flight Clear`;
+        if (inspected === total) {
+          badge.style.background = 'rgba(46, 160, 67, 0.15)';
+          badge.style.color = '#3fb950';
+          badge.style.borderColor = 'rgba(46, 160, 67, 0.35)';
+        } else {
+          badge.style.background = 'rgba(210, 153, 34, 0.15)';
+          badge.style.color = '#d29922';
+          badge.style.borderColor = 'rgba(210, 153, 34, 0.35)';
+        }
+      }
     }
 
     function switchTab(tabId, el) {
@@ -1613,7 +1773,17 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
       const tbody = document.querySelector('#diag-table tbody');
       tbody.innerHTML = '';
       for (const [k, v] of Object.entries(data)) {
-        tbody.innerHTML += `<tr><td><strong>${k.replace(/_/g, ' ')}</strong></td><td style="color:#58a6ff;">${v}</td></tr>`;
+        const isNominal = v.includes("ONLINE") || v.includes("READY") || v.includes("PASSED") || v.includes("Normal");
+        const statusColor = isNominal ? "#3fb950" : "#d29922";
+        const dotBg = isNominal ? "rgba(46, 160, 67, 0.15)" : "rgba(210, 153, 34, 0.15)";
+        tbody.innerHTML += `<tr>
+          <td style="font-weight:600;">${k.replace(/_/g, ' ')}</td>
+          <td>
+            <span class="metric-badge" style="background:${dotBg}; color:${statusColor}; border-color:${statusColor}40;">
+              ${v}
+            </span>
+          </td>
+        </tr>`;
       }
     }
 
@@ -1622,8 +1792,19 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
       const data = await res.json();
       const tbody = document.querySelector('#pest-table tbody');
       tbody.innerHTML = '';
+      if (!data || data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="empty-state-cell"><span class="empty-state-title">No pest signatures in database</span></td></tr>`;
+        return;
+      }
       data.forEach(p => {
-        tbody.innerHTML += `<tr><td><strong>${p.name}</strong></td><td>${p.crop}</td><td>${p.class}</td><td style="color:#3fb950; font-weight:500;">${p.chemical}</td><td>${p.dosage}</td><td>${p.interval}</td></tr>`;
+        tbody.innerHTML += `<tr>
+          <td><strong>${p.name}</strong></td>
+          <td>${p.crop}</td>
+          <td><span class="metric-badge">${p.class}</span></td>
+          <td style="color:#3fb950; font-weight:600;">${p.chemical}</td>
+          <td style="font-family:'JetBrains Mono',monospace;">${p.dosage}</td>
+          <td style="font-family:'JetBrains Mono',monospace;">${p.interval}</td>
+        </tr>`;
       });
     }
 
@@ -1632,8 +1813,32 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
       const data = await res.json();
       const tbody = document.querySelector('#rx-table tbody');
       tbody.innerHTML = '';
+      if (!data || data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="empty-state-cell">
+          <div class="empty-state-content">
+            <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+            <span class="empty-state-title">No Field Prescriptions Logged Yet</span>
+            <span class="empty-state-desc">Autonomous flight missions and onboard computer vision sweeps populate georeferenced spot-spraying chemical prescriptions here automatically.</span>
+          </div>
+        </td></tr>`;
+        return;
+      }
       data.forEach(r => {
-        tbody.innerHTML += `<tr><td>${r.Timestamp}</td><td>${r.Latitude}</td><td>${r.Longitude}</td><td>${r.Altitude_m}</td><td><strong>${r.Target_Pest_Name}</strong></td><td>${r.Severity_Percentage}%</td><td style="color:#3fb950; font-weight:500;">${r.Recommended_Chemical}</td><td>${r.Dosage_ml_per_Litre} ml/L</td></tr>`;
+        tbody.innerHTML += `<tr>
+          <td>${r.Timestamp || '-'}</td>
+          <td style="font-family:'JetBrains Mono',monospace;">${r.Latitude || '-'}</td>
+          <td style="font-family:'JetBrains Mono',monospace;">${r.Longitude || '-'}</td>
+          <td>${r.Altitude_m || '-'} m</td>
+          <td><strong>${r.Target_Pest_Name || '-'}</strong></td>
+          <td><span class="metric-badge" style="background:rgba(210,153,34,0.12); color:#d29922; border-color:rgba(210,153,34,0.3);">${r.Severity_Percentage || '0'}%</span></td>
+          <td style="color:#3fb950; font-weight:600;">${r.Recommended_Chemical || '-'}</td>
+          <td>${r.Dosage_ml_per_Litre || '-'} ml/L</td>
+        </tr>`;
       });
     }
 
@@ -1649,7 +1854,7 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
         max_sev: document.getElementById('p-max').value
       };
       await fetch('/api/add_pest', { method: 'POST', body: JSON.stringify(payload) });
-      alert("New pest signature recorded in database.");
+      showAlert("✓ New pest signature recorded in database.", "success");
       loadPests();
     }
 
@@ -1665,7 +1870,7 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
         }
       };
       await fetch('/api/config', { method: 'POST', body: JSON.stringify(payload) });
-      alert("Camera configuration saved to camera_config.json.");
+      showAlert("✓ Camera configuration saved to camera_config.json.", "success");
     }
 
     window.onload = () => {
