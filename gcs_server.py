@@ -732,7 +732,7 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
             </button>
             <button class="btn" style="background:#1f6feb;" onclick="generateTransectsFromCurrentBoundary()">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-              Compute Serpentine Transects
+              Compute Flight Path
             </button>
             <button class="btn" style="background:#238636;" onclick="uploadMissionToDrone()">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -753,6 +753,40 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
             Flight & Sizing Parameters
           </h3>
+
+          <label style="color:#58a6ff; font-weight:600;">Flight Path Preset Pattern</label>
+          <select id="plan-pattern" onchange="onPatternChange()" style="border-color:#58a6ff; background:#161b22; font-weight:600; margin-bottom:12px;">
+            <option value="serpentine" selected>Standard Serpentine (Boustrophedon Grid)</option>
+            <option value="long_axis">Row-Optimized (Long-Axis Battery Saver)</option>
+            <option value="crosshatch">Crosshatch 3D (Double Orthogonal Grid)</option>
+            <option value="perimeter">Perimeter Scout (Boundary & Buffer Inset)</option>
+            <option value="orbit">Targeted Hotspot Orbit (Spot Triage)</option>
+          </select>
+
+          <!-- Hotspot Orbit Options -->
+          <div id="orbit-options" style="display:none; margin-bottom:12px; padding:10px; border:1px solid #30363d; border-radius:6px; background:rgba(88,166,255,0.06);">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+              <div>
+                <label>Orbit Radius (m)</label>
+                <input type="number" id="orbit-radius" value="12" min="4" max="60" step="1" onchange="generateTransectsFromCurrentBoundary()" />
+              </div>
+              <div>
+                <label>Orbit Waypoints</label>
+                <input type="number" id="orbit-points" value="16" min="8" max="32" step="2" onchange="generateTransectsFromCurrentBoundary()" />
+              </div>
+            </div>
+            <p style="font-size:0.78rem; color:#8b949e; margin-top:2px;">Tip: Click anywhere inside the field on the map to place/move the target hotspot.</p>
+          </div>
+
+          <!-- Perimeter Scout Options -->
+          <div id="perimeter-options" style="display:none; margin-bottom:12px; padding:10px; border:1px solid #30363d; border-radius:6px; background:rgba(63,185,80,0.06);">
+            <label>Perimeter Buffer Rings</label>
+            <select id="perimeter-rings" onchange="generateTransectsFromCurrentBoundary()" style="margin-bottom:0;">
+              <option value="1">1 Ring (Outer Boundary Only)</option>
+              <option value="2" selected>2 Rings (Boundary + 1 Inset Track)</option>
+              <option value="3">3 Rings (Boundary + 2 Inset Tracks)</option>
+            </select>
+          </div>
 
           <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
             <div>
@@ -792,7 +826,7 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
             <span id="metric-area" style="font-weight:600; color:#3fb950;">2.00 ha (4.94 ac)</span>
           </div>
           <div class="metric-row">
-            <span style="color:var(--text-muted);">Serpentine Passes</span>
+            <span id="metric-passes-label" style="color:var(--text-muted);">Flight Passes / Loops</span>
             <span id="metric-passes" style="font-weight:600; color:#fff;">8 passes</span>
           </div>
           <div class="metric-row">
@@ -962,6 +996,7 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
     let drawControl;
     let currentBoundaryCoords = [];
     let currentWaypoints = [];
+    let hotspotCenter = null;
     let currentAreaHa = 2.0;
     let currentOpticalParams = {
       alt: 5.0,
@@ -1016,6 +1051,15 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
 
       map.on(L.Draw.Event.DELETED, function () {
         clearBoundaryAndGrid();
+      });
+
+      map.on('click', function (e) {
+        const pattern = document.getElementById('plan-pattern').value;
+        if (pattern === 'orbit') {
+          hotspotCenter = { lat: e.latlng.lat, lng: e.latlng.lng };
+          generateTransectsFromCurrentBoundary();
+          showAlert(`Target hotspot centered at [${hotspotCenter.lat.toFixed(6)}, ${hotspotCenter.lng.toFixed(6)}]`, "info");
+        }
       });
 
       updateOpticalSizingAndRegenerate();
@@ -1085,38 +1129,94 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
       }
     }
 
-    function generateTransectsFromCurrentBoundary() {
-      if (!currentBoundaryCoords || currentBoundaryCoords.length < 3) {
-        showAlert("Please define a farm boundary first by drawing a polygon or box.", "error");
-        return;
+    function onPatternChange() {
+      const pattern = document.getElementById('plan-pattern').value;
+      const orbitBox = document.getElementById('orbit-options');
+      const perimeterBox = document.getElementById('perimeter-options');
+      const passesLabel = document.getElementById('metric-passes-label');
+
+      if (orbitBox) orbitBox.style.display = (pattern === 'orbit') ? 'block' : 'none';
+      if (perimeterBox) perimeterBox.style.display = (pattern === 'perimeter') ? 'block' : 'none';
+
+      if (passesLabel) {
+        if (pattern === 'perimeter') passesLabel.innerText = "Buffer Rings / Loops";
+        else if (pattern === 'orbit') passesLabel.innerText = "Inspection Orbit";
+        else passesLabel.innerText = "Flight Passes / Loops";
       }
 
-      const opt = currentOpticalParams;
-      const lats = currentBoundaryCoords.map(p => p.lat);
-      const minLat = Math.min(...lats);
-      const maxLat = Math.max(...lats);
+      generateTransectsFromCurrentBoundary();
+    }
 
-      // Meter to degree latitude conversion: 1 deg lat ≈ 111,139 meters
-      const deltaLat = opt.trackSpacing / 111139.0;
-      if (deltaLat <= 0) return;
+    function computePolygonCentroid(coords) {
+      if (!coords || coords.length === 0) return { lat: 5.0377, lng: 7.9128 };
+      let latSum = 0, lngSum = 0;
+      for (let i = 0; i < coords.length; i++) {
+        latSum += coords[i].lat;
+        lngSum += coords[i].lng;
+      }
+      return { lat: latSum / coords.length, lng: lngSum / coords.length };
+    }
+
+    function findLongestEdgeAngle(coords) {
+      if (!coords || coords.length < 2) return 0;
+      const latMid = coords[0].lat;
+      const cosLat = Math.cos(latMid * (Math.PI / 180.0));
+      let maxDistSq = 0;
+      let bestAngle = 0;
+
+      for (let i = 0; i < coords.length; i++) {
+        const p1 = coords[i];
+        const p2 = coords[(i + 1) % coords.length];
+        const dx = (p2.lng - p1.lng) * 111139.0 * cosLat;
+        const dy = (p2.lat - p1.lat) * 111139.0;
+        const dSq = dx * dx + dy * dy;
+        if (dSq > maxDistSq) {
+          maxDistSq = dSq;
+          bestAngle = Math.atan2(dy, dx);
+        }
+      }
+      return bestAngle;
+    }
+
+    function generateRotatedSerpentine(coords, opt, angleRad) {
+      if (!coords || coords.length < 3) return { waypoints: [], passCount: 0 };
+
+      const centroid = computePolygonCentroid(coords);
+      const cosLat = Math.cos(centroid.lat * (Math.PI / 180.0));
+      const cosA = Math.cos(-angleRad);
+      const sinA = Math.sin(-angleRad);
+
+      const rotatedPoly = coords.map(p => {
+        const x = (p.lng - centroid.lng) * 111139.0 * cosLat;
+        const y = (p.lat - centroid.lat) * 111139.0;
+        const rx = x * cosA - y * sinA;
+        const ry = x * sinA + y * cosA;
+        return { rx, ry };
+      });
+
+      const rys = rotatedPoly.map(p => p.ry);
+      const minRy = Math.min(...rys);
+      const maxRy = Math.max(...rys);
+      const step = Math.max(1.0, opt.trackSpacing);
 
       const waypoints = [];
-      let sweepDirection = true;
+      let sweepDir = true;
       let passCount = 0;
-      const n = currentBoundaryCoords.length;
+      const n = rotatedPoly.length;
 
-      for (let lat = minLat + (deltaLat * 0.5); lat <= maxLat; lat += deltaLat) {
+      const cosBack = Math.cos(angleRad);
+      const sinBack = Math.sin(angleRad);
+
+      for (let y = minRy + (step * 0.5); y <= maxRy; y += step) {
         const intersections = [];
-
         for (let i = 0; i < n; i++) {
-          const p1 = currentBoundaryCoords[i];
-          const p2 = currentBoundaryCoords[(i + 1) % n];
+          const p1 = rotatedPoly[i];
+          const p2 = rotatedPoly[(i + 1) % n];
 
-          // Check if horizontal scanline intersects segment p1 -> p2
-          if ((p1.lat <= lat && p2.lat > lat) || (p2.lat <= lat && p1.lat > lat)) {
-            const t = (lat - p1.lat) / (p2.lat - p1.lat);
-            const intersectLng = p1.lng + t * (p2.lng - p1.lng);
-            intersections.push(intersectLng);
+          if ((p1.ry <= y && p2.ry > y) || (p2.ry <= y && p1.ry > y)) {
+            const t = (y - p1.ry) / (p2.ry - p1.ry);
+            const rxInt = p1.rx + t * (p2.ry - p1.ry);
+            intersections.push(rxInt);
           }
         }
 
@@ -1124,43 +1224,153 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
           intersections.sort((a, b) => a - b);
 
           for (let k = 0; k < intersections.length - 1; k += 2) {
-            const leftLng = intersections[k];
-            const rightLng = intersections[k + 1];
+            const xLeft = intersections[k];
+            const xRight = intersections[k + 1];
 
-            if (sweepDirection) {
-              waypoints.push({ index: waypoints.length + 1, lat: lat, lon: leftLng, alt: opt.alt, command: 'WAYPOINT' });
-              waypoints.push({ index: waypoints.length + 1, lat: lat, lon: rightLng, alt: opt.alt, command: 'WAYPOINT' });
-            } else {
-              waypoints.push({ index: waypoints.length + 1, lat: lat, lon: rightLng, alt: opt.alt, command: 'WAYPOINT' });
-              waypoints.push({ index: waypoints.length + 1, lat: lat, lon: leftLng, alt: opt.alt, command: 'WAYPOINT' });
-            }
-            sweepDirection = !sweepDirection;
+            const pStart = sweepDir ? xLeft : xRight;
+            const pEnd = sweepDir ? xRight : xLeft;
+
+            const startX = pStart * cosBack - y * sinBack;
+            const startY = pStart * sinBack + y * cosBack;
+            const endX = pEnd * cosBack - y * sinBack;
+            const endY = pEnd * sinBack + y * cosBack;
+
+            waypoints.push({
+              index: waypoints.length + 1,
+              lat: centroid.lat + (startY / 111139.0),
+              lon: centroid.lng + (startX / (111139.0 * cosLat)),
+              alt: opt.alt,
+              command: 'WAYPOINT'
+            });
+
+            waypoints.push({
+              index: waypoints.length + 1,
+              lat: centroid.lat + (endY / 111139.0),
+              lon: centroid.lng + (endX / (111139.0 * cosLat)),
+              alt: opt.alt,
+              command: 'WAYPOINT'
+            });
+
+            sweepDir = !sweepDir;
             passCount++;
           }
         }
       }
 
-      if (waypoints.length > 0) {
-        waypoints[0].command = 'TAKEOFF';
+      return { waypoints, passCount };
+    }
+
+    function generatePerimeterScout(coords, opt, rings) {
+      if (!coords || coords.length < 3) return { waypoints: [], passCount: 0 };
+      const centroid = computePolygonCentroid(coords);
+      const waypoints = [];
+      const numRings = Math.max(1, Math.min(3, rings));
+
+      for (let r = 0; r < numRings; r++) {
+        const offsetM = r * opt.trackSpacing;
+
+        for (let i = 0; i <= coords.length; i++) {
+          const orig = coords[i % coords.length];
+          const distToCentroid = haversineDistMeters(orig.lat, orig.lng, centroid.lat, centroid.lng);
+          const ratio = (distToCentroid > 0) ? Math.max(0.1, (distToCentroid - offsetM) / distToCentroid) : 1.0;
+
+          const lat = centroid.lat + (orig.lat - centroid.lat) * ratio;
+          const lon = centroid.lng + (orig.lng - centroid.lng) * ratio;
+
+          waypoints.push({
+            index: waypoints.length + 1,
+            lat: lat,
+            lon: lon,
+            alt: opt.alt,
+            command: 'WAYPOINT'
+          });
+        }
       }
 
-      currentWaypoints = waypoints;
+      return { waypoints, passCount: numRings };
+    }
+
+    function generateHotspotOrbit(center, opt, radiusM, pointsCount) {
+      const waypoints = [];
+      const pts = Math.max(8, pointsCount);
+      const cosLat = Math.cos(center.lat * (Math.PI / 180.0));
+
+      for (let i = 0; i <= pts; i++) {
+        const angle = (i / pts) * 2.0 * Math.PI;
+        const dx = radiusM * Math.cos(angle);
+        const dy = radiusM * Math.sin(angle);
+
+        const lat = center.lat + (dy / 111139.0);
+        const lon = center.lng + (dx / (111139.0 * cosLat));
+
+        waypoints.push({
+          index: waypoints.length + 1,
+          lat: lat,
+          lon: lon,
+          alt: Math.min(opt.alt, 3.5),
+          command: 'WAYPOINT'
+        });
+      }
+
+      return { waypoints, passCount: 1 };
+    }
+
+    function generateTransectsFromCurrentBoundary() {
+      if (!currentBoundaryCoords || currentBoundaryCoords.length < 3) {
+        showAlert("Please define a farm boundary first by drawing a polygon or box.", "error");
+        return;
+      }
+
+      const opt = currentOpticalParams;
+      const pattern = document.getElementById('plan-pattern').value;
+      let result = { waypoints: [], passCount: 0 };
+
+      if (pattern === 'serpentine') {
+        result = generateRotatedSerpentine(currentBoundaryCoords, opt, 0);
+      } else if (pattern === 'long_axis') {
+        const angle = findLongestEdgeAngle(currentBoundaryCoords);
+        result = generateRotatedSerpentine(currentBoundaryCoords, opt, angle);
+      } else if (pattern === 'crosshatch') {
+        const angle = findLongestEdgeAngle(currentBoundaryCoords);
+        const pass1 = generateRotatedSerpentine(currentBoundaryCoords, opt, angle);
+        const pass2 = generateRotatedSerpentine(currentBoundaryCoords, opt, angle + (Math.PI / 2.0));
+        const combined = pass1.waypoints.concat(pass2.waypoints.map((wp, idx) => {
+          return { ...wp, index: pass1.waypoints.length + idx + 1 };
+        }));
+        result = { waypoints: combined, passCount: pass1.passCount + pass2.passCount };
+      } else if (pattern === 'perimeter') {
+        const rings = parseInt(document.getElementById('perimeter-rings').value) || 2;
+        result = generatePerimeterScout(currentBoundaryCoords, opt, rings);
+      } else if (pattern === 'orbit') {
+        if (!hotspotCenter) {
+          hotspotCenter = computePolygonCentroid(currentBoundaryCoords);
+        }
+        const radiusM = parseFloat(document.getElementById('orbit-radius').value) || 12.0;
+        const pts = parseInt(document.getElementById('orbit-points').value) || 16;
+        result = generateHotspotOrbit(hotspotCenter, opt, radiusM, pts);
+      }
+
+      if (result.waypoints.length > 0) {
+        result.waypoints[0].command = 'TAKEOFF';
+      }
+
+      currentWaypoints = result.waypoints;
 
       // Distance and scan duration
       let totalDistance = 0;
-      for (let i = 0; i < waypoints.length - 1; i++) {
-        totalDistance += haversineDistMeters(waypoints[i].lat, waypoints[i].lon, waypoints[i + 1].lat, waypoints[i + 1].lon);
+      for (let i = 0; i < currentWaypoints.length - 1; i++) {
+        totalDistance += haversineDistMeters(currentWaypoints[i].lat, currentWaypoints[i].lon, currentWaypoints[i + 1].lat, currentWaypoints[i + 1].lon);
       }
       const flightDurationS = opt.speed > 0 ? (totalDistance / opt.speed) : 0;
       const minutes = Math.floor(flightDurationS / 60);
       const seconds = Math.floor(flightDurationS % 60);
 
-      document.getElementById('metric-passes').innerText = `${passCount} passes`;
-      document.getElementById('metric-waypoints').innerText = `${waypoints.length} points`;
+      document.getElementById('metric-passes').innerText = (pattern === 'orbit') ? "1 Orbit Loop" : `${result.passCount} passes`;
+      document.getElementById('metric-waypoints').innerText = `${currentWaypoints.length} points`;
       document.getElementById('metric-distance').innerText = `~${Math.round(totalDistance).toLocaleString()} m`;
       document.getElementById('metric-duration').innerText = `~${minutes} min ${seconds} sec`;
 
-      renderTransectsOnMap(waypoints);
+      renderTransectsOnMap(currentWaypoints);
     }
 
     function renderTransectsOnMap(waypoints) {
@@ -1169,8 +1379,35 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
 
       if (!waypoints || waypoints.length === 0) return;
 
+      const pattern = document.getElementById('plan-pattern').value;
       const latlngs = waypoints.map(w => [w.lat, w.lon]);
-      L.polyline(latlngs, { color: '#2ea043', weight: 3, dashArray: '5, 8' }).addTo(transectLayer);
+      const pathColor = (pattern === 'orbit') ? '#58a6ff' : ((pattern === 'crosshatch') ? '#d29922' : '#2ea043');
+
+      L.polyline(latlngs, {
+        color: pathColor,
+        weight: 3,
+        dashArray: (pattern === 'orbit' ? 'solid' : '5, 8')
+      }).addTo(transectLayer);
+
+      // Hotspot target rendering
+      if (pattern === 'orbit' && hotspotCenter) {
+        const radiusM = parseFloat(document.getElementById('orbit-radius').value) || 12;
+        L.circle([hotspotCenter.lat, hotspotCenter.lng], {
+          radius: radiusM,
+          color: '#f85149',
+          weight: 1.5,
+          dashArray: '3, 6',
+          fillOpacity: 0.08,
+          fillColor: '#f85149'
+        }).addTo(markerLayer);
+
+        L.circleMarker([hotspotCenter.lat, hotspotCenter.lng], {
+          color: '#f85149',
+          fillColor: '#f85149',
+          fillOpacity: 0.9,
+          radius: 8
+        }).bindPopup("<strong>Target Hotspot Center</strong><br/>Click anywhere on map to reposition target.").addTo(markerLayer);
+      }
 
       // Takeoff marker
       L.circleMarker([waypoints[0].lat, waypoints[0].lon], {
@@ -1181,13 +1418,14 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
       }).bindPopup("<strong>Waypoint #1: TAKEOFF</strong><br/>Altitude: " + waypoints[0].alt + "m").addTo(markerLayer);
 
       // Intermediate turning waypoints
-      for (let i = 1; i < waypoints.length - 1; i++) {
+      const step = waypoints.length > 50 ? 2 : 1;
+      for (let i = 1; i < waypoints.length - 1; i += step) {
         L.circleMarker([waypoints[i].lat, waypoints[i].lon], {
-          color: '#3fb950',
-          fillColor: '#2ea043',
+          color: pathColor,
+          fillColor: pathColor,
           fillOpacity: 0.6,
           radius: 3
-        }).bindPopup("Waypoint #" + (i + 1)).addTo(markerLayer);
+        }).bindPopup("Waypoint #" + (i + 1) + "<br/>Alt: " + waypoints[i].alt + "m").addTo(markerLayer);
       }
 
       // Final landing/RTL marker
@@ -1218,6 +1456,7 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
         mission_id: "mission_" + Date.now(),
         created_at: new Date().toISOString(),
         field_name: "Farmer Demarcated Parcel",
+        pattern_preset: document.getElementById('plan-pattern').value,
         area_hectares: currentAreaHa,
         flight_parameters: currentOpticalParams,
         boundary_geojson: {
@@ -1265,6 +1504,11 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
           const areaM2 = computeGeodesicArea(currentBoundaryCoords);
           currentAreaHa = areaM2 / 10000.0;
           document.getElementById('metric-area').innerText = `${currentAreaHa.toFixed(2)} ha (${(currentAreaHa * 2.47105).toFixed(2)} ac)`;
+
+          if (plan.pattern_preset) {
+            document.getElementById('plan-pattern').value = plan.pattern_preset;
+            onPatternChange();
+          }
 
           if (plan.flight_parameters) {
             if (plan.flight_parameters.altitude_agl_m) document.getElementById('plan-altitude').value = plan.flight_parameters.altitude_agl_m;

@@ -2,6 +2,7 @@
   "mission_id": "mission_uyo_default",
   "created_at": "2026-10-01T17:20:00Z",
   "field_name": "Demarcated Field (Uyo, Akwa Ibom)",
+  "pattern_preset": "serpentine",
   "area_hectares": 2.0,
   "flight_parameters": {
     "altitude_agl_m": 5.0,
