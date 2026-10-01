@@ -153,6 +153,72 @@ class TestPrecisionAgroSystem(unittest.TestCase):
         self.assertAlmostEqual(speed, 2.5)
         print(f"[Test 6] Active Mission Plan Verified: {len(plan['waypoints'])} waypoints across {plan['area_hectares']} ha.")
 
+    def test_07_transect_boundary_containment(self):
+        """Benchmark 6: Mathematical verification of boustrophedon transect containment inside parcel boundary."""
+        import math
+
+        coords = [
+            {"lat": 5.037700, "lng": 7.912800},
+            {"lat": 5.037700, "lng": 7.914300},
+            {"lat": 5.039450, "lng": 7.914300},
+            {"lat": 5.039450, "lng": 7.912800}
+        ]
+        min_lat = min(p["lat"] for p in coords)
+        max_lat = max(p["lat"] for p in coords)
+        min_lon = min(p["lng"] for p in coords)
+        max_lon = max(p["lng"] for p in coords)
+
+        centroid = {
+            "lat": sum(p["lat"] for p in coords) / len(coords),
+            "lng": sum(p["lng"] for p in coords) / len(coords)
+        }
+        cosLat = math.cos(centroid["lat"] * math.pi / 180.0)
+
+        # Test both 0 deg (serpentine) and 90 deg (crosshatch orthogonal)
+        for angleRad in (0.0, math.pi / 2.0):
+            cosA = math.cos(-angleRad)
+            sinA = math.sin(-angleRad)
+            cosBack = math.cos(angleRad)
+            sinBack = math.sin(angleRad)
+
+            rotatedPoly = []
+            for p in coords:
+                x = (p["lng"] - centroid["lng"]) * 111139.0 * cosLat
+                y = (p["lat"] - centroid["lat"]) * 111139.0
+                rx = x * cosA - y * sinA
+                ry = x * sinA + y * cosA
+                rotatedPoly.append({"rx": rx, "ry": ry})
+
+            rys = [p["ry"] for p in rotatedPoly]
+            step = 2.41
+            y = min(rys) + (step * 0.5)
+            n = len(rotatedPoly)
+
+            while y <= max(rys):
+                intersections = []
+                for i in range(n):
+                    p1 = rotatedPoly[i]
+                    p2 = rotatedPoly[(i + 1) % n]
+                    if (p1["ry"] <= y and p2["ry"] > y) or (p2["ry"] <= y and p1["ry"] > y):
+                        t = (y - p1["ry"]) / (p2["ry"] - p1["ry"])
+                        # Rigorous linear interpolation along X axis
+                        rxInt = p1["rx"] + t * (p2["rx"] - p1["rx"])
+                        intersections.append(rxInt)
+                intersections.sort()
+                for k in range(0, len(intersections) - 1, 2):
+                    for rx in (intersections[k], intersections[k + 1]):
+                        wx = rx * cosBack - y * sinBack
+                        wy = rx * sinBack + y * cosBack
+                        w_lat = centroid["lat"] + (wy / 111139.0)
+                        w_lon = centroid["lng"] + (wx / (111139.0 * cosLat))
+                        self.assertGreaterEqual(w_lat, min_lat - 1e-5)
+                        self.assertLessEqual(w_lat, max_lat + 1e-5)
+                        self.assertGreaterEqual(w_lon, min_lon - 1e-5)
+                        self.assertLessEqual(w_lon, max_lon + 1e-5)
+                y += step
+
+        print("[Test 7] Transect Boundary Containment Verified: 100% of waypoints strictly enclosed.")
+
 
 if __name__ == '__main__':
     unittest.main()

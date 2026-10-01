@@ -1197,7 +1197,7 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
 
     function extractBoundaryFromLayer(layer) {
       let latlngs = layer.getLatLngs();
-      if (Array.isArray(latlngs) && Array.isArray(latlngs[0])) {
+      while (Array.isArray(latlngs) && latlngs.length > 0 && Array.isArray(latlngs[0])) {
         latlngs = latlngs[0];
       }
       currentBoundaryCoords = latlngs.map(p => ({ lat: p.lat, lng: p.lng }));
@@ -1337,7 +1337,7 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
 
           if ((p1.ry <= y && p2.ry > y) || (p2.ry <= y && p1.ry > y)) {
             const t = (y - p1.ry) / (p2.ry - p1.ry);
-            const rxInt = p1.rx + t * (p2.ry - p1.ry);
+            const rxInt = p1.rx + t * (p2.rx - p1.rx);
             intersections.push(rxInt);
           }
         }
