@@ -1,0 +1,46 @@
+{
+  "mission_id": "mission_uyo_default",
+  "created_at": "2026-10-01T17:20:00Z",
+  "field_name": "Demarcated Field (Uyo, Akwa Ibom)",
+  "area_hectares": 2.0,
+  "flight_parameters": {
+    "altitude_agl_m": 5.0,
+    "speed_mps": 2.5,
+    "side_overlap_pct": 60,
+    "camera_hfov_deg": 62.2,
+    "swath_width_m": 6.03,
+    "track_spacing_m": 2.41
+  },
+  "boundary_geojson": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [7.912800, 5.037700],
+        [7.914300, 5.037700],
+        [7.914300, 5.039450],
+        [7.912800, 5.039450],
+        [7.912800, 5.037700]
+      ]
+    ]
+  },
+  "waypoints": [
+    {"index": 1, "lat": 5.037700, "lon": 7.912800, "alt": 5.0, "command": "TAKEOFF"},
+    {"index": 2, "lat": 5.037700, "lon": 7.914300, "alt": 5.0, "command": "WAYPOINT"},
+    {"index": 3, "lat": 5.037950, "lon": 7.914300, "alt": 5.0, "command": "WAYPOINT"},
+    {"index": 4, "lat": 5.037950, "lon": 7.912800, "alt": 5.0, "command": "WAYPOINT"},
+    {"index": 5, "lat": 5.038200, "lon": 7.912800, "alt": 5.0, "command": "WAYPOINT"},
+    {"index": 6, "lat": 5.038200, "lon": 7.914300, "alt": 5.0, "command": "WAYPOINT"},
+    {"index": 7, "lat": 5.038450, "lon": 7.914300, "alt": 5.0, "command": "WAYPOINT"},
+    {"index": 8, "lat": 5.038450, "lon": 7.912800, "alt": 5.0, "command": "WAYPOINT"},
+    {"index": 9, "lat": 5.038700, "lon": 7.912800, "alt": 5.0, "command": "WAYPOINT"},
+    {"index": 10, "lat": 5.038700, "lon": 7.914300, "alt": 5.0, "command": "WAYPOINT"},
+    {"index": 11, "lat": 5.038950, "lon": 7.914300, "alt": 5.0, "command": "WAYPOINT"},
+    {"index": 12, "lat": 5.038950, "lon": 7.912800, "alt": 5.0, "command": "WAYPOINT"},
+    {"index": 13, "lat": 5.039200, "lon": 7.912800, "alt": 5.0, "command": "WAYPOINT"},
+    {"index": 14, "lat": 5.039200, "lon": 7.914300, "alt": 5.0, "command": "WAYPOINT"},
+    {"index": 15, "lat": 5.039450, "lon": 7.914300, "alt": 5.0, "command": "WAYPOINT"},
+    {"index": 16, "lat": 5.039450, "lon": 7.912800, "alt": 5.0, "command": "WAYPOINT"}
+  ],
+  "estimated_distance_m": 1285.0,
+  "estimated_duration_s": 514.0
+}

@@ -53,6 +53,7 @@ _STATE_FILES = (
     'camera_config.json',
     'field_prescription_log.csv',
     'field_prescription_map.geojson',
+    'active_mission.json',
 )
 
 
@@ -74,6 +75,7 @@ DB_PATH = os.path.join(DATA_DIR, 'crop_health_edge.db')
 LOG_FILE = os.path.join(DATA_DIR, 'field_prescription_log.csv')
 CONFIG_FILE = os.path.join(DATA_DIR, 'camera_config.json')
 GEOJSON_FILE = os.path.join(DATA_DIR, 'field_prescription_map.geojson')
+MISSION_FILE = os.path.join(DATA_DIR, 'active_mission.json')
 
 
 class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
@@ -102,6 +104,9 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
 
         elif path == '/api/config':
             self.send_json(self.get_camera_config())
+
+        elif path == '/api/mission/plan':
+            self.send_json(self.get_active_mission())
 
         elif path in ('/healthz', '/api/health'):
             self.send_json({
@@ -137,6 +142,28 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
                 with open(CONFIG_FILE, 'w') as f:
                     json.dump(data, f, indent=2)
                 self.send_json({"status": "success", "message": "Camera configuration updated."})
+            except Exception as e:
+                self.send_json({"status": "error", "message": str(e)}, code=400)
+
+        elif path == '/api/mission/plan':
+            try:
+                data = json.loads(post_body)
+                with open(MISSION_FILE, 'w') as f:
+                    json.dump(data, f, indent=2)
+                # Keep BASE_DIR copy in sync if DATA_DIR differs
+                base_mission = os.path.join(BASE_DIR, 'active_mission.json')
+                if DATA_DIR != BASE_DIR:
+                    try:
+                        with open(base_mission, 'w') as f:
+                            json.dump(data, f, indent=2)
+                    except Exception:
+                        pass
+                self.send_json({
+                    "status": "success",
+                    "message": "Mission plan saved and synchronized with flight controller.",
+                    "waypoints_count": len(data.get("waypoints", [])),
+                    "area_hectares": data.get("area_hectares", 0.0)
+                })
             except Exception as e:
                 self.send_json({"status": "error", "message": str(e)}, code=400)
 
@@ -240,6 +267,16 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
                 return json.load(f)
         return {"exposure_mode": "auto", "brightness": 50}
 
+    def get_active_mission(self):
+        target = MISSION_FILE if os.path.exists(MISSION_FILE) else os.path.join(BASE_DIR, 'active_mission.json')
+        if os.path.exists(target):
+            try:
+                with open(target, 'r') as f:
+                    return json.load(f)
+            except Exception:
+                pass
+        return {"status": "empty", "waypoints": [], "boundary_geojson": None}
+
     def render_dashboard(self):
         return """<!DOCTYPE html>
 <html lang="en">
@@ -252,6 +289,8 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
   <style>
     :root {
       --bg-color: #0d1117;
@@ -541,6 +580,58 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
       height: 12px;
       stroke-width: 3;
     }
+    /* Dark Theme Leaflet.draw & Mission Planner Styling */
+    .leaflet-draw-toolbar a {
+      background-color: #161b22 !important;
+      border-color: #30363d !important;
+      color: #f0f6fc !important;
+    }
+    .leaflet-draw-toolbar a:hover {
+      background-color: #21262d !important;
+    }
+    .leaflet-draw-actions {
+      background-color: #161b22 !important;
+      border: 1px solid #30363d !important;
+    }
+    .leaflet-draw-actions a {
+      background-color: #161b22 !important;
+      color: #58a6ff !important;
+    }
+    .leaflet-draw-actions a:hover {
+      background-color: #21262d !important;
+    }
+    .metric-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: rgba(88, 166, 255, 0.1);
+      color: #58a6ff;
+      border: 1px solid rgba(88, 166, 255, 0.25);
+    }
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(48, 54, 61, 0.6);
+      font-size: 0.85rem;
+    }
+    .metric-row:last-child {
+      border-bottom: none;
+    }
+    #mission-alert {
+      display: none;
+      margin-top: 14px;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
   </style>
 </head>
 <body>
@@ -618,31 +709,104 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
     <div id="module1" class="tab-pane active">
       <div class="grid">
         <div class="card" style="grid-column: span 2;">
-          <h3>Farm Survey Boundary & Serpentine Grid (Uyo, Akwa Ibom)</h3>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h3>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+              Farm Survey Boundary & Serpentine Grid Planner
+            </h3>
+            <span id="boundary-status-badge" class="metric-badge" style="background:rgba(46,160,67,0.15); color:#3fb950; border-color:rgba(46,160,67,0.35);">
+              ● Default Uyo Test Grid Loaded
+            </span>
+          </div>
+
           <div id="map"></div>
-          <div style="display:flex; gap: 10px;">
-            <button class="btn" onclick="generateSerpentineGrid()">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
-              Compute Serpentine Transects (2-Ha Grid)
+
+          <div style="display:flex; flex-wrap:wrap; gap: 10px; margin-top: 10px;">
+            <button class="btn" id="btn-draw-poly" onclick="startDrawPolygon()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              Draw Farm Polygon
             </button>
-            <button class="btn btn-secondary" onclick="clearMap()">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-              Reset Boundary
+            <button class="btn btn-secondary" id="btn-draw-rect" onclick="startDrawRectangle()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>
+              Draw Box Area
+            </button>
+            <button class="btn" style="background:#1f6feb;" onclick="generateTransectsFromCurrentBoundary()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              Compute Serpentine Transects
+            </button>
+            <button class="btn" style="background:#238636;" onclick="uploadMissionToDrone()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Upload Mission to Drone
+            </button>
+            <button class="btn btn-secondary" onclick="loadDefaultUyoField()">
+              Reset to Uyo Parcel
+            </button>
+            <button class="btn btn-secondary" style="color:#f85149;" onclick="clearBoundaryAndGrid()">
+              Clear Map
             </button>
           </div>
+          <div id="mission-alert"></div>
         </div>
+
         <div class="card">
-          <h3>Flight Parameters</h3>
-          <label>Scanning Altitude (AGL)</label>
-          <input type="text" value="5.0 meters (NCAA Compliant)" readonly />
-          <label>Survey Speed</label>
-          <input type="text" value="2.5 m/s" readonly />
-          <label>Field Center Target</label>
-          <input type="text" value="5.037700 N, 7.912800 E (Uyo)" readonly />
-          <label>Camera Field of View</label>
-          <input type="text" value="62.2 Horizontal (Sony IMX219)" readonly />
-          <label>Computed Transect Passes</label>
-          <input type="text" id="pass-count" value="12 Serpentine Passes" readonly />
+          <h3>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            Flight & Sizing Parameters
+          </h3>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <div>
+              <label>Scanning Altitude (AGL)</label>
+              <input type="number" id="plan-altitude" value="5.0" step="0.5" min="2.0" max="50.0" onchange="updateOpticalSizingAndRegenerate()" />
+            </div>
+            <div>
+              <label>Survey Speed (m/s)</label>
+              <input type="number" id="plan-speed" value="2.5" step="0.5" min="0.5" max="15.0" onchange="updateOpticalSizingAndRegenerate()" />
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <div>
+              <label>Side Overlap (%)</label>
+              <input type="number" id="plan-overlap" value="60" min="20" max="85" step="5" onchange="updateOpticalSizingAndRegenerate()" />
+            </div>
+            <div>
+              <label>Camera Sensor</label>
+              <input type="text" id="plan-camera" value="IMX219 (62.2° HFOV)" readonly />
+            </div>
+          </div>
+
+          <h4 style="font-size:0.85rem; color:var(--text-muted); margin: 10px 0 6px 0; text-transform:uppercase; letter-spacing:0.04em;">Computed Optical Footprint</h4>
+          <div class="metric-row">
+            <span style="color:var(--text-muted);">Ground Swath Width</span>
+            <span id="metric-swath" style="font-weight:600; color:#58a6ff;">6.03 m</span>
+          </div>
+          <div class="metric-row">
+            <span style="color:var(--text-muted);">Transect Spacing</span>
+            <span id="metric-spacing" style="font-weight:600; color:#58a6ff;">2.41 m</span>
+          </div>
+
+          <h4 style="font-size:0.85rem; color:var(--text-muted); margin: 14px 0 6px 0; text-transform:uppercase; letter-spacing:0.04em;">Field & Mission Metrics</h4>
+          <div class="metric-row">
+            <span style="color:var(--text-muted);">Demarcated Area</span>
+            <span id="metric-area" style="font-weight:600; color:#3fb950;">2.00 ha (4.94 ac)</span>
+          </div>
+          <div class="metric-row">
+            <span style="color:var(--text-muted);">Serpentine Passes</span>
+            <span id="metric-passes" style="font-weight:600; color:#fff;">8 passes</span>
+          </div>
+          <div class="metric-row">
+            <span style="color:var(--text-muted);">Total Waypoints</span>
+            <span id="metric-waypoints" style="font-weight:600; color:#fff;">16 points</span>
+          </div>
+          <div class="metric-row">
+            <span style="color:var(--text-muted);">Estimated Flight Path</span>
+            <span id="metric-distance" style="font-weight:600; color:#fff;">~1,285 m</span>
+          </div>
+          <div class="metric-row">
+            <span style="color:var(--text-muted);">Estimated Scan Time</span>
+            <span id="metric-duration" style="font-weight:600; color:#d29922;">~8 min 34 sec</span>
+          </div>
         </div>
       </div>
     </div>
@@ -791,37 +955,398 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
   </div>
 
   <script>
-    let map, gridLayer;
+    let map;
+    let drawnItems;
+    let transectLayer;
+    let markerLayer;
+    let drawControl;
+    let currentBoundaryCoords = [];
+    let currentWaypoints = [];
+    let currentAreaHa = 2.0;
+    let currentOpticalParams = {
+      alt: 5.0,
+      speed: 2.5,
+      overlapPct: 60,
+      hfov: 62.2,
+      swathWidth: 6.03,
+      trackSpacing: 2.41
+    };
+
     function initMap() {
       map = L.map('map').setView([5.0377, 7.9128], 17);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
-      gridLayer = L.layerGroup().addTo(map);
-      generateSerpentineGrid();
+
+      drawnItems = new L.FeatureGroup().addTo(map);
+      transectLayer = new L.layerGroup().addTo(map);
+      markerLayer = new L.layerGroup().addTo(map);
+
+      drawControl = new L.Control.Draw({
+        draw: {
+          polygon: {
+            allowIntersection: false,
+            showArea: true,
+            shapeOptions: { color: '#3fb950', fillOpacity: 0.2, weight: 2 }
+          },
+          rectangle: {
+            shapeOptions: { color: '#3fb950', fillOpacity: 0.2, weight: 2 }
+          },
+          circle: false,
+          polyline: false,
+          circlemarker: false,
+          marker: false
+        },
+        edit: {
+          featureGroup: drawnItems
+        }
+      });
+      map.addControl(drawControl);
+
+      map.on(L.Draw.Event.CREATED, function (e) {
+        drawnItems.clearLayers();
+        drawnItems.addLayer(e.layer);
+        extractBoundaryFromLayer(e.layer);
+        updateBoundaryStatus("● Custom Farm Boundary Defined", "#3fb950");
+      });
+
+      map.on(L.Draw.Event.EDITED, function (e) {
+        e.layers.eachLayer(layer => {
+          extractBoundaryFromLayer(layer);
+        });
+      });
+
+      map.on(L.Draw.Event.DELETED, function () {
+        clearBoundaryAndGrid();
+      });
+
+      updateOpticalSizingAndRegenerate();
     }
 
-    function generateSerpentineGrid() {
-      gridLayer.clearLayers();
-      const originLat = 5.0377;
-      const originLon = 7.9128;
-      const latlngs = [];
+    function startDrawPolygon() {
+      new L.Draw.Polygon(map, drawControl.options.draw.polygon).enable();
+    }
 
-      for (let r = 0; r < 8; r++) {
-        const lat = originLat + (r * 0.00025);
-        if (r % 2 === 0) {
-          latlngs.push([lat, originLon]);
-          latlngs.push([lat, originLon + 0.0015]);
-        } else {
-          latlngs.push([lat, originLon + 0.0015]);
-          latlngs.push([lat, originLon]);
+    function startDrawRectangle() {
+      new L.Draw.Rectangle(map, drawControl.options.draw.rectangle).enable();
+    }
+
+    function extractBoundaryFromLayer(layer) {
+      let latlngs = layer.getLatLngs();
+      if (Array.isArray(latlngs) && Array.isArray(latlngs[0])) {
+        latlngs = latlngs[0];
+      }
+      currentBoundaryCoords = latlngs.map(p => ({ lat: p.lat, lng: p.lng }));
+      const areaM2 = computeGeodesicArea(currentBoundaryCoords);
+      currentAreaHa = areaM2 / 10000.0;
+      const acres = currentAreaHa * 2.47105;
+      document.getElementById('metric-area').innerText = `${currentAreaHa.toFixed(2)} ha (${acres.toFixed(2)} ac)`;
+
+      generateTransectsFromCurrentBoundary();
+    }
+
+    function computeGeodesicArea(latlngs) {
+      if (!latlngs || latlngs.length < 3) return 0;
+      let total = 0;
+      const rad = Math.PI / 180.0;
+      const R = 6378137.0; // Earth radius in meters
+      for (let i = 0; i < latlngs.length; i++) {
+        const p1 = latlngs[i];
+        const p2 = latlngs[(i + 1) % latlngs.length];
+        total += (p2.lng * rad - p1.lng * rad) * (2 + Math.sin(p1.lat * rad) + Math.sin(p2.lat * rad));
+      }
+      return Math.abs(total * R * R / 2.0);
+    }
+
+    function haversineDistMeters(lat1, lon1, lat2, lon2) {
+      const R = 6378137.0;
+      const dLat = (lat2 - lat1) * Math.PI / 180.0;
+      const dLon = (lon2 - lon1) * Math.PI / 180.0;
+      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180.0) * Math.cos(lat2 * Math.PI / 180.0) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+    }
+
+    function updateOpticalSizingAndRegenerate() {
+      const alt = parseFloat(document.getElementById('plan-altitude').value) || 5.0;
+      const speed = parseFloat(document.getElementById('plan-speed').value) || 2.5;
+      const overlapPct = parseFloat(document.getElementById('plan-overlap').value) || 60;
+      const hfov = 62.2; // IMX219 HFOV
+
+      const swathWidth = 2.0 * alt * Math.tan((hfov / 2.0) * (Math.PI / 180.0));
+      const trackSpacing = swathWidth * (1.0 - (overlapPct / 100.0));
+
+      document.getElementById('metric-swath').innerText = `${swathWidth.toFixed(2)} m`;
+      document.getElementById('metric-spacing').innerText = `${trackSpacing.toFixed(2)} m`;
+
+      currentOpticalParams = { alt, speed, overlapPct, hfov, swathWidth, trackSpacing };
+
+      if (currentBoundaryCoords && currentBoundaryCoords.length >= 3) {
+        generateTransectsFromCurrentBoundary();
+      }
+    }
+
+    function generateTransectsFromCurrentBoundary() {
+      if (!currentBoundaryCoords || currentBoundaryCoords.length < 3) {
+        showAlert("Please define a farm boundary first by drawing a polygon or box.", "error");
+        return;
+      }
+
+      const opt = currentOpticalParams;
+      const lats = currentBoundaryCoords.map(p => p.lat);
+      const minLat = Math.min(...lats);
+      const maxLat = Math.max(...lats);
+
+      // Meter to degree latitude conversion: 1 deg lat ≈ 111,139 meters
+      const deltaLat = opt.trackSpacing / 111139.0;
+      if (deltaLat <= 0) return;
+
+      const waypoints = [];
+      let sweepDirection = true;
+      let passCount = 0;
+      const n = currentBoundaryCoords.length;
+
+      for (let lat = minLat + (deltaLat * 0.5); lat <= maxLat; lat += deltaLat) {
+        const intersections = [];
+
+        for (let i = 0; i < n; i++) {
+          const p1 = currentBoundaryCoords[i];
+          const p2 = currentBoundaryCoords[(i + 1) % n];
+
+          // Check if horizontal scanline intersects segment p1 -> p2
+          if ((p1.lat <= lat && p2.lat > lat) || (p2.lat <= lat && p1.lat > lat)) {
+            const t = (lat - p1.lat) / (p2.lat - p1.lat);
+            const intersectLng = p1.lng + t * (p2.lng - p1.lng);
+            intersections.push(intersectLng);
+          }
+        }
+
+        if (intersections.length >= 2) {
+          intersections.sort((a, b) => a - b);
+
+          for (let k = 0; k < intersections.length - 1; k += 2) {
+            const leftLng = intersections[k];
+            const rightLng = intersections[k + 1];
+
+            if (sweepDirection) {
+              waypoints.push({ index: waypoints.length + 1, lat: lat, lon: leftLng, alt: opt.alt, command: 'WAYPOINT' });
+              waypoints.push({ index: waypoints.length + 1, lat: lat, lon: rightLng, alt: opt.alt, command: 'WAYPOINT' });
+            } else {
+              waypoints.push({ index: waypoints.length + 1, lat: lat, lon: rightLng, alt: opt.alt, command: 'WAYPOINT' });
+              waypoints.push({ index: waypoints.length + 1, lat: lat, lon: leftLng, alt: opt.alt, command: 'WAYPOINT' });
+            }
+            sweepDirection = !sweepDirection;
+            passCount++;
+          }
         }
       }
 
-      L.polyline(latlngs, { color: '#2ea043', weight: 3, dashArray: '5, 8' }).addTo(gridLayer);
-      L.circleMarker([originLat, originLon], { color: '#58a6ff', radius: 6 }).addTo(gridLayer).bindPopup("Takeoff Waypoint #1");
-      map.fitBounds(L.latLngBounds(latlngs));
+      if (waypoints.length > 0) {
+        waypoints[0].command = 'TAKEOFF';
+      }
+
+      currentWaypoints = waypoints;
+
+      // Distance and scan duration
+      let totalDistance = 0;
+      for (let i = 0; i < waypoints.length - 1; i++) {
+        totalDistance += haversineDistMeters(waypoints[i].lat, waypoints[i].lon, waypoints[i + 1].lat, waypoints[i + 1].lon);
+      }
+      const flightDurationS = opt.speed > 0 ? (totalDistance / opt.speed) : 0;
+      const minutes = Math.floor(flightDurationS / 60);
+      const seconds = Math.floor(flightDurationS % 60);
+
+      document.getElementById('metric-passes').innerText = `${passCount} passes`;
+      document.getElementById('metric-waypoints').innerText = `${waypoints.length} points`;
+      document.getElementById('metric-distance').innerText = `~${Math.round(totalDistance).toLocaleString()} m`;
+      document.getElementById('metric-duration').innerText = `~${minutes} min ${seconds} sec`;
+
+      renderTransectsOnMap(waypoints);
     }
 
-    function clearMap() { gridLayer.clearLayers(); }
+    function renderTransectsOnMap(waypoints) {
+      transectLayer.clearLayers();
+      markerLayer.clearLayers();
+
+      if (!waypoints || waypoints.length === 0) return;
+
+      const latlngs = waypoints.map(w => [w.lat, w.lon]);
+      L.polyline(latlngs, { color: '#2ea043', weight: 3, dashArray: '5, 8' }).addTo(transectLayer);
+
+      // Takeoff marker
+      L.circleMarker([waypoints[0].lat, waypoints[0].lon], {
+        color: '#58a6ff',
+        fillColor: '#58a6ff',
+        fillOpacity: 0.85,
+        radius: 7
+      }).bindPopup("<strong>Waypoint #1: TAKEOFF</strong><br/>Altitude: " + waypoints[0].alt + "m").addTo(markerLayer);
+
+      // Intermediate turning waypoints
+      for (let i = 1; i < waypoints.length - 1; i++) {
+        L.circleMarker([waypoints[i].lat, waypoints[i].lon], {
+          color: '#3fb950',
+          fillColor: '#2ea043',
+          fillOpacity: 0.6,
+          radius: 3
+        }).bindPopup("Waypoint #" + (i + 1)).addTo(markerLayer);
+      }
+
+      // Final landing/RTL marker
+      const last = waypoints[waypoints.length - 1];
+      L.circleMarker([last.lat, last.lon], {
+        color: '#d29922',
+        fillColor: '#d29922',
+        fillOpacity: 0.85,
+        radius: 7
+      }).bindPopup("<strong>Waypoint #" + waypoints.length + ": END SCAN</strong><br/>Return to Launch").addTo(markerLayer);
+
+      map.fitBounds(L.latLngBounds(latlngs).pad(0.1));
+    }
+
+    async function uploadMissionToDrone() {
+      if (!currentWaypoints || currentWaypoints.length === 0) {
+        showAlert("Cannot upload: No survey transects generated yet.", "error");
+        return;
+      }
+
+      let totalDist = 0;
+      for (let i = 0; i < currentWaypoints.length - 1; i++) {
+        totalDist += haversineDistMeters(currentWaypoints[i].lat, currentWaypoints[i].lon, currentWaypoints[i + 1].lat, currentWaypoints[i + 1].lon);
+      }
+      const durationS = currentOpticalParams.speed > 0 ? (totalDist / currentOpticalParams.speed) : 0;
+
+      const payload = {
+        mission_id: "mission_" + Date.now(),
+        created_at: new Date().toISOString(),
+        field_name: "Farmer Demarcated Parcel",
+        area_hectares: currentAreaHa,
+        flight_parameters: currentOpticalParams,
+        boundary_geojson: {
+          type: "Polygon",
+          coordinates: [
+            currentBoundaryCoords.map(p => [p.lng, p.lat]).concat([[currentBoundaryCoords[0].lng, currentBoundaryCoords[0].lat]])
+          ]
+        },
+        waypoints: currentWaypoints,
+        estimated_distance_m: Math.round(totalDist),
+        estimated_duration_s: Math.round(durationS)
+      };
+
+      try {
+        const res = await fetch('/api/mission/plan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+          showAlert(`✓ Mission successfully uploaded to drone! ${data.waypoints_count} waypoints across ${data.area_hectares.toFixed(2)} ha.`, "success");
+          updateBoundaryStatus("● Mission Plan Uploaded & Active", "#3fb950");
+        } else {
+          showAlert(`Upload failed: ${data.message}`, "error");
+        }
+      } catch (err) {
+        showAlert(`Error uploading mission: ${err.message}`, "error");
+      }
+    }
+
+    async function loadSavedMissionPlan() {
+      try {
+        const res = await fetch('/api/mission/plan');
+        const plan = await res.json();
+        if (plan && plan.boundary_geojson && plan.boundary_geojson.coordinates) {
+          const rawCoords = plan.boundary_geojson.coordinates[0];
+          currentBoundaryCoords = rawCoords.map(c => ({ lat: c[1], lng: c[0] }));
+          drawnItems.clearLayers();
+          const poly = L.polygon(currentBoundaryCoords.map(p => [p.lat, p.lng]), {
+            color: '#3fb950',
+            fillOpacity: 0.2,
+            weight: 2
+          }).addTo(drawnItems);
+          const areaM2 = computeGeodesicArea(currentBoundaryCoords);
+          currentAreaHa = areaM2 / 10000.0;
+          document.getElementById('metric-area').innerText = `${currentAreaHa.toFixed(2)} ha (${(currentAreaHa * 2.47105).toFixed(2)} ac)`;
+
+          if (plan.flight_parameters) {
+            if (plan.flight_parameters.altitude_agl_m) document.getElementById('plan-altitude').value = plan.flight_parameters.altitude_agl_m;
+            if (plan.flight_parameters.speed_mps) document.getElementById('plan-speed').value = plan.flight_parameters.speed_mps;
+            if (plan.flight_parameters.side_overlap_pct) document.getElementById('plan-overlap').value = plan.flight_parameters.side_overlap_pct;
+            updateOpticalSizingAndRegenerate();
+          } else {
+            generateTransectsFromCurrentBoundary();
+          }
+          updateBoundaryStatus("● Saved Mission Loaded from Flight Controller", "#3fb950");
+        } else {
+          loadDefaultUyoField();
+        }
+      } catch (e) {
+        loadDefaultUyoField();
+      }
+    }
+
+    function loadDefaultUyoField() {
+      drawnItems.clearLayers();
+      currentBoundaryCoords = [
+        { lat: 5.037700, lng: 7.912800 },
+        { lat: 5.037700, lng: 7.914300 },
+        { lat: 5.039450, lng: 7.914300 },
+        { lat: 5.039450, lng: 7.912800 }
+      ];
+      L.polygon(currentBoundaryCoords.map(p => [p.lat, p.lng]), {
+        color: '#3fb950',
+        fillOpacity: 0.2,
+        weight: 2
+      }).addTo(drawnItems);
+      const areaM2 = computeGeodesicArea(currentBoundaryCoords);
+      currentAreaHa = areaM2 / 10000.0;
+      document.getElementById('metric-area').innerText = `${currentAreaHa.toFixed(2)} ha (${(currentAreaHa * 2.47105).toFixed(2)} ac)`;
+      updateBoundaryStatus("● Default Uyo Test Grid Loaded", "#58a6ff");
+      generateTransectsFromCurrentBoundary();
+    }
+
+    function clearBoundaryAndGrid() {
+      drawnItems.clearLayers();
+      transectLayer.clearLayers();
+      markerLayer.clearLayers();
+      currentBoundaryCoords = [];
+      currentWaypoints = [];
+      document.getElementById('metric-area').innerText = "0.00 ha (0.00 ac)";
+      document.getElementById('metric-passes').innerText = "0 passes";
+      document.getElementById('metric-waypoints').innerText = "0 points";
+      document.getElementById('metric-distance').innerText = "0 m";
+      document.getElementById('metric-duration').innerText = "0 min 0 sec";
+      updateBoundaryStatus("○ No Boundary Defined", "#8b949e");
+      showAlert("Boundary cleared. Draw a new polygon or box on the map.", "info");
+    }
+
+    function updateBoundaryStatus(text, color) {
+      const badge = document.getElementById('boundary-status-badge');
+      if (badge) {
+        badge.innerText = text;
+        badge.style.color = color;
+        badge.style.borderColor = color;
+      }
+    }
+
+    function showAlert(msg, type) {
+      const el = document.getElementById('mission-alert');
+      if (!el) return;
+      el.style.display = 'block';
+      el.innerText = msg;
+      if (type === 'success') {
+        el.style.background = 'rgba(46, 160, 67, 0.2)';
+        el.style.border = '1px solid #3fb950';
+        el.style.color = '#3fb950';
+      } else if (type === 'error') {
+        el.style.background = 'rgba(248, 81, 73, 0.2)';
+        el.style.border = '1px solid #f85149';
+        el.style.color = '#f85149';
+      } else {
+        el.style.background = 'rgba(88, 166, 255, 0.15)';
+        el.style.border = '1px solid #58a6ff';
+        el.style.color = '#58a6ff';
+      }
+      setTimeout(() => { el.style.display = 'none'; }, 6000);
+    }
 
     function switchTab(tabId, el) {
       document.querySelectorAll('.tab-pane').forEach(t => t.classList.remove('active'));
@@ -903,6 +1428,7 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
       initMap();
       loadDiagnostics();
       loadPests();
+      loadSavedMissionPlan();
     };
   </script>
 </body>

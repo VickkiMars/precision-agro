@@ -133,6 +133,24 @@ class TestPrecisionAgroSystem(unittest.TestCase):
         self.assertTrue(os.path.exists(self.geojson_test))
         dm.close()
 
+    def test_06_mission_planner_persistence(self):
+        """Benchmark 5: Interactive Mission Plan GeoJSON & Waypoint Persistence."""
+        import json
+        from gcs_server import GCSRequestHandler
+
+        handler = GCSRequestHandler.__new__(GCSRequestHandler)
+        plan = handler.get_active_mission()
+
+        self.assertIn("waypoints", plan)
+        self.assertGreater(len(plan["waypoints"]), 0, "Active mission must contain waypoints.")
+        self.assertIn("flight_parameters", plan)
+        self.assertIn("boundary_geojson", plan)
+
+        params = plan["flight_parameters"]
+        self.assertAlmostEqual(params["altitude_agl_m"], 5.0)
+        self.assertAlmostEqual(params["speed_mps"], 2.5)
+        print(f"[Test 6] Active Mission Plan Verified: {len(plan['waypoints'])} waypoints across {plan['area_hectares']} ha.")
+
 
 if __name__ == '__main__':
     unittest.main()
