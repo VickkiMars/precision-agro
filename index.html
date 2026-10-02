@@ -681,6 +681,217 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
+    /* =========================================================================
+       FLIGHT SCAN SIMULATION STYLES
+       ========================================================================= */
+    .sim-drone-div-icon {
+      background: transparent !important;
+      border: none !important;
+    }
+    .sim-drone-container {
+      position: relative;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.06s linear;
+      transform-origin: 24px 24px;
+    }
+    .sim-drone-svg {
+      width: 48px;
+      height: 48px;
+      filter: drop-shadow(0 4px 10px rgba(15, 23, 42, 0.45));
+    }
+    .sim-rotor-spin {
+      transform-origin: center;
+      animation: simRotorRotate 0.1s linear infinite;
+    }
+    @keyframes simRotorRotate {
+      0% { transform: scaleX(1) scaleY(1); opacity: 0.9; }
+      50% { transform: scaleX(0.2) scaleY(1.4); opacity: 0.5; }
+      100% { transform: scaleX(1) scaleY(1); opacity: 0.9; }
+    }
+    .sim-drone-shadow {
+      position: absolute;
+      width: 28px;
+      height: 18px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.28);
+      filter: blur(4px);
+      transform: translate(6px, 14px);
+      z-index: -1;
+    }
+    .sim-nav-led {
+      animation: simLedBlink 0.6s ease-in-out infinite alternate;
+    }
+    .sim-strobe-led {
+      animation: simStrobe 0.8s steps(2, start) infinite;
+    }
+    @keyframes simLedBlink {
+      from { opacity: 0.3; }
+      to { opacity: 1; }
+    }
+    @keyframes simStrobe {
+      0%, 80% { opacity: 0.1; }
+      90%, 100% { opacity: 1; }
+    }
+
+    /* Floating Simulation HUD on Map */
+    .sim-hud-panel {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      right: 12px;
+      z-index: 500;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(21, 128, 61, 0.25);
+      border-radius: var(--md-sys-shape-corner-medium);
+      padding: 10px 14px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.16);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-family: 'Inter', sans-serif;
+      animation: simHudFadeIn 0.25s ease-out;
+    }
+    [data-theme="dark"] .sim-hud-panel {
+      background: rgba(15, 23, 42, 0.94);
+      border-color: rgba(34, 197, 94, 0.3);
+      color: #f8fafc;
+    }
+    @keyframes simHudFadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .sim-hud-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .sim-hud-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8125rem;
+      font-weight: 700;
+      color: #15803d;
+    }
+    [data-theme="dark"] .sim-hud-status {
+      color: #4ade80;
+    }
+    .sim-pulse-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+      animation: simPulse 1.4s infinite;
+      flex-shrink: 0;
+    }
+    @keyframes simPulse {
+      0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+      70% { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    }
+    .sim-hud-wp-badge {
+      background: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+      padding: 3px 9px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+    }
+    .sim-hud-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: auto;
+    }
+    .sim-ctrl-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--md-sys-color-outline-variant);
+      background: var(--md-sys-color-surface-container);
+      color: var(--md-sys-color-on-surface);
+      transition: all 0.15s ease;
+    }
+    .sim-ctrl-btn:hover {
+      background: var(--md-sys-color-surface-container-high);
+      border-color: var(--md-sys-color-primary);
+    }
+    .sim-progress-track {
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--md-sys-color-surface-container-highest);
+      overflow: hidden;
+      position: relative;
+    }
+    .sim-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #15803d, #22c55e);
+      border-radius: 3px;
+      transition: width 0.1s linear;
+    }
+    .sim-hud-telemetry-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 0.75rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+      flex-wrap: wrap;
+    }
+    .sim-telem-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .sim-telem-lbl {
+      color: var(--md-sys-color-on-surface-variant);
+      font-weight: 600;
+    }
+    .sim-telem-val {
+      color: var(--md-sys-color-on-surface);
+      font-weight: 700;
+    }
+    .sim-speed-pills {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: auto;
+    }
+    .sim-spd-pill {
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      border: 1px solid var(--md-sys-color-outline-variant);
+      background: var(--md-sys-color-surface-container-low);
+      color: var(--md-sys-color-on-surface-variant);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .sim-spd-pill:hover {
+      background: var(--md-sys-color-surface-container-high);
+    }
+    .sim-spd-pill.active {
+      background: #15803d;
+      color: #ffffff;
+      border-color: #15803d;
+    }
+
     /* Waypoints Preview Accordion Drawer */
     .waypoints-accordion {
       border-radius: var(--md-sys-shape-corner-small);
@@ -867,15 +1078,13 @@
 
     /* Drone Optical Stream & Inflow Feed Styles */
     .drone-stream-grid {
-      display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      gap: var(--space-5);
+      display: block;
       margin-bottom: var(--space-5);
     }
     .drone-feed-wrapper {
       position: relative;
       width: 100%;
-      height: 380px;
+      height: 520px;
       background: var(--md-sys-color-surface-container-high);
       border-radius: var(--md-sys-shape-corner-medium);
       overflow: hidden;
@@ -1482,11 +1691,6 @@
           <span style="color:var(--md-sys-color-on-surface-variant);">14 SATS (HDOP 0.8)</span>
         </div>
 
-        <!-- Safety Arm Status -->
-        <div class="hud-item" style="background:var(--md-sys-color-primary-container);">
-          <span class="status-dot"></span>
-          <span style="font-weight:700; color:var(--md-sys-color-on-primary-container);" id="arm-status-text">SYSTEM ARMED</span>
-        </div>
       </div>
     </header>
 
@@ -1563,10 +1767,80 @@
                   <span>ALTITUDE: 5.0m AGL</span>
                 </div>
               </div>
+
+              <!-- Floating Simulation HUD Panel -->
+              <div id="sim-hud-panel" class="sim-hud-panel" style="display:none;">
+                <div class="sim-hud-header">
+                  <div class="sim-hud-status">
+                    <span class="sim-pulse-dot"></span>
+                    <span id="sim-status-title">FLIGHT SCAN SIMULATION ACTIVE</span>
+                  </div>
+                  <div class="sim-hud-wp-badge" id="sim-wp-counter">WP 1 / 16 (0.0%)</div>
+                  <div class="sim-hud-actions">
+                    <button class="sim-ctrl-btn" id="sim-hud-toggle-btn" onclick="toggleScanSimulation()" title="Pause/Resume Scan">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><rect x="6" y="4" width="4" height="16" fill="currentColor"/><rect x="14" y="4" width="4" height="16" fill="currentColor"/></svg>
+                      <span id="sim-hud-toggle-label">Pause</span>
+                    </button>
+                    <button class="sim-ctrl-btn" onclick="resetScanSimulation()" title="Reset Scan to Initial Waypoint">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><rect x="6" y="6" width="12" height="12" fill="currentColor"/></svg>
+                      Reset
+                    </button>
+                  </div>
+                </div>
+                <!-- Progress Track -->
+                <div class="sim-progress-track">
+                  <div id="sim-progress-bar" class="sim-progress-bar" style="width:0%;"></div>
+                </div>
+                <!-- Live Telemetry Strip -->
+                <div class="sim-hud-telemetry-row">
+                  <div class="sim-telem-item">
+                    <span class="sim-telem-lbl">GPS:</span>
+                    <span class="sim-telem-val" id="sim-telem-gps">5.037700°N, 7.912800°E</span>
+                  </div>
+                  <div class="sim-telem-item">
+                    <span class="sim-telem-lbl">ALT:</span>
+                    <span class="sim-telem-val" id="sim-telem-alt">5.0m AGL</span>
+                  </div>
+                  <div class="sim-telem-item">
+                    <span class="sim-telem-lbl">SPEED:</span>
+                    <span class="sim-telem-val" id="sim-telem-spd">6.2 m/s (2.5x)</span>
+                  </div>
+                  <div class="sim-telem-item">
+                    <span class="sim-telem-lbl">HEADING:</span>
+                    <span class="sim-telem-val" id="sim-telem-hdg">090°</span>
+                  </div>
+                  <div class="sim-telem-item">
+                    <span class="sim-telem-lbl">COVERAGE:</span>
+                    <span class="sim-telem-val" id="sim-telem-cov">0.00 / 2.00 ha (0%)</span>
+                  </div>
+                  <!-- Speed Selector -->
+                  <div class="sim-speed-pills">
+                    <span class="sim-telem-lbl" style="margin-right:2px;">SPEED:</span>
+                    <button class="sim-spd-pill" onclick="setSimSpeed(1.0, this)">1x</button>
+                    <button class="sim-spd-pill active" onclick="setSimSpeed(2.5, this)">2.5x</button>
+                    <button class="sim-spd-pill" onclick="setSimSpeed(5.0, this)">5x</button>
+                    <button class="sim-spd-pill" onclick="setSimSpeed(10.0, this)">10x</button>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- Toolbar Buttons -->
             <div class="btn-group">
+              <!-- Autonomous Scan Mission Simulation -->
+              <button class="md3-btn md3-btn-filled" id="btn-scan-sim" onclick="toggleScanSimulation()" style="background:#15803d; color:#ffffff; font-weight:700; box-shadow:0 2px 8px rgba(21,128,61,0.35);">
+                <svg id="btn-scan-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px;">
+                  <polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/>
+                </svg>
+                <span id="btn-scan-label">Start Scan Simulation</span>
+              </button>
+              <button class="md3-btn md3-btn-outlined" id="btn-scan-reset" onclick="resetScanSimulation()" style="display:none;" title="Reset Simulation to Initial Waypoint">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px;">
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                  <polyline points="3 3 3 8 8 8"/>
+                </svg>
+                Reset Scan
+              </button>
               <button class="md3-btn md3-btn-filled" id="btn-draw-poly" onclick="startDrawPolygon()">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                 Draw Farm Polygon
@@ -1699,31 +1973,31 @@
       </div>
 
       <!-- ======================================================================
-           MODULE 2: HARDWARE DIAGNOSTICS, OPTICAL INFLOW & FLIGHT READINESS
+           MODULE 2: LIVE DRONE OPTICAL FEED
            ====================================================================== -->
       <div id="module2" class="tab-pane">
         <div class="drone-stream-grid">
-          <!-- Left: Optical Sensor Real-Time Inflow Stream & Edge HUD -->
           <div class="md3-card">
             <div class="md3-card-header">
               <div>
                 <h2 class="md3-card-title">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                  Sony IMX219 CSI-2 Optical Stream &amp; Edge Vision HUD
+                  Sony IMX219 CSI-2 — Live Optical Inflow
                 </h2>
-                <p class="md3-card-subtitle">Real-time simulation of incoming plant imagery acquired by the drone with PyTorch ResNet-9 and classical ORB disease quantification.</p>
+                <p class="md3-card-subtitle">Real-time plant imagery acquired by the drone. Frames cycle at 1 fps during an active scan simulation.</p>
               </div>
               <span class="status-text-indicator" id="stream-badge-status" style="color:var(--md-sys-color-primary);">
-                ● 1024x768 OPTICAL INFLOW
+                ● 1024×768 OPTICAL INFLOW
               </span>
             </div>
 
-            <!-- Optical Video Viewport with Overlaid Telemetry HUD -->
+            <!-- Full-width feed viewport -->
             <div class="drone-feed-wrapper">
-              <img id="drone-live-feed-img" class="drone-feed-img" src="/api/drone/frame_image" alt="Live Drone Camera Feed" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;640&quot; height=&quot;480&quot; viewBox=&quot;0 0 640 480&quot;><rect width=&quot;100%&quot; height=&quot;100%&quot; fill=&quot;%2314532d&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; fill=&quot;%23f8fafc&quot; font-family=&quot;monospace&quot; font-size=&quot;14&quot; font-weight=&quot;700&quot; text-anchor=&quot;middle&quot;>LIVE OPTICAL INFLOW ACTIVE</text></svg>';" />
-              
+              <img id="drone-live-feed-img" class="drone-feed-img" src="/api/drone/frame_image" alt="Live Drone Camera Feed"
+                onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;640&quot; height=&quot;480&quot; viewBox=&quot;0 0 640 480&quot;><rect width=&quot;100%&quot; height=&quot;100%&quot; fill=&quot;%2314532d&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; fill=&quot;%23f8fafc&quot; font-family=&quot;monospace&quot; font-size=&quot;14&quot; font-weight=&quot;700&quot; text-anchor=&quot;middle&quot;>LIVE OPTICAL INFLOW ACTIVE</text></svg>';" />
+
               <div class="drone-feed-hud">
-                <!-- Top HUD Elements -->
+                <!-- Top HUD -->
                 <div class="feed-hud-top">
                   <div class="feed-hud-tag live-indicator">
                     <span class="status-dot"></span>
@@ -1735,10 +2009,10 @@
                   </div>
                 </div>
 
-                <!-- Tactical Crosshair Reticle -->
+                <!-- Crosshair Reticle -->
                 <div class="feed-reticle"></div>
 
-                <!-- Bottom Telemetry & Pathology HUD -->
+                <!-- Bottom Telemetry & Diagnosis HUD -->
                 <div class="feed-hud-bottom">
                   <div class="feed-hud-telemetry">
                     <span id="stream-gps">GPS: 5.037700°N, 7.912800°E</span>
@@ -1751,7 +2025,7 @@
                       <div style="font-size:0.6875rem; color:var(--md-sys-color-on-surface-variant); text-transform:uppercase; letter-spacing:0.04em;">Classified Pathology</div>
                       <div id="stream-pest-name" class="feed-diag-name" style="color:var(--md-sys-color-on-surface);">Tomato Mosaic Virus</div>
                       <div class="severity-meter-bg">
-                        <div id="stream-severity-bar" class="severity-meter-bar" style="width: 2.8%;"></div>
+                        <div id="stream-severity-bar" class="severity-meter-bar" style="width:2.8%;"></div>
                       </div>
                     </div>
                     <div style="text-align:right; margin-left:var(--space-3);">
@@ -1761,52 +2035,6 @@
                   </div>
                 </div>
               </div>
-            </div>
-
-            <!-- Inflow Stream Controls -->
-            <div class="stream-control-bar">
-              <button class="md3-btn md3-btn-filled" id="btn-stream-toggle" onclick="toggleDroneStream()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                Start Drone Inflow
-              </button>
-              <button class="md3-btn md3-btn-tonal" id="btn-stream-step" onclick="stepDroneStream(true)">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
-                Step Next Frame
-              </button>
-              <button class="md3-btn md3-btn-outlined" onclick="resetDroneStream()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><polyline points="3 3 3 8 8 8"/></svg>
-                Reset Stream
-              </button>
-              <span style="font-size:0.8125rem; color:var(--md-sys-color-on-surface-variant); margin-left:auto;">
-                Rate: <strong>1.0 Hz</strong> (2.5 m/s transect)
-              </span>
-            </div>
-
-            <!-- Prescriptive Action Banner -->
-            <div id="stream-rx-banner" style="margin-top:var(--space-3); padding:10px 14px; border-radius:8px; background:var(--md-sys-color-primary-container); color:var(--md-sys-color-on-primary-container); font-size:0.875rem;">
-              <span style="color:var(--md-sys-color-primary); font-weight:700;">✓ CANOPY HEALTHY:</span> Zero chemical application required.
-            </div>
-          </div>
-
-          <!-- Right: Real-Time Hardware Diagnostic Engine -->
-          <div class="md3-card">
-            <div class="md3-card-header">
-              <div>
-                <h2 class="md3-card-title">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                  Hardware Diagnostics &amp; Subsystems
-                </h2>
-                <p class="md3-card-subtitle">Continuous verification of MAVLink serial bus, LiPo power delivery, CSI-2 optical pipe, and local SQLite journal.</p>
-              </div>
-              <button class="md3-btn md3-btn-tonal" onclick="loadDiagnostics()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-                Refresh
-              </button>
-            </div>
-
-            <!-- Cards Grid for Subsystems -->
-            <div class="diag-cards-grid" id="diag-cards-container" style="grid-template-columns: 1fr;">
-              <!-- Dynamically populated -->
             </div>
           </div>
         </div>
@@ -2084,6 +2312,7 @@
     let drawnItems;
     let transectLayer;
     let markerLayer;
+    let simLayer;
     let drawControl;
     let currentBoundaryCoords = [];
     let currentWaypoints = [];
@@ -2175,6 +2404,7 @@
       drawnItems = new L.FeatureGroup().addTo(map);
       transectLayer = new L.layerGroup().addTo(map);
       markerLayer = new L.layerGroup().addTo(map);
+      simLayer = new L.layerGroup().addTo(map);
 
       drawControl = new L.Control.Draw({
         draw: {
@@ -2760,6 +2990,7 @@
     }
 
     function loadDefaultUyoField() {
+      if (!drawnItems) return;
       drawnItems.clearLayers();
       currentBoundaryCoords = [
         { lat: 5.037700, lng: 7.912800 },
@@ -2780,9 +3011,10 @@
     }
 
     function clearBoundaryAndGrid() {
-      drawnItems.clearLayers();
-      transectLayer.clearLayers();
-      markerLayer.clearLayers();
+      if (drawnItems) drawnItems.clearLayers();
+      if (transectLayer) transectLayer.clearLayers();
+      if (markerLayer) markerLayer.clearLayers();
+      if (typeof resetScanSimulation === 'function') resetScanSimulation();
       currentBoundaryCoords = [];
       currentWaypoints = [];
       document.getElementById('metric-area').innerText = "0.00 ha (0.00 ac)";
@@ -2822,36 +3054,540 @@
     }
 
     // =========================================================================
+    // Module 1: Autonomous Drone Flight Scan Simulation Engine
+    // =========================================================================
+    let scanSim = {
+      active: false,
+      paused: false,
+      animId: null,
+      speedMultiplier: 2.5,
+      nominalSpeedMps: 2.5,
+      lastTimestamp: null,
+      currentSegmentIndex: 0,
+      segmentProgress: 0, // 0.0 to 1.0 along current segment
+      totalDistanceTraveled: 0,
+      totalPathDistance: 0,
+      currentLat: null,
+      currentLon: null,
+      currentAlt: 5.0,
+      currentHeading: 0,
+      waypoints: [],
+      distances: [], // distance of each segment in meters
+      scannedCoords: [],
+      lastSampleWP: -1,
+      droneMarker: null,
+      droneElem: null,
+      scannedPolyline: null,
+      swathPolygon: null,
+      detectionMarkers: []
+    };
+
+    function calculateBearing(lat1, lon1, lat2, lon2) {
+      const y = Math.sin((lon2 - lon1) * Math.PI / 180.0) * Math.cos(lat2 * Math.PI / 180.0);
+      const x = Math.cos(lat1 * Math.PI / 180.0) * Math.sin(lat2 * Math.PI / 180.0) -
+                Math.sin(lat1 * Math.PI / 180.0) * Math.cos(lat2 * Math.PI / 180.0) * Math.cos((lon2 - lon1) * Math.PI / 180.0);
+      return (Math.atan2(y, x) * 180.0 / Math.PI + 360.0) % 360.0;
+    }
+
+    function calculateSwathFootprint(lat, lon, headingDeg, swathM, lengthM) {
+      const cosLat = Math.cos(lat * Math.PI / 180.0);
+      const mToLat = 1.0 / 111139.0;
+      const mToLon = 1.0 / (111139.0 * (cosLat || 1.0));
+      const rad = headingDeg * Math.PI / 180.0;
+      const fwdX = Math.sin(rad);
+      const fwdY = Math.cos(rad);
+      const rightX = Math.cos(rad);
+      const rightY = -Math.sin(rad);
+
+      const hw = swathM * 0.5;
+      const hl = lengthM * 0.5;
+
+      const corners = [
+        [-hw,  hl],
+        [ hw,  hl],
+        [ hw, -hl],
+        [-hw, -hl]
+      ];
+
+      return corners.map(([rx, ry]) => {
+        const dx = rx * rightX + ry * fwdX;
+        const dy = rx * rightY + ry * fwdY;
+        return [lat + dy * mToLat, lon + dx * mToLon];
+      });
+    }
+
+    function setSimSpeed(speed, btn) {
+      scanSim.speedMultiplier = speed;
+      document.querySelectorAll('.sim-spd-pill').forEach(el => el.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      const spdEl = document.getElementById('sim-telem-spd');
+      if (spdEl) spdEl.innerText = `${(scanSim.nominalSpeedMps * speed).toFixed(1)} m/s (${speed}x)`;
+    }
+
+    function toggleScanSimulation() {
+      if (!scanSim.active) {
+        startScanSimulation();
+      } else if (scanSim.paused) {
+        resumeScanSimulation();
+      } else {
+        pauseScanSimulation();
+      }
+    }
+
+    function startScanSimulation() {
+      // 1. Switch to Mission Planner tab if not already active
+      switchTab('module1', document.getElementById('nav-btn-module1'));
+
+      // 2. Ensure waypoints exist; if none, auto-load default field
+      if (!currentWaypoints || currentWaypoints.length < 2) {
+        loadDefaultUyoField();
+      }
+      if (!currentWaypoints || currentWaypoints.length < 2) {
+        showAlert("Please define a farm boundary to compute flight transects before starting the scan.", "warning");
+        return;
+      }
+
+      // 3. Reset previous simulation overlay if any
+      if (simLayer) simLayer.clearLayers();
+
+      // 4. Setup simulation data
+      scanSim.waypoints = currentWaypoints.slice();
+      scanSim.distances = [];
+      scanSim.totalPathDistance = 0;
+      for (let i = 0; i < scanSim.waypoints.length - 1; i++) {
+        const d = haversineDistMeters(
+          scanSim.waypoints[i].lat, scanSim.waypoints[i].lon,
+          scanSim.waypoints[i + 1].lat, scanSim.waypoints[i + 1].lon
+        );
+        const segDist = Math.max(0.01, d);
+        scanSim.distances.push(segDist);
+        scanSim.totalPathDistance += segDist;
+      }
+
+      scanSim.active = true;
+      scanSim.paused = false;
+      scanSim.currentSegmentIndex = 0;
+      scanSim.segmentProgress = 0.0;
+      scanSim.totalDistanceTraveled = 0;
+      scanSim.scannedCoords = [[scanSim.waypoints[0].lat, scanSim.waypoints[0].lon]];
+      scanSim.lastSampleWP = -1;
+      scanSim.lastTimestamp = null;
+      scanSim.nominalSpeedMps = currentOpticalParams.speed || 2.5;
+
+      const p0 = scanSim.waypoints[0];
+      const p1 = scanSim.waypoints[1];
+      const initialHeading = calculateBearing(p0.lat, p0.lon, p1.lat, p1.lon);
+      scanSim.currentLat = p0.lat;
+      scanSim.currentLon = p0.lon;
+      scanSim.currentAlt = p0.alt || currentOpticalParams.alt || 5.0;
+      scanSim.currentHeading = initialHeading;
+
+      // 5. Create Scanned Trajectory Polyline
+      scanSim.scannedPolyline = L.polyline(scanSim.scannedCoords, {
+        color: '#15803d',
+        weight: 5,
+        opacity: 0.95,
+        lineCap: 'round',
+        lineJoin: 'round'
+      }).addTo(simLayer);
+
+      // 6. Create Optical Ground Swath Footprint
+      const swathWidth = currentOpticalParams.swathWidth || 6.03;
+      const swathCoords = calculateSwathFootprint(p0.lat, p0.lon, initialHeading, swathWidth, swathWidth * 0.75);
+      scanSim.swathPolygon = L.polygon(swathCoords, {
+        color: '#22c55e',
+        weight: 1.5,
+        fillColor: '#16a34a',
+        fillOpacity: 0.28,
+        dashArray: '3, 4'
+      }).addTo(simLayer);
+
+      // 7. Create Custom Drone Icon & Marker
+      const droneHtml = `
+        <div class="sim-drone-container" id="sim-drone-elem" style="transform: rotate(${initialHeading.toFixed(1)}deg);">
+          <div class="sim-drone-shadow"></div>
+          <svg class="sim-drone-svg" viewBox="0 0 64 64" width="48" height="48">
+            <line x1="16" y1="16" x2="48" y2="48" stroke="#0f172a" stroke-width="4" stroke-linecap="round"/>
+            <line x1="16" y1="48" x2="48" y2="16" stroke="#0f172a" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="16" cy="16" r="6" fill="#1e293b" stroke="#15803d" stroke-width="1.8"/>
+            <circle cx="48" cy="16" r="6" fill="#1e293b" stroke="#15803d" stroke-width="1.8"/>
+            <circle cx="16" cy="48" r="6" fill="#1e293b" stroke="#15803d" stroke-width="1.8"/>
+            <circle cx="48" cy="48" r="6" fill="#1e293b" stroke="#15803d" stroke-width="1.8"/>
+            <g class="sim-rotors">
+              <ellipse cx="16" cy="16" rx="9" ry="2.6" fill="rgba(34,197,94,0.75)" class="sim-rotor-spin"/>
+              <ellipse cx="48" cy="16" rx="9" ry="2.6" fill="rgba(34,197,94,0.75)" class="sim-rotor-spin"/>
+              <ellipse cx="16" cy="48" rx="9" ry="2.6" fill="rgba(34,197,94,0.75)" class="sim-rotor-spin"/>
+              <ellipse cx="48" cy="48" rx="9" ry="2.6" fill="rgba(34,197,94,0.75)" class="sim-rotor-spin"/>
+            </g>
+            <circle cx="16" cy="11" r="2.2" fill="#ef4444" class="sim-nav-led"/>
+            <circle cx="48" cy="11" r="2.2" fill="#22c55e" class="sim-nav-led"/>
+            <circle cx="32" cy="53" r="2.2" fill="#ffffff" class="sim-strobe-led"/>
+            <rect x="23" y="23" width="18" height="18" rx="4" fill="#15803d" stroke="#ffffff" stroke-width="2"/>
+            <polygon points="32,15 25,23 39,23" fill="#22c55e" stroke="#ffffff" stroke-width="1.2"/>
+            <circle cx="32" cy="32" r="4.5" fill="#0f172a" stroke="#ffffff" stroke-width="1.5"/>
+            <circle cx="32" cy="32" r="2" fill="#4ade80"/>
+          </svg>
+        </div>
+      `;
+
+      const droneDivIcon = L.divIcon({
+        className: 'sim-drone-div-icon',
+        html: droneHtml,
+        iconSize: [48, 48],
+        iconAnchor: [24, 24]
+      });
+
+      scanSim.droneMarker = L.marker([p0.lat, p0.lon], {
+        icon: droneDivIcon,
+        zIndexOffset: 1000
+      }).addTo(simLayer);
+
+      scanSim.droneElem = document.getElementById('sim-drone-elem');
+
+      // 8. Update UI State & Show HUD
+      updateScanSimButtons(true, false);
+      const hud = document.getElementById('sim-hud-panel');
+      if (hud) hud.style.display = 'flex';
+
+      updateScanSimHUD();
+      showAlert("🚁 Drone Scan Simulation initiated: Traversing specified survey grid.", "info");
+
+      // 9. Kick off requestAnimationFrame and 1-FPS feed loop
+      scanSim.animId = requestAnimationFrame(simStep);
+      startFeedLoop();
+    }
+
+    function simStep(timestamp) {
+      if (!scanSim.active || scanSim.paused) return;
+
+      if (!scanSim.lastTimestamp) {
+        scanSim.lastTimestamp = timestamp;
+      }
+      const dt = Math.min(0.08, (timestamp - scanSim.lastTimestamp) / 1000.0);
+      scanSim.lastTimestamp = timestamp;
+
+      const speed = scanSim.nominalSpeedMps * scanSim.speedMultiplier;
+      let distToAdvance = speed * dt;
+
+      while (distToAdvance > 0 && scanSim.currentSegmentIndex < scanSim.distances.length) {
+        const segDist = scanSim.distances[scanSim.currentSegmentIndex];
+        const segRemaining = segDist * (1.0 - scanSim.segmentProgress);
+
+        if (distToAdvance < segRemaining) {
+          scanSim.segmentProgress += distToAdvance / segDist;
+          scanSim.totalDistanceTraveled += distToAdvance;
+          distToAdvance = 0;
+        } else {
+          scanSim.totalDistanceTraveled += segRemaining;
+          distToAdvance -= segRemaining;
+          scanSim.currentSegmentIndex++;
+          scanSim.segmentProgress = 0.0;
+        }
+      }
+
+      // Check if mission path finished
+      if (scanSim.currentSegmentIndex >= scanSim.distances.length) {
+        completeScanSimulation();
+        return;
+      }
+
+      // Interpolate along current segment
+      const pA = scanSim.waypoints[scanSim.currentSegmentIndex];
+      const pB = scanSim.waypoints[scanSim.currentSegmentIndex + 1];
+      const t = scanSim.segmentProgress;
+
+      const curLat = pA.lat + t * (pB.lat - pA.lat);
+      const curLon = pA.lon + t * (pB.lon - pA.lon);
+      const curAlt = pA.alt + t * (pB.alt - pA.alt);
+      const curHeading = calculateBearing(pA.lat, pA.lon, pB.lat, pB.lon);
+
+      scanSim.currentLat = curLat;
+      scanSim.currentLon = curLon;
+      scanSim.currentAlt = curAlt;
+      scanSim.currentHeading = curHeading;
+
+      // Update Drone Marker Position & Heading
+      if (scanSim.droneMarker) {
+        scanSim.droneMarker.setLatLng([curLat, curLon]);
+      }
+      if (!scanSim.droneElem) {
+        scanSim.droneElem = document.getElementById('sim-drone-elem');
+      }
+      if (scanSim.droneElem) {
+        scanSim.droneElem.style.transform = `rotate(${curHeading.toFixed(1)}deg)`;
+      }
+
+      // Update Swath Footprint Polygon
+      if (scanSim.swathPolygon) {
+        const swathWidth = currentOpticalParams.swathWidth || 6.03;
+        const swathCoords = calculateSwathFootprint(curLat, curLon, curHeading, swathWidth, swathWidth * 0.75);
+        scanSim.swathPolygon.setLatLngs(swathCoords);
+      }
+
+      // Update Scanned Polyline Trail
+      scanSim.scannedCoords.push([curLat, curLon]);
+      if (scanSim.scannedPolyline && scanSim.scannedCoords.length % 2 === 0) {
+        scanSim.scannedPolyline.setLatLngs(scanSim.scannedCoords);
+      }
+
+      // Simulated Pathology Sampling along waypoints
+      if (scanSim.lastSampleWP !== scanSim.currentSegmentIndex) {
+        scanSim.lastSampleWP = scanSim.currentSegmentIndex;
+        onSimReachWaypoint(scanSim.currentSegmentIndex);
+      }
+
+      // Update HUD and Telemetry
+      updateScanSimHUD();
+
+      // Next frame
+      scanSim.animId = requestAnimationFrame(simStep);
+    }
+
+    function onSimReachWaypoint(wpIndex) {
+      const totalWp = scanSim.waypoints.length;
+      const pct = (wpIndex + 1) / totalWp;
+      if (wpIndex > 0 && Math.abs(pct - 0.35) < 0.04) {
+        triggerSimulatedDetection("Corn_(maize)___Fall_Armyworm_lesion", 36.8, "Emamectin Benzoate 5% SG", 0.4);
+      } else if (wpIndex > 0 && Math.abs(pct - 0.72) < 0.04) {
+        triggerSimulatedDetection("Corn_(maize)___Common_rust_", 29.4, "Azoxystrobin 250 SC", 1.0);
+      }
+    }
+
+    function triggerSimulatedDetection(pestName, severity, chemical, dosage) {
+      const lat = scanSim.currentLat;
+      const lon = scanSim.currentLon;
+      const marker = L.circleMarker([lat, lon], {
+        radius: 7,
+        color: '#dc2626',
+        fillColor: '#ef4444',
+        fillOpacity: 0.85,
+        weight: 2
+      }).bindPopup(`<strong>⚠ Pathology Detected</strong><br/>${pestName.replace(/_/g, ' ')} (${severity.toFixed(1)}%)<br/>Prescription: ${chemical} @ ${dosage} ml/L`).addTo(simLayer);
+
+      scanSim.detectionMarkers.push(marker);
+      showAlert(`[Simulation Detection] ${pestName.replace(/_/g, ' ')} identified (${severity.toFixed(1)}% severity). Spot prescription generated.`, "tertiary");
+    }
+
+    function updateScanSimHUD() {
+      const totalDist = scanSim.totalPathDistance || 1;
+      const progressPct = Math.min(100, Math.max(0, (scanSim.totalDistanceTraveled / totalDist) * 100));
+
+      const bar = document.getElementById('sim-progress-bar');
+      if (bar) bar.style.width = `${progressPct.toFixed(1)}%`;
+
+      const counter = document.getElementById('sim-wp-counter');
+      if (counter) {
+        const curWP = Math.min(scanSim.waypoints.length, scanSim.currentSegmentIndex + 1);
+        counter.innerText = `WP ${curWP} / ${scanSim.waypoints.length} (${progressPct.toFixed(1)}%)`;
+      }
+
+      const gps = document.getElementById('sim-telem-gps');
+      if (gps && scanSim.currentLat && scanSim.currentLon) {
+        gps.innerText = `${scanSim.currentLat.toFixed(6)}°N, ${scanSim.currentLon.toFixed(6)}°E`;
+      }
+
+      const cursorCoords = document.getElementById('map-cursor-coords');
+      if (cursorCoords && scanSim.currentLat && scanSim.currentLon) {
+        cursorCoords.innerHTML = `<span>GPS: ${scanSim.currentLat.toFixed(6)}°N, ${scanSim.currentLon.toFixed(6)}°E [DRONE]</span>`;
+      }
+
+      const alt = document.getElementById('sim-telem-alt');
+      if (alt) alt.innerText = `${(scanSim.currentAlt || 5.0).toFixed(1)}m AGL`;
+
+      const spd = document.getElementById('sim-telem-spd');
+      if (spd) spd.innerText = `${(scanSim.nominalSpeedMps * scanSim.speedMultiplier).toFixed(1)} m/s (${scanSim.speedMultiplier}x)`;
+
+      const hdg = document.getElementById('sim-telem-hdg');
+      if (hdg) hdg.innerText = `${String(Math.round(scanSim.currentHeading || 0)).padStart(3, '0')}°`;
+
+      const cov = document.getElementById('sim-telem-cov');
+      if (cov) {
+        const areaHa = currentAreaHa || 2.0;
+        const coveredHa = (areaHa * (progressPct / 100.0)).toFixed(2);
+        cov.innerText = `${coveredHa} / ${areaHa.toFixed(2)} ha (${progressPct.toFixed(0)}%)`;
+      }
+    }
+
+    function pauseScanSimulation() {
+      scanSim.paused = true;
+      if (scanSim.animId) {
+        cancelAnimationFrame(scanSim.animId);
+        scanSim.animId = null;
+      }
+      updateScanSimButtons(true, true);
+      const title = document.getElementById('sim-status-title');
+      if (title) title.innerText = "FLIGHT SCAN SIMULATION PAUSED";
+      const hudBtn = document.getElementById('sim-hud-toggle-label');
+      if (hudBtn) hudBtn.innerText = "Resume";
+      showAlert("Drone scan simulation paused.", "info");
+    }
+
+    function resumeScanSimulation() {
+      scanSim.paused = false;
+      scanSim.lastTimestamp = null;
+      updateScanSimButtons(true, false);
+      const title = document.getElementById('sim-status-title');
+      if (title) title.innerText = "FLIGHT SCAN SIMULATION ACTIVE";
+      const hudBtn = document.getElementById('sim-hud-toggle-label');
+      if (hudBtn) hudBtn.innerText = "Pause";
+      scanSim.animId = requestAnimationFrame(simStep);
+      showAlert("Drone scan simulation resumed.", "info");
+    }
+
+    function completeScanSimulation() {
+      scanSim.active = false;
+      scanSim.paused = false;
+      if (scanSim.animId) {
+        cancelAnimationFrame(scanSim.animId);
+        scanSim.animId = null;
+      }
+
+      const lastWP = scanSim.waypoints[scanSim.waypoints.length - 1];
+      if (scanSim.droneMarker) scanSim.droneMarker.setLatLng([lastWP.lat, lastWP.lon]);
+      if (scanSim.scannedPolyline) {
+        scanSim.scannedCoords.push([lastWP.lat, lastWP.lon]);
+        scanSim.scannedPolyline.setLatLngs(scanSim.scannedCoords);
+      }
+
+      const bar = document.getElementById('sim-progress-bar');
+      if (bar) bar.style.width = '100%';
+
+      const title = document.getElementById('sim-status-title');
+      if (title) title.innerText = "✓ FLIGHT SCAN COMPLETED (100% COVERAGE)";
+
+      const counter = document.getElementById('sim-wp-counter');
+      if (counter) counter.innerText = `COMPLETED (${scanSim.waypoints.length} WP)`;
+
+      updateScanSimButtons(false, false);
+      const btnLabel = document.getElementById('btn-scan-label');
+      if (btnLabel) btnLabel.innerText = "Re-Run Scan Simulation";
+
+      stopFeedLoop();
+      showAlert(`✓ Flight Scan Simulation Completed! 100% coverage achieved across ${currentAreaHa.toFixed(2)} ha (${scanSim.waypoints.length} waypoints).`, "success");
+    }
+
+    function resetScanSimulation() {
+      if (scanSim.animId) {
+        cancelAnimationFrame(scanSim.animId);
+        scanSim.animId = null;
+      }
+      scanSim.active = false;
+      scanSim.paused = false;
+      scanSim.currentSegmentIndex = 0;
+      scanSim.segmentProgress = 0;
+      scanSim.totalDistanceTraveled = 0;
+      scanSim.scannedCoords = [];
+      scanSim.detectionMarkers = [];
+
+      if (simLayer) simLayer.clearLayers();
+
+      const hud = document.getElementById('sim-hud-panel');
+      if (hud) hud.style.display = 'none';
+
+      updateScanSimButtons(false, false);
+      const btnLabel = document.getElementById('btn-scan-label');
+      if (btnLabel) btnLabel.innerText = "Start Scan Simulation";
+
+      stopFeedLoop();
+      feedFrameIndex = 0;
+      showAlert("Drone flight simulation reset.", "info");
+    }
+
+    function updateScanSimButtons(isActive, isPaused) {
+      const scanBtn = document.getElementById('btn-scan-sim');
+      const resetBtn = document.getElementById('btn-scan-reset');
+      const label = document.getElementById('btn-scan-label');
+      const icon = document.getElementById('btn-scan-icon');
+      const hudToggleLabel = document.getElementById('sim-hud-toggle-label');
+      const hudToggleBtn = document.getElementById('sim-hud-toggle-btn');
+
+      if (!scanBtn) return;
+
+      if (!isActive) {
+        if (label) label.innerText = "Start Scan Simulation";
+        if (icon) {
+          icon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/>';
+        }
+        scanBtn.classList.remove('md3-btn-secondary');
+        scanBtn.classList.add('md3-btn-filled');
+        if (resetBtn) resetBtn.style.display = 'none';
+      } else if (isPaused) {
+        if (label) label.innerText = "Resume Scan";
+        if (icon) {
+          icon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/>';
+        }
+        if (hudToggleLabel) hudToggleLabel.innerText = "Resume";
+        if (hudToggleBtn) {
+          hudToggleBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/></svg> Resume';
+        }
+        scanBtn.classList.remove('md3-btn-filled');
+        scanBtn.classList.add('md3-btn-secondary');
+        if (resetBtn) resetBtn.style.display = 'inline-flex';
+      } else {
+        if (label) label.innerText = "Pause Scan";
+        if (icon) {
+          icon.innerHTML = '<rect x="6" y="4" width="4" height="16" fill="currentColor"/><rect x="14" y="4" width="4" height="16" fill="currentColor"/>';
+        }
+        if (hudToggleLabel) hudToggleLabel.innerText = "Pause";
+        if (hudToggleBtn) {
+          hudToggleBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><rect x="6" y="4" width="4" height="16" fill="currentColor"/><rect x="14" y="4" width="4" height="16" fill="currentColor"/></svg> Pause';
+        }
+        scanBtn.classList.remove('md3-btn-filled');
+        scanBtn.classList.add('md3-btn-secondary');
+        if (resetBtn) resetBtn.style.display = 'inline-flex';
+      }
+    }
+
+    // =========================================================================
     // Drone Optical Stream & Inflow Engine
     // =========================================================================
     let droneStreamInterval = null;
     let isDroneStreaming = false;
     let liveDroneMarker = null;
 
+    // ─── Live Feed: 1-FPS auto-cycling loop, 63 frames, wraps to 1, stops on sim complete ───
+    const FEED_TOTAL_FRAMES = 63;
+    let feedFrameIndex = 0;       // 0-based internally, displayed as 1-based
+    let feedIntervalId = null;
+
+    /** Called whenever Module 2 tab becomes visible. */
     async function loadDroneStreamState() {
+      // Show current frame immediately, then rely on the ticker
+      _feedShowFrame(feedFrameIndex);
+    }
+
+    /** Advance one frame (wraps), update the image + HUD. */
+    async function _feedTick() {
+      feedFrameIndex = (feedFrameIndex + 1) % FEED_TOTAL_FRAMES;
+      await _feedShowFrame(feedFrameIndex);
+    }
+
+    async function _feedShowFrame(idx) {
       try {
-        const res = await fetch('/api/drone/stream_status');
-        const state = await res.json();
-        updateDroneStreamUI(state);
-      } catch (err) {
-        console.error("Error loading stream state:", err);
+        const res = await fetch('/api/drone/stream/step', { method: 'POST' });
+        const data = await res.json();
+        if (data && data.state) {
+          _applyFeedState(data.state, idx);
+        } else {
+          // Fallback: just refresh the image from the server's current frame
+          const img = document.getElementById('drone-live-feed-img');
+          if (img) img.src = '/api/drone/frame_image?t=' + Date.now();
+        }
+      } catch (_) {
+        // Network error — just bump the image with cache-bust
+        const img = document.getElementById('drone-live-feed-img');
+        if (img) img.src = '/api/drone/frame_image?t=' + Date.now();
       }
     }
 
-    function updateDroneStreamUI(state) {
-      if (!state) return;
+    function _applyFeedState(state, idx) {
+      const displayIdx = (idx !== undefined ? idx : feedFrameIndex);
 
       const img = document.getElementById('drone-live-feed-img');
-      if (img) {
-        img.onerror = function() {
-          this.onerror = null;
-          this.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="640" height="480" viewBox="0 0 640 480"><rect width="100%" height="100%" fill="%2314532d"/><text x="50%" y="50%" fill="%23f8fafc" font-family="monospace" font-size="14" font-weight="700" text-anchor="middle">LIVE OPTICAL INFLOW ACTIVE</text></svg>';
-        };
-        img.src = '/api/drone/frame_image?t=' + Date.now();
-      }
+      if (img) img.src = '/api/drone/frame_image?t=' + Date.now();
 
       const counter = document.getElementById('stream-frame-counter');
-      if (counter) counter.innerText = `FRAME ${String(state.frame_index || 1).padStart(2, '0')} / ${state.total_frames || 63}`;
+      if (counter) counter.innerText = `FRAME ${String(displayIdx + 1).padStart(2, '0')} / ${FEED_TOTAL_FRAMES}`;
 
       const fname = document.getElementById('stream-filename');
       if (fname) fname.innerText = state.filename || '---';
@@ -2860,115 +3596,45 @@
       if (gps) gps.innerText = `GPS: ${(state.lat || 5.0377).toFixed(6)}°N, ${(state.lon || 7.9128).toFixed(6)}°E`;
 
       const alt = document.getElementById('stream-alt');
-      if (alt) alt.innerText = `ALT: ${state.alt || 5.0}m AGL`;
+      if (alt) alt.innerText = `ALT: ${(state.alt || 5.0).toFixed(1)}m AGL`;
 
       const pest = document.getElementById('stream-pest-name');
       if (pest) pest.innerText = (state.pest_name || 'Healthy Canopy').replace(/_/g, ' ');
 
+      const sevVal = state.severity_pct || 0;
       const sev = document.getElementById('stream-severity-val');
-      if (sev) sev.innerText = `${(state.severity_pct || 0).toFixed(1)}%`;
+      if (sev) sev.innerText = `${sevVal.toFixed(1)}%`;
 
       const sevBar = document.getElementById('stream-severity-bar');
       if (sevBar) {
-        sevBar.style.width = `${Math.min(100, Math.max(3, state.severity_pct || 0))}%`;
-        if ((state.severity_pct || 0) > 40) {
-          sevBar.style.backgroundColor = 'var(--md-sys-color-primary)';
-        } else if ((state.severity_pct || 0) > 10) {
-          sevBar.style.backgroundColor = '#16a34a';
-        } else {
-          sevBar.style.backgroundColor = '#22c55e';
-        }
+        sevBar.style.width = `${Math.min(100, Math.max(3, sevVal))}%`;
+        sevBar.style.backgroundColor = sevVal > 40 ? 'var(--md-sys-color-primary)'
+                                      : sevVal > 10 ? '#16a34a'
+                                      : '#22c55e';
       }
 
       const latency = document.getElementById('stream-latency-val');
       if (latency) latency.innerText = `${(state.latency_ms || 141.6).toFixed(1)} ms`;
 
-      const rxBanner = document.getElementById('stream-rx-banner');
-      if (rxBanner) {
-        if (state.action === 'SPOT_SPRAY') {
-          rxBanner.innerHTML = `<span style="color:var(--md-sys-color-on-surface); font-weight:700;">● SPOT SPRAY ACTION:</span> ${state.chemical} @ ${state.dosage} ml/L`;
-          rxBanner.style.background = 'var(--md-sys-color-surface-container-highest)';
-          rxBanner.style.color = 'var(--md-sys-color-on-surface)';
-        } else {
-          rxBanner.innerHTML = `<span style="color:var(--md-sys-color-primary); font-weight:700;">✓ CANOPY HEALTHY:</span> Zero chemical application required.`;
-          rxBanner.style.background = 'var(--md-sys-color-primary-container)';
-          rxBanner.style.color = 'var(--md-sys-color-on-primary-container)';
-        }
-      }
-
-      const streamBtn = document.getElementById('btn-stream-toggle');
-      if (streamBtn) {
-        if (state.is_streaming) {
-          streamBtn.innerHTML = `
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-            Pause Inflow
-          `;
-          streamBtn.classList.remove('md3-btn-filled');
-          streamBtn.classList.add('md3-btn-secondary');
-        } else {
-          streamBtn.innerHTML = `
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-            Start Drone Inflow
-          `;
-          streamBtn.classList.remove('md3-btn-secondary');
-          streamBtn.classList.add('md3-btn-filled');
-        }
-      }
-
-      // Synchronize live drone marker on Leaflet map
-      if (typeof map !== 'undefined' && map && state.lat && state.lon) {
-        updateDroneMarkerOnMap(state.lat, state.lon, state);
-      }
+      const badge = document.getElementById('stream-badge-status');
+      if (badge) badge.innerHTML = `● ${FEED_TOTAL_FRAMES} FRAMES · 1 FPS`;
     }
 
-    async function toggleDroneStream() {
-      try {
-        const url = isDroneStreaming ? '/api/drone/stream/pause' : '/api/drone/stream/start';
-        const res = await fetch(url, { method: 'POST' });
-        const data = await res.json();
-        isDroneStreaming = !isDroneStreaming;
-        if (isDroneStreaming) {
-          if (!droneStreamInterval) {
-            droneStreamInterval = setInterval(async () => {
-              await stepDroneStream(false);
-            }, 1200);
-          }
-        } else {
-          if (droneStreamInterval) {
-            clearInterval(droneStreamInterval);
-            droneStreamInterval = null;
-          }
-        }
-        updateDroneStreamUI(data.state || { is_streaming: isDroneStreaming });
-      } catch (err) {
-        console.error("Stream toggle error:", err);
-      }
+    /** Start the 1-FPS ticker — called by startScanSimulation, or on tab open if sim active. */
+    function startFeedLoop() {
+      if (feedIntervalId) return; // already running
+      feedFrameIndex = 0;
+      feedIntervalId = setInterval(_feedTick, 1000);
     }
 
-    async function stepDroneStream(showAlertToast = true) {
-      try {
-        const res = await fetch('/api/drone/stream/step', { method: 'POST' });
-        const data = await res.json();
-        if (data.status === 'success') {
-          updateDroneStreamUI(data.state);
-          if (showAlertToast && data.state.action === 'SPOT_SPRAY') {
-            showAlert(`[Optical Alert] ${data.state.pest_name}: Spot spray ${data.state.chemical} @ ${data.state.dosage} ml/L logged.`, "tertiary");
-          }
-        }
-      } catch (err) {
-        console.error("Error stepping stream:", err);
+    /** Stop the ticker — called by completeScanSimulation / resetScanSimulation. */
+    function stopFeedLoop() {
+      if (feedIntervalId) {
+        clearInterval(feedIntervalId);
+        feedIntervalId = null;
       }
-    }
-
-    function resetDroneStream() {
-      if (droneStreamInterval) {
-        clearInterval(droneStreamInterval);
-        droneStreamInterval = null;
-      }
-      isDroneStreaming = false;
-      fetch('/api/drone/stream/pause', { method: 'POST' }).then(() => {
-        loadDroneStreamState();
-      });
+      const badge = document.getElementById('stream-badge-status');
+      if (badge) badge.innerHTML = `● SCAN COMPLETE`;
     }
 
     function updateDroneMarkerOnMap(lat, lon, state) {
@@ -2984,9 +3650,8 @@
       } else {
         liveDroneMarker.setLatLng([lat, lon]);
       }
-      liveDroneMarker.bindTooltip(`Drone Payload: ${state.pest_name || 'Scanning'} (${state.severity_pct || 0}%)`, {
-        permanent: false,
-        direction: 'top'
+      liveDroneMarker.bindTooltip(`Drone Payload: ${(state && state.pest_name) || 'Scanning'} (${(state && state.severity_pct) || 0}%)`, {
+        permanent: false, direction: 'top'
       });
     }
 
