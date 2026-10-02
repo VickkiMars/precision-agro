@@ -21,3 +21,7 @@ test_prescription_map.geojson
 # to the Vercel container (the GCS is stdlib-only). Re-add with `git add -f`
 # or move to Git LFS if you want it versioned.
 *.pth
+
+# Extracted downscaled datasets for local simulation
+pest_database/
+realtime_captures/
