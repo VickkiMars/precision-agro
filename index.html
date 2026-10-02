@@ -1,0 +1,3200 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <title>Precision Agriculture Drone Ground Control Station</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Autonomous precision agriculture drone ground control station with edge-computed prescription engine and survey grid planner.">
+
+  <!-- Typography: Inter for UI & JetBrains Mono for Telemetry/Coordinates -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Leaflet & Leaflet Draw -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+
+  <style>
+    /* ==========================================================================
+       MATERIAL DESIGN 3 (MD3) DESIGN TOKEN SYSTEM
+       ========================================================================== */
+    :root, [data-theme="dark"] {
+      /* MD3 Surface Containers - Tactical Dark Operations */
+      --md-sys-color-surface: #0a0e14;
+      --md-sys-color-surface-dim: #070a0f;
+      --md-sys-color-surface-bright: #1c2430;
+      --md-sys-color-surface-container-lowest: #04070a;
+      --md-sys-color-surface-container-low: #0f141c;
+      --md-sys-color-surface-container: #141b24;
+      --md-sys-color-surface-container-high: #1b2330;
+      --md-sys-color-surface-container-highest: #232d3d;
+
+      --md-sys-color-on-surface: #e6edf3;
+      --md-sys-color-on-surface-variant: #9da7b3;
+      --md-sys-color-outline: #303c4c;
+      --md-sys-color-outline-variant: #1e2633;
+
+      /* Primary - Agronomic Emerald */
+      --md-sys-color-primary: #38ef7d;
+      --md-sys-color-on-primary: #003915;
+      --md-sys-color-primary-container: #005322;
+      --md-sys-color-on-primary-container: #5bff97;
+
+      /* Secondary - MAVLink Telemetry Cobalt */
+      --md-sys-color-secondary: #58a6ff;
+      --md-sys-color-on-secondary: #002d5d;
+      --md-sys-color-secondary-container: #0c437a;
+      --md-sys-color-on-secondary-container: #c8e1ff;
+
+      /* Tertiary - Optical & Maintenance Amber */
+      --md-sys-color-tertiary: #f0b429;
+      --md-sys-color-on-tertiary: #3b2a00;
+      --md-sys-color-tertiary-container: #5c4200;
+      --md-sys-color-on-tertiary-container: #ffe399;
+
+      /* Error / Hotspot Alert - Crimson */
+      --md-sys-color-error: #f85149;
+      --md-sys-color-on-error: #450005;
+      --md-sys-color-error-container: #79000d;
+      --md-sys-color-on-error-container: #ffb3b0;
+
+      /* Success / Clearance */
+      --md-sys-color-success: #3fb950;
+      --md-sys-color-on-success: #003a11;
+      --md-sys-color-success-container: #0e4419;
+
+      /* Map Tile Filter for Tactical Dark */
+      --map-tile-filter: brightness(0.72) invert(1) contrast(3.2) hue-rotate(200deg) saturate(0.35);
+      --map-tile-bg: #090d13;
+    }
+
+    /* Sunlight Mode (Field Edge Anti-Glare High-Contrast) */
+    [data-theme="sunlight"] {
+      --md-sys-color-surface: #f1f4f8;
+      --md-sys-color-surface-dim: #e4e8ef;
+      --md-sys-color-surface-bright: #ffffff;
+      --md-sys-color-surface-container-lowest: #ffffff;
+      --md-sys-color-surface-container-low: #f8fafc;
+      --md-sys-color-surface-container: #ffffff;
+      --md-sys-color-surface-container-high: #e9eef5;
+      --md-sys-color-surface-container-highest: #dde3ec;
+
+      --md-sys-color-on-surface: #0a0f18;
+      --md-sys-color-on-surface-variant: #3a4756;
+      --md-sys-color-outline: #8c9ba8;
+      --md-sys-color-outline-variant: #c8d3de;
+
+      /* Sunlight Primary - Deep High-Contrast Emerald */
+      --md-sys-color-primary: #198754;
+      --md-sys-color-on-primary: #ffffff;
+      --md-sys-color-primary-container: #d1f2dd;
+      --md-sys-color-on-primary-container: #003a15;
+
+      /* Sunlight Secondary - Deep High-Contrast Navy/Cobalt */
+      --md-sys-color-secondary: #0d6efd;
+      --md-sys-color-on-secondary: #ffffff;
+      --md-sys-color-secondary-container: #cfe2ff;
+      --md-sys-color-on-secondary-container: #00224d;
+
+      /* Sunlight Tertiary - Deep Ochre */
+      --md-sys-color-tertiary: #b07200;
+      --md-sys-color-on-tertiary: #ffffff;
+      --md-sys-color-tertiary-container: #ffe8b3;
+      --md-sys-color-on-tertiary-container: #472b00;
+
+      /* Sunlight Error */
+      --md-sys-color-error: #dc3545;
+      --md-sys-color-on-error: #ffffff;
+      --md-sys-color-error-container: #f8d7da;
+      --md-sys-color-on-error-container: #58151c;
+
+      --md-sys-color-success: #198754;
+      --md-sys-color-on-success: #ffffff;
+      --md-sys-color-success-container: #d1f2dd;
+
+      --map-tile-filter: contrast(1.1) saturate(1.15);
+      --map-tile-bg: #e6ebf2;
+    }
+
+    /* MD3 Shape Hierarchy */
+    :root {
+      --md-sys-shape-corner-none: 0px;
+      --md-sys-shape-corner-extra-small: 4px;
+      --md-sys-shape-corner-small: 8px;
+      --md-sys-shape-corner-medium: 14px;
+      --md-sys-shape-corner-large: 20px;
+      --md-sys-shape-corner-extra-large: 28px;
+      --md-sys-shape-corner-full: 9999px;
+
+      /* Spacing Scale (8dp system) */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-10: 40px;
+
+      /* Layout Dimensions */
+      --nav-rail-width: 84px;
+      --top-bar-height: 64px;
+
+      /* Motion */
+      --md-motion-easing: cubic-bezier(0.2, 0, 0, 1);
+      --md-motion-duration: 220ms;
+    }
+
+    /* Universal Reset & Base Styles */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      border: none;
+    }
+
+    body {
+      background-color: var(--md-sys-color-surface);
+      color: var(--md-sys-color-on-surface);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 0.9375rem;
+      line-height: 1.5;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: row;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Selection & Scrollbar */
+    ::selection {
+      background: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--md-sys-color-surface-container-highest);
+      border-radius: var(--md-sys-shape-corner-full);
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--md-sys-color-outline);
+    }
+    :focus-visible {
+      outline: 2px solid var(--md-sys-color-secondary);
+      outline-offset: 2px;
+    }
+
+    /* ==========================================================================
+       MD3 NAVIGATION RAIL & BOTTOM BAR
+       ========================================================================== */
+    #nav-rail {
+      width: var(--nav-rail-width);
+      background: var(--md-sys-color-surface-container-low);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: var(--space-3) 0 var(--space-4) 0;
+      flex-shrink: 0;
+      z-index: 100;
+      transition: background var(--md-motion-duration) var(--md-motion-easing);
+    }
+
+    .brand-logo-btn {
+      width: 52px;
+      height: 52px;
+      border-radius: var(--md-sys-shape-corner-large);
+      background: linear-gradient(135deg, var(--md-sys-color-primary-container), var(--md-sys-color-secondary-container));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--md-sys-color-primary);
+      margin-bottom: var(--space-4);
+      cursor: pointer;
+      position: relative;
+      transition: transform var(--md-motion-duration) var(--md-motion-easing);
+    }
+    .brand-logo-btn:hover {
+      transform: scale(1.04);
+    }
+    .brand-logo-btn svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    .nav-destination-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      width: 100%;
+      padding: 0 var(--space-2);
+    }
+
+    .nav-destination {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: var(--space-1) 0;
+      border-radius: var(--md-sys-shape-corner-medium);
+      user-select: none;
+      text-decoration: none;
+      color: var(--md-sys-color-on-surface-variant);
+      transition: color var(--md-motion-duration) var(--md-motion-easing);
+    }
+
+    .nav-target-indicator {
+      width: 56px;
+      height: 32px;
+      border-radius: var(--md-sys-shape-corner-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: var(--space-1);
+      transition: background var(--md-motion-duration) var(--md-motion-easing),
+                  color var(--md-motion-duration) var(--md-motion-easing);
+    }
+    .nav-target-indicator svg {
+      width: 20px;
+      height: 20px;
+      stroke-width: 1.9;
+    }
+
+    .nav-destination:hover .nav-target-indicator {
+      background: var(--md-sys-color-surface-container-high);
+      color: var(--md-sys-color-on-surface);
+    }
+
+    .nav-destination.active .nav-target-indicator {
+      background: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+    }
+    .nav-destination.active {
+      color: var(--md-sys-color-primary);
+      font-weight: 600;
+    }
+
+    .nav-label {
+      font-size: 0.6875rem;
+      letter-spacing: 0.02em;
+      text-align: center;
+      line-height: 1.1;
+      max-width: 72px;
+    }
+
+    .rail-bottom {
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .theme-toggle-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--md-sys-shape-corner-full);
+      background: var(--md-sys-color-surface-container-high);
+      color: var(--md-sys-color-on-surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all var(--md-motion-duration) var(--md-motion-easing);
+      flex-shrink: 0;
+    }
+    .theme-toggle-btn:hover {
+      background: var(--md-sys-color-surface-container-highest);
+      transform: rotate(15deg);
+    }
+    .theme-toggle-btn svg {
+      width: 19px;
+      height: 19px;
+    }
+
+    /* ==========================================================================
+       APPLICATION WORKSPACE & TOP APP BAR
+       ========================================================================== */
+    #app-workspace {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* MD3 Top App Bar */
+    .top-app-bar {
+      min-height: var(--top-bar-height);
+      background: var(--md-sys-color-surface-container);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--space-6);
+      flex-shrink: 0;
+      gap: var(--space-4);
+      z-index: 90;
+    }
+
+    .bar-headline {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+    .bar-headline h1 {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--md-sys-color-on-surface);
+      letter-spacing: -0.01em;
+    }
+    .system-mode-tag {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 2px 8px;
+      border-radius: var(--md-sys-shape-corner-small);
+      background: var(--md-sys-color-surface-container-highest);
+      color: var(--md-sys-color-on-surface-variant);
+    }
+
+    /* HUD Cockpit Telemetry Strip */
+    .telemetry-hud-strip {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+    }
+
+    .hud-item {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: 6px 12px;
+      border-radius: var(--md-sys-shape-corner-small);
+      background: var(--md-sys-color-surface-container-low);
+      font-size: 0.8125rem;
+      color: var(--md-sys-color-on-surface);
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum" 1;
+    }
+    .hud-item svg {
+      width: 15px;
+      height: 15px;
+      flex-shrink: 0;
+    }
+
+    /* Static Status Dot - Calm, professional instrumentation */
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--md-sys-color-primary);
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    .status-dot.secondary {
+      background: var(--md-sys-color-secondary);
+    }
+    .status-dot.tertiary {
+      background: var(--md-sys-color-tertiary);
+    }
+    .status-dot.error {
+      background: var(--md-sys-color-error);
+    }
+
+    .hud-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      flex-shrink: 0;
+    }
+
+    /* ==========================================================================
+       MAIN CONTENT CONTAINER
+       ========================================================================== */
+    #main-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--space-6);
+      background: var(--md-sys-color-surface);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-5);
+    }
+
+    .tab-pane {
+      display: none;
+      animation: fadeIn 0.2s var(--md-motion-easing);
+    }
+    .tab-pane.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(3px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Alerts */
+    .md3-alert {
+      display: none;
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--md-sys-shape-corner-medium);
+      font-size: 0.875rem;
+      font-weight: 500;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+      animation: slideDown 0.2s ease-out;
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .md3-alert.success {
+      background: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+    }
+    .md3-alert.error {
+      background: var(--md-sys-color-error-container);
+      color: var(--md-sys-color-on-error-container);
+    }
+    .md3-alert.info {
+      background: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+    }
+
+    /* ==========================================================================
+       MD3 COMPONENT DESIGN SYSTEM
+       ========================================================================== */
+    /* Cards */
+    .md3-card {
+      background: var(--md-sys-color-surface-container);
+      border-radius: var(--md-sys-shape-corner-medium);
+      padding: var(--space-5);
+      position: relative;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.16);
+    }
+    .md3-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-4);
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+    .md3-card-title {
+      font-size: 1.0625rem;
+      font-weight: 600;
+      color: var(--md-sys-color-on-surface);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    .md3-card-title svg {
+      width: 20px;
+      height: 20px;
+      color: var(--md-sys-color-secondary);
+      flex-shrink: 0;
+    }
+    .md3-card-subtitle {
+      font-size: 0.8125rem;
+      color: var(--md-sys-color-on-surface-variant);
+      margin-top: 2px;
+    }
+
+    /* Grids */
+    .layout-grid-planner {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: var(--space-5);
+    }
+
+    .metric-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: var(--space-4);
+      margin-bottom: var(--space-5);
+    }
+
+    /* Metric Stat Card */
+    .metric-stat-card {
+      background: var(--md-sys-color-surface-container-high);
+      border-radius: var(--md-sys-shape-corner-medium);
+      padding: var(--space-4);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+    }
+    .metric-stat-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--md-sys-color-on-surface-variant);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    .metric-stat-label svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+    .metric-stat-value {
+      font-size: 1.375rem;
+      font-weight: 700;
+      color: var(--md-sys-color-on-surface);
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+    }
+    .metric-stat-sub {
+      font-size: 0.75rem;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+
+    /* Buttons */
+    .md3-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 0 var(--space-4);
+      height: 44px;
+      border-radius: var(--md-sys-shape-corner-full);
+      cursor: pointer;
+      user-select: none;
+      text-decoration: none;
+      transition: all var(--md-motion-duration) var(--md-motion-easing);
+      white-space: nowrap;
+    }
+    .md3-btn svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+    .md3-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* Button Variants */
+    .md3-btn-filled {
+      background: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+    }
+    .md3-btn-filled:hover {
+      filter: brightness(1.06);
+      box-shadow: 0 4px 12px rgba(56, 239, 125, 0.25);
+    }
+
+    .md3-btn-tonal {
+      background: var(--md-sys-color-surface-container-highest);
+      color: var(--md-sys-color-on-surface);
+    }
+    .md3-btn-tonal:hover {
+      background: var(--md-sys-color-surface-container-bright);
+    }
+
+    .md3-btn-secondary {
+      background: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+    }
+    .md3-btn-secondary:hover {
+      filter: brightness(1.08);
+    }
+
+    .md3-btn-outlined {
+      background: var(--md-sys-color-surface-container-high);
+      color: var(--md-sys-color-on-surface);
+    }
+    .md3-btn-outlined:hover {
+      background: var(--md-sys-color-surface-container-highest);
+    }
+
+    .md3-btn-destructive {
+      background: var(--md-sys-color-error-container);
+      color: var(--md-sys-color-on-error-container);
+    }
+    .md3-btn-destructive:hover {
+      filter: brightness(1.12);
+    }
+
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+
+    /* Inputs, Selects & Form Controls */
+    .md3-field {
+      margin-bottom: var(--space-3);
+    }
+    .md3-label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--md-sys-color-on-surface-variant);
+      margin-bottom: var(--space-1);
+    }
+    .md3-input, .md3-select {
+      width: 100%;
+      height: 44px;
+      padding: 0 var(--space-3);
+      background: var(--md-sys-color-surface-container-highest);
+      border-radius: var(--md-sys-shape-corner-small);
+      color: var(--md-sys-color-on-surface);
+      font-family: inherit;
+      font-size: 0.875rem;
+      outline: none;
+      transition: box-shadow var(--md-motion-duration) var(--md-motion-easing);
+    }
+    .md3-input:focus, .md3-select:focus {
+      outline: 2px solid var(--md-sys-color-secondary);
+      outline-offset: 0;
+    }
+    .md3-input[readonly] {
+      background: var(--md-sys-color-surface-container-low);
+      color: var(--md-sys-color-on-surface-variant);
+      cursor: not-allowed;
+    }
+
+    /* Map View Container */
+    #map-wrapper {
+      position: relative;
+      border-radius: var(--md-sys-shape-corner-medium);
+      overflow: hidden;
+      margin-bottom: var(--space-3);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22);
+    }
+    #map {
+      height: 460px;
+      width: 100%;
+      background: var(--map-tile-bg);
+      z-index: 1;
+    }
+    .leaflet-tile {
+      filter: var(--map-tile-filter);
+    }
+
+    /* Floating Map HUD Readout */
+    .map-hud-overlay {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 500;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      pointer-events: none;
+    }
+    .map-hud-readout {
+      background: rgba(10, 14, 20, 0.88);
+      backdrop-filter: blur(10px);
+      color: var(--md-sys-color-on-surface);
+      padding: 6px 12px;
+      border-radius: var(--md-sys-shape-corner-small);
+      font-size: 0.75rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    [data-theme="sunlight"] .map-hud-readout {
+      background: rgba(255, 255, 255, 0.92);
+      color: #0a0f18;
+    }
+
+    /* Waypoints Preview Accordion Drawer */
+    .waypoints-accordion {
+      border-radius: var(--md-sys-shape-corner-small);
+      background: var(--md-sys-color-surface-container-low);
+      overflow: hidden;
+      margin-top: var(--space-3);
+    }
+    .waypoints-accordion-header {
+      padding: var(--space-3);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--md-sys-color-on-surface);
+      user-select: none;
+    }
+    .waypoints-accordion-header:hover {
+      background: var(--md-sys-color-surface-container-high);
+    }
+    .waypoints-accordion-body {
+      max-height: 200px;
+      overflow-y: auto;
+      display: none;
+      background: var(--md-sys-color-surface-container-lowest);
+    }
+    .waypoints-accordion.open .waypoints-accordion-body {
+      display: block;
+    }
+
+    /* Tables */
+    .md3-table-container {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: var(--md-sys-shape-corner-medium);
+      background: var(--md-sys-color-surface-container);
+    }
+    .md3-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+      font-variant-numeric: tabular-nums;
+    }
+    .md3-table th {
+      background: var(--md-sys-color-surface-container-high);
+      color: var(--md-sys-color-on-surface-variant);
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: var(--space-3) var(--space-4);
+      text-align: left;
+    }
+    .md3-table td {
+      padding: var(--space-3) var(--space-4);
+      color: var(--md-sys-color-on-surface);
+    }
+    .md3-table tbody tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .md3-table tbody tr:hover {
+      background: var(--md-sys-color-surface-container-highest);
+    }
+
+    /* Clean Status Typography */
+    .status-text-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    /* Inspection Checklist */
+    .checklist-container {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+    .checklist-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      min-height: 52px;
+      background: var(--md-sys-color-surface-container-high);
+      border-radius: var(--md-sys-shape-corner-small);
+      cursor: pointer;
+      user-select: none;
+      transition: all var(--md-motion-duration) var(--md-motion-easing);
+    }
+    .checklist-row:hover {
+      background: var(--md-sys-color-surface-container-highest);
+    }
+    .checklist-circle {
+      width: 24px;
+      height: 24px;
+      border-radius: var(--md-sys-shape-corner-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all var(--md-motion-duration) var(--md-motion-easing);
+    }
+    .checklist-row.cleared .checklist-circle {
+      background: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+    }
+    .checklist-row:not(.cleared) .checklist-circle {
+      background: var(--md-sys-color-error-container);
+      color: var(--md-sys-color-on-error-container);
+    }
+    .checklist-text {
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+    .checklist-row:not(.cleared) .checklist-text {
+      color: var(--md-sys-color-on-surface-variant);
+      text-decoration: line-through rgba(248, 81, 73, 0.4);
+    }
+
+    /* Empty State */
+    .empty-state-box {
+      padding: var(--space-8) var(--space-4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: var(--space-2);
+    }
+    .empty-state-box svg {
+      width: 44px;
+      height: 44px;
+      color: var(--md-sys-color-outline);
+      margin-bottom: var(--space-2);
+    }
+    .empty-state-box h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--md-sys-color-on-surface);
+    }
+    .empty-state-box p {
+      font-size: 0.8125rem;
+      color: var(--md-sys-color-on-surface-variant);
+      max-width: 420px;
+    }
+
+    /* Diagnostics Subsystem Cards Grid */
+    .diag-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: var(--space-4);
+    }
+    .diag-card {
+      background: var(--md-sys-color-surface-container-high);
+      border-radius: var(--md-sys-shape-corner-medium);
+      padding: var(--space-4);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+    }
+    .diag-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .diag-card-name {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--md-sys-color-on-surface-variant);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .diag-card-value {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--md-sys-color-on-surface);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Drone Optical Stream & Inflow Feed Styles */
+    .drone-stream-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: var(--space-5);
+      margin-bottom: var(--space-5);
+    }
+    .drone-feed-wrapper {
+      position: relative;
+      width: 100%;
+      height: 380px;
+      background: #080c10;
+      border-radius: var(--md-sys-shape-corner-medium);
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+    .drone-feed-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .drone-feed-hud {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: var(--space-3);
+      background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 25%, rgba(0,0,0,0) 65%, rgba(0,0,0,0.85) 100%);
+    }
+    .feed-hud-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+    }
+    .feed-hud-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: var(--md-sys-shape-corner-extra-small);
+      font-size: 0.75rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.04em;
+      background: rgba(13, 17, 23, 0.88);
+      backdrop-filter: blur(8px);
+      color: #fff;
+    }
+    .feed-hud-tag.live-indicator {
+      color: var(--md-sys-color-primary);
+    }
+    .feed-reticle {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 120px;
+      height: 120px;
+      border-radius: 8px;
+      pointer-events: none;
+      outline: 1px dashed rgba(56, 239, 125, 0.35);
+    }
+    .feed-reticle::before {
+      content: '';
+      position: absolute;
+      top: 50%; left: -10px; right: -10px; height: 1px;
+      background: rgba(56, 239, 125, 0.7);
+      transform: translateY(-50%);
+    }
+    .feed-reticle::after {
+      content: '';
+      position: absolute;
+      left: 50%; top: -10px; bottom: -10px; width: 1px;
+      background: rgba(56, 239, 125, 0.7);
+      transform: translateX(-50%);
+    }
+    .feed-hud-bottom {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .feed-hud-telemetry {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.85);
+      text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    }
+    .feed-hud-diagnosis {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-2);
+      background: rgba(13, 17, 23, 0.92);
+      padding: 8px 12px;
+      border-radius: var(--md-sys-shape-corner-small);
+      backdrop-filter: blur(10px);
+    }
+    .feed-diag-name {
+      font-weight: 700;
+      font-size: 0.875rem;
+      color: #fff;
+    }
+    .feed-diag-rx {
+      font-size: 0.75rem;
+      color: var(--md-sys-color-secondary);
+      font-weight: 600;
+    }
+    .stream-control-bar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin-top: var(--space-3);
+      flex-wrap: wrap;
+    }
+    .severity-meter-bg {
+      height: 6px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 4px;
+      width: 100%;
+    }
+    .severity-meter-bar {
+      height: 100%;
+      background: var(--md-sys-color-primary);
+      width: 0%;
+      transition: width 0.3s ease, background-color 0.3s ease;
+    }
+
+    /* Search & Filter Bar */
+    .search-filter-bar {
+      display: flex;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+      flex-wrap: wrap;
+    }
+    .search-input-wrapper {
+      flex: 1;
+      min-width: 240px;
+      position: relative;
+    }
+    .search-input-wrapper svg {
+      position: absolute;
+      left: 14px;
+      top: 13px;
+      width: 18px;
+      height: 18px;
+      color: var(--md-sys-color-on-surface-variant);
+      pointer-events: none;
+    }
+    .search-input-wrapper input {
+      padding-left: 42px;
+    }
+
+    /* Modal Sheet */
+    .md3-modal-scrim {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      z-index: 999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-4);
+    }
+    .md3-modal-scrim.open {
+      display: flex;
+    }
+    .md3-modal-card {
+      background: var(--md-sys-color-surface-container);
+      border-radius: var(--md-sys-shape-corner-large);
+      padding: var(--space-6);
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55);
+    }
+
+    /* ==========================================================================
+       RESPONSIVE BREAKPOINTS (DESKTOP, TABLET, MOBILE)
+       ========================================================================== */
+
+    /* Tablet Screens (≤ 1024px) */
+    @media (max-width: 1024px) {
+      .layout-grid-planner {
+        grid-template-columns: 1fr;
+      }
+      .drone-stream-grid {
+        grid-template-columns: 1fr;
+      }
+      .metric-grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      #module3 > div,
+      #module5 > div {
+        grid-template-columns: 1fr !important;
+      }
+      .top-app-bar {
+        padding: 0 var(--space-4);
+      }
+      #map-wrapper, #map {
+        height: 380px;
+      }
+    }
+
+    /* Mobile Screens (≤ 768px) */
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+        height: 100vh;
+        height: 100dvh;
+        overflow: hidden;
+      }
+
+      /* Fixed Bottom Navigation Bar */
+      #nav-rail {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        height: calc(60px + env(safe-area-inset-bottom, 0px));
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
+        padding: 0 var(--space-2) env(safe-area-inset-bottom, 0px) var(--space-2);
+        background: var(--md-sys-color-surface-container-high);
+        box-shadow: 0 -2px 14px rgba(0, 0, 0, 0.35);
+        z-index: 1000;
+      }
+
+      .brand-logo-btn {
+        display: none;
+      }
+
+      .nav-destination-list {
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
+        width: 100%;
+        padding: 0;
+        gap: 0;
+      }
+
+      .nav-destination {
+        flex: 1;
+        padding: 4px 0;
+        max-width: 72px;
+      }
+
+      .nav-target-indicator {
+        width: 48px;
+        height: 28px;
+        margin-bottom: 2px;
+      }
+      .nav-target-indicator svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      .nav-label {
+        font-size: 0.625rem;
+        max-width: 64px;
+        font-weight: 500;
+      }
+
+      .rail-bottom {
+        display: none;
+      }
+
+      /* Top App Bar on Mobile */
+      .top-app-bar {
+        min-height: 56px;
+        padding: 8px 12px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+      }
+
+      .bar-headline {
+        justify-content: space-between;
+        width: 100%;
+      }
+      .bar-headline h1 {
+        font-size: 0.9375rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .telemetry-hud-strip {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        flex-wrap: nowrap;
+        padding-bottom: 2px;
+      }
+      .telemetry-hud-strip::-webkit-scrollbar {
+        display: none;
+      }
+
+      .hud-item {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+
+      /* Main Content on Mobile */
+      #main-content {
+        padding: 12px;
+        padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+        gap: 12px;
+      }
+
+      .md3-card {
+        padding: 14px;
+      }
+      .md3-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        margin-bottom: 12px;
+      }
+      .md3-card-title {
+        font-size: 0.9375rem;
+      }
+      .md3-card-subtitle {
+        font-size: 0.75rem;
+      }
+
+      /* Compact Metric Cards */
+      .metric-grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      .metric-stat-card {
+        padding: 10px;
+      }
+      .metric-stat-value {
+        font-size: 1.125rem;
+      }
+      .metric-stat-sub {
+        font-size: 0.6875rem;
+      }
+
+      /* Mobile Map */
+      #map-wrapper {
+        height: 280px;
+        margin-bottom: 8px;
+      }
+      #map {
+        height: 100%;
+      }
+
+      /* Action Buttons */
+      .btn-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        width: 100%;
+      }
+      .btn-group .md3-btn:nth-child(4) {
+        grid-column: span 2;
+      }
+
+      /* Stream Feed on Mobile */
+      .drone-feed-wrapper {
+        height: 240px;
+      }
+      .feed-reticle {
+        width: 80px;
+        height: 80px;
+      }
+      .stream-control-bar {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .stream-control-bar .md3-btn:first-child {
+        grid-column: span 2;
+      }
+      .stream-control-bar span {
+        grid-column: span 2;
+        text-align: center;
+        margin-top: 4px;
+      }
+
+      /* Tables on Mobile */
+      .md3-table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .md3-table {
+        min-width: 540px;
+      }
+
+      /* Inputs - 16px to prevent iOS auto-zoom */
+      .md3-input, .md3-select {
+        font-size: 16px;
+        height: 44px;
+      }
+
+      .checklist-row {
+        min-height: 48px;
+        padding: 10px 12px;
+      }
+    }
+
+    /* Small Mobile Phones (≤ 480px) */
+    @media (max-width: 480px) {
+      .metric-grid-4 {
+        grid-template-columns: 1fr;
+      }
+      .btn-group {
+        grid-template-columns: 1fr;
+      }
+      .btn-group .md3-btn:nth-child(4) {
+        grid-column: span 1;
+      }
+      .stream-control-bar {
+        grid-template-columns: 1fr;
+      }
+      .stream-control-bar .md3-btn:first-child {
+        grid-column: span 1;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==========================================================================
+       1. MD3 NAVIGATION RAIL
+       ========================================================================== -->
+  <nav id="nav-rail" aria-label="Flight Control Navigation">
+    <div class="brand-logo-btn" title="Precision Agro Drone GCS">
+      <!-- Drone SVG Icon -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M10 10l-4-4"/>
+        <path d="M14 10l4-4"/>
+        <path d="M10 14l-4 4"/>
+        <path d="M14 14l4 4"/>
+        <circle cx="5" cy="5" r="2"/>
+        <circle cx="19" cy="5" r="2"/>
+        <circle cx="5" cy="19" r="2"/>
+        <circle cx="19" cy="19" r="2"/>
+      </svg>
+    </div>
+
+    <ul class="nav-destination-list">
+      <!-- Module 1: Mission Planner -->
+      <li>
+        <div class="nav-destination active" id="nav-btn-module1" onclick="switchTab('module1', this)" title="Flight Survey & Boundary Grid Planner">
+          <div class="nav-target-indicator">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
+              <line x1="9" y1="3" x2="9" y2="18"/>
+              <line x1="15" y1="6" x2="15" y2="21"/>
+            </svg>
+          </div>
+          <span class="nav-label">Mission</span>
+        </div>
+      </li>
+
+      <!-- Module 2: Hardware Diagnostics -->
+      <li>
+        <div class="nav-destination" id="nav-btn-module2" onclick="switchTab('module2', this)" title="Real-time Telemetry & Diagnostics">
+          <div class="nav-target-indicator">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+            </svg>
+          </div>
+          <span class="nav-label">Telemetry</span>
+        </div>
+      </li>
+
+      <!-- Module 3: Agronomic Pest DB -->
+      <li>
+        <div class="nav-destination" id="nav-btn-module3" onclick="switchTab('module3', this)" title="38-Class Pest Signature & Matrix DB">
+          <div class="nav-target-indicator">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+              <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+            </svg>
+          </div>
+          <span class="nav-label">Pest DB</span>
+        </div>
+      </li>
+
+      <!-- Module 4: Prescription Exporter -->
+      <li>
+        <div class="nav-destination" id="nav-btn-module4" onclick="switchTab('module4', this)" title="Georeferenced Prescription Exporter">
+          <div class="nav-target-indicator">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <span class="nav-label">Prescription</span>
+        </div>
+      </li>
+
+      <!-- Module 5: Optical & Calibration -->
+      <li>
+        <div class="nav-destination" id="nav-btn-module5" onclick="switchTab('module5', this)" title="Camera Calibration & Pre-Flight Checklist">
+          <div class="nav-target-indicator">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </div>
+          <span class="nav-label">Sensors</span>
+        </div>
+      </li>
+    </ul>
+
+    <!-- Bottom Actions: Sunlight / Dark Mode Toggle -->
+    <div class="rail-bottom">
+      <button class="theme-toggle-btn" id="theme-btn" onclick="toggleSunlightMode()" title="Toggle Sunlight Anti-Glare / Tactical Dark Mode" aria-label="Toggle theme mode">
+        <!-- Sun/Moon SVG -->
+        <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="1" x2="12" y2="3"/>
+          <line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/>
+          <line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ==========================================================================
+       2. APPLICATION WORKSPACE
+       ========================================================================== -->
+  <div id="app-workspace">
+
+    <!-- Top App Bar with Real-time Cockpit HUD -->
+    <header class="top-app-bar">
+      <div class="bar-headline">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <h1 id="page-title">Mission Boundary &amp; Grid Planner</h1>
+          <span class="system-mode-tag" id="system-mode-tag">Pixhawk 4 MAVLink</span>
+        </div>
+        <div class="hud-actions">
+          <button class="theme-toggle-btn" onclick="toggleSunlightMode()" title="Toggle Sunlight Anti-Glare / Tactical Dark Mode" aria-label="Toggle theme mode">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"/>
+              <line x1="12" y1="1" x2="12" y2="3"/>
+              <line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/>
+              <line x1="21" y1="12" x2="23" y2="12"/>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+          </button>
+          <button class="md3-btn md3-btn-destructive" style="height:36px; padding:0 12px; font-size:0.75rem;" onclick="openRtlModal()" title="Emergency Return-to-Launch">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 14 4 9 9 4"/>
+              <path d="M20 20v-7a4 4 0 0 0-4-4H4"/>
+            </svg>
+            <span>RTL</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Cockpit Telemetry HUD Strip -->
+      <div class="telemetry-hud-strip">
+        <!-- MAVLink Heartbeat -->
+        <div class="hud-item" title="MAVLink Flight Controller Serial Bridge">
+          <span class="status-dot"></span>
+          <span style="font-weight:600; color:var(--md-sys-color-primary);">FCU LINK</span>
+          <span style="color:var(--md-sys-color-on-surface-variant);">57600 BAUD</span>
+        </div>
+
+        <!-- 4S LiPo Battery Gauge -->
+        <div class="hud-item" title="4S LiPo Battery Balance Parity">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--md-sys-color-primary);">
+            <rect x="2" y="7" width="18" height="10" rx="2" ry="2"/>
+            <line x1="22" y1="11" x2="22" y2="13"/>
+          </svg>
+          <span style="font-weight:600;" id="hud-batt-volt">15.8V</span>
+          <span style="color:var(--md-sys-color-on-surface-variant); font-size:0.75rem;">(3.95V/c)</span>
+        </div>
+
+        <!-- GPS Satellite Lock -->
+        <div class="hud-item" title="GNSS Multi-Constellation RTK/3D Lock">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--md-sys-color-secondary);">
+            <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/>
+            <path d="M12 6v6l4 2"/>
+          </svg>
+          <span style="font-weight:600;">3D FIX</span>
+          <span style="color:var(--md-sys-color-on-surface-variant);">14 SATS (HDOP 0.8)</span>
+        </div>
+
+        <!-- Safety Arm Status -->
+        <div class="hud-item" style="background:rgba(56, 239, 125, 0.08);">
+          <span class="status-dot"></span>
+          <span style="font-weight:700; color:var(--md-sys-color-primary);" id="arm-status-text">SYSTEM ARMED</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main id="main-content">
+      <!-- Global Toast Alert Banner -->
+      <div id="global-alert" class="md3-alert" role="alert"></div>
+
+      <!-- ======================================================================
+           MODULE 1: MISSION BOUNDARY & FLIGHT TRANSECT PLANNER
+           ====================================================================== -->
+      <div id="module1" class="tab-pane active">
+        <!-- Metric Summary Cards -->
+        <div class="metric-grid-4">
+          <div class="metric-stat-card">
+            <div class="metric-stat-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/></svg>
+              Demarcated Area
+            </div>
+            <div class="metric-stat-value" id="metric-area">2.00 ha (4.94 ac)</div>
+            <div class="metric-stat-sub">Geodesic WGS84 boundary</div>
+          </div>
+          <div class="metric-stat-card">
+            <div class="metric-stat-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              Flight Passes / Loops
+            </div>
+            <div class="metric-stat-value" id="metric-passes">8 passes</div>
+            <div class="metric-stat-sub">Bézier smooth turns enabled</div>
+          </div>
+          <div class="metric-stat-card">
+            <div class="metric-stat-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Estimated Scan Duration
+            </div>
+            <div class="metric-stat-value" id="metric-duration" style="color:var(--md-sys-color-tertiary);">~8 min 34 s</div>
+            <div class="metric-stat-sub" id="metric-distance-sub">Flight path: ~1,285 m</div>
+          </div>
+          <div class="metric-stat-card">
+            <div class="metric-stat-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+              Optical Track Spacing
+            </div>
+            <div class="metric-stat-value" id="metric-spacing" style="color:var(--md-sys-color-secondary);">2.41 m</div>
+            <div class="metric-stat-sub" id="metric-swath-sub">Ground Swath: 6.03 m (60% overlap)</div>
+          </div>
+        </div>
+
+        <!-- Main Map & Control Grid -->
+        <div class="layout-grid-planner">
+          <!-- Left: Map & Drawing Tools -->
+          <div class="md3-card">
+            <div class="md3-card-header">
+              <div>
+                <h2 class="md3-card-title">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+                  Interactive Parcel Demarcation &amp; Survey Grid
+                </h2>
+                <p class="md3-card-subtitle">Draw farm parcel boundaries or load GPS coordinates directly on the map.</p>
+              </div>
+              <span id="boundary-status-badge" class="status-text-indicator" style="color:var(--md-sys-color-primary);">
+                ● Default Uyo Test Grid Loaded
+              </span>
+            </div>
+
+            <!-- Map View Container with HUD Overlay -->
+            <div id="map-wrapper">
+              <div id="map"></div>
+              <div class="map-hud-overlay">
+                <div class="map-hud-readout" id="map-cursor-coords">
+                  <span>GPS: 5.037700°N, 7.912800°E</span>
+                </div>
+                <div class="map-hud-readout" id="map-scale-chip">
+                  <span>ALTITUDE: 5.0m AGL</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Toolbar Buttons -->
+            <div class="btn-group">
+              <button class="md3-btn md3-btn-filled" id="btn-draw-poly" onclick="startDrawPolygon()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                Draw Farm Polygon
+              </button>
+              <button class="md3-btn md3-btn-tonal" id="btn-draw-rect" onclick="startDrawRectangle()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                Draw Box Area
+              </button>
+              <button class="md3-btn md3-btn-secondary" onclick="generateTransectsFromCurrentBoundary()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Recompute Transects
+              </button>
+              <button class="md3-btn md3-btn-filled" style="background:#238636;" onclick="uploadMissionToDrone()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Upload Mission to Drone
+              </button>
+              <button class="md3-btn md3-btn-tonal" onclick="loadDefaultUyoField()">
+                Reset Uyo Parcel
+              </button>
+              <button class="md3-btn md3-btn-outlined" style="color:var(--md-sys-color-error); " onclick="clearBoundaryAndGrid()">
+                Clear Map
+              </button>
+            </div>
+
+            <!-- Waypoint Inspection Drawer -->
+            <div class="waypoints-accordion" id="wp-accordion">
+              <div class="waypoints-accordion-header" onclick="toggleWaypointAccordion()">
+                <span style="display:flex; align-items:center; gap:8px;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px; color:var(--md-sys-color-secondary);"><circle cx="12" cy="12" r="10"/><polygon points="12 8 8 12 12 16 12 8"/></svg>
+                  <span>Generated Pixhawk Waypoints List (<span id="accordion-wp-count">0</span> points)</span>
+                </span>
+                <span id="accordion-arrow">▼ Expand Details</span>
+              </div>
+              <div class="waypoints-accordion-body">
+                <table class="md3-table" style="font-size:0.75rem;">
+                  <thead>
+                    <tr><th>#</th><th>Command</th><th>Latitude</th><th>Longitude</th><th>Alt (m)</th></tr>
+                  </thead>
+                  <tbody id="wp-table-body">
+                    <tr><td colspan="5" style="text-align:center; color:var(--md-sys-color-on-surface-variant);">No waypoints generated yet.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Flight Parameters & Sizing Configuration -->
+          <div class="md3-card">
+            <h3 class="md3-card-title" style="margin-bottom:var(--space-3);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              Flight Parameters &amp; Presets
+            </h3>
+
+            <!-- Pattern Preset -->
+            <div class="md3-field">
+              <label class="md3-label" for="plan-pattern">Flight Pattern Geometry Preset</label>
+              <select id="plan-pattern" class="md3-select" onchange="onPatternChange()" style="font-weight:600; color:var(--md-sys-color-secondary);">
+                <option value="boustrophedon" selected>Boustrophedon — Lawnmower (Bézier Turns)</option>
+                <option value="long_axis">Row-Optimized Long-Axis (Battery Saver)</option>
+                <option value="crosshatch">Crosshatch Double-Grid (3D / NDVI)</option>
+                <option value="perimeter">Perimeter Scout (Boundary &amp; Buffer Inset)</option>
+                <option value="orbit">Targeted Hotspot Orbit (Spot Triage)</option>
+              </select>
+            </div>
+
+            <!-- Orbit Options -->
+            <div id="orbit-options" style="display:none; margin-bottom:14px; padding:12px;  border-radius:var(--md-sys-shape-corner-small); background:var(--md-sys-color-surface-container-high);">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div>
+                  <label class="md3-label" for="orbit-radius">Orbit Radius (m)</label>
+                  <input type="number" id="orbit-radius" class="md3-input" value="12" min="4" max="60" step="1" onchange="generateTransectsFromCurrentBoundary()" />
+                </div>
+                <div>
+                  <label class="md3-label" for="orbit-points">Waypoints</label>
+                  <input type="number" id="orbit-points" class="md3-input" value="16" min="8" max="32" step="2" onchange="generateTransectsFromCurrentBoundary()" />
+                </div>
+              </div>
+              <p style="font-size:0.75rem; color:var(--md-sys-color-on-surface-variant); margin-top:4px;">Tip: Click anywhere inside the field on the map to place/move the target hotspot center.</p>
+            </div>
+
+            <!-- Perimeter Options -->
+            <div id="perimeter-options" style="display:none; margin-bottom:14px; padding:12px;  border-radius:var(--md-sys-shape-corner-small); background:var(--md-sys-color-surface-container-high);">
+              <label class="md3-label" for="perimeter-rings">Perimeter Buffer Inset Rings</label>
+              <select id="perimeter-rings" class="md3-select" onchange="generateTransectsFromCurrentBoundary()">
+                <option value="1">1 Ring (Outer Boundary Only)</option>
+                <option value="2" selected>2 Rings (Boundary + 1 Inset Track)</option>
+                <option value="3">3 Rings (Boundary + 2 Inset Tracks)</option>
+              </select>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+              <div class="md3-field">
+                <label class="md3-label" for="plan-altitude">Altitude AGL (m)</label>
+                <input type="number" id="plan-altitude" class="md3-input" value="5.0" step="0.5" min="2.0" max="50.0" onchange="updateOpticalSizingAndRegenerate()" />
+              </div>
+              <div class="md3-field">
+                <label class="md3-label" for="plan-speed">Survey Speed (m/s)</label>
+                <input type="number" id="plan-speed" class="md3-input" value="2.5" step="0.5" min="0.5" max="15.0" onchange="updateOpticalSizingAndRegenerate()" />
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+              <div class="md3-field">
+                <label class="md3-label" for="plan-overlap">Side Overlap (%)</label>
+                <input type="number" id="plan-overlap" class="md3-input" value="60" min="20" max="85" step="5" onchange="updateOpticalSizingAndRegenerate()" />
+              </div>
+              <div class="md3-field">
+                <label class="md3-label" for="plan-camera">Sensor Optical HFOV</label>
+                <input type="text" id="plan-camera" class="md3-input" value="IMX219 (62.2°)" readonly />
+              </div>
+            </div>
+
+            <!-- Optical Footprint Readout -->
+            <div style="margin-top:var(--space-2); padding:var(--space-3); background:var(--md-sys-color-surface-container-high); border-radius:var(--md-sys-shape-corner-small); ">
+              <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:0.8125rem;">
+                <span style="color:var(--md-sys-color-on-surface-variant);">Ground Swath Width</span>
+                <span id="metric-swath" style="font-weight:600; color:var(--md-sys-color-secondary);">6.03 m</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:0.8125rem;">
+                <span style="color:var(--md-sys-color-on-surface-variant);">Total Waypoints</span>
+                <span id="metric-waypoints" style="font-weight:600; color:var(--md-sys-color-on-surface);">16 points</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:0.8125rem;">
+                <span style="color:var(--md-sys-color-on-surface-variant);">Total Distance</span>
+                <span id="metric-distance" style="font-weight:600; color:var(--md-sys-color-primary);">~1,285 m</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================================================================
+           MODULE 2: HARDWARE DIAGNOSTICS, OPTICAL INFLOW & FLIGHT READINESS
+           ====================================================================== -->
+      <div id="module2" class="tab-pane">
+        <div class="drone-stream-grid">
+          <!-- Left: Optical Sensor Real-Time Inflow Stream & Edge HUD -->
+          <div class="md3-card">
+            <div class="md3-card-header">
+              <div>
+                <h2 class="md3-card-title">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                  Sony IMX219 CSI-2 Optical Stream &amp; Edge Vision HUD
+                </h2>
+                <p class="md3-card-subtitle">Real-time simulation of incoming plant imagery acquired by the drone with PyTorch ResNet-9 and classical ORB disease quantification.</p>
+              </div>
+              <span class="status-text-indicator" id="stream-badge-status" style="color:var(--md-sys-color-primary);">
+                ● 1024x768 OPTICAL INFLOW
+              </span>
+            </div>
+
+            <!-- Optical Video Viewport with Overlaid Telemetry HUD -->
+            <div class="drone-feed-wrapper">
+              <img id="drone-live-feed-img" class="drone-feed-img" src="/api/drone/frame_image" alt="Live Drone Camera Feed" onerror="this.src='/captures/20260930_093313.jpg'" />
+              
+              <div class="drone-feed-hud">
+                <!-- Top HUD Elements -->
+                <div class="feed-hud-top">
+                  <div class="feed-hud-tag live-indicator">
+                    <span class="status-dot"></span>
+                    LIVE DRONE INFLOW
+                  </div>
+                  <div class="feed-hud-tag" id="stream-frame-counter">FRAME 01 / 63</div>
+                  <div class="feed-hud-tag" style="color:var(--md-sys-color-secondary);">
+                    LATENCY: <span id="stream-latency-val">141.6 ms</span>
+                  </div>
+                </div>
+
+                <!-- Tactical Crosshair Reticle -->
+                <div class="feed-reticle"></div>
+
+                <!-- Bottom Telemetry & Pathology HUD -->
+                <div class="feed-hud-bottom">
+                  <div class="feed-hud-telemetry">
+                    <span id="stream-gps">GPS: 5.037700°N, 7.912800°E</span>
+                    <span id="stream-alt">ALT: 5.0m AGL</span>
+                    <span id="stream-filename" style="color:rgba(255,255,255,0.6);">20260930_093313.jpg</span>
+                  </div>
+
+                  <div class="feed-hud-diagnosis">
+                    <div style="flex:1;">
+                      <div style="font-size:0.6875rem; color:var(--md-sys-color-on-surface-variant); text-transform:uppercase; letter-spacing:0.04em;">Classified Pathology</div>
+                      <div id="stream-pest-name" class="feed-diag-name">Tomato Mosaic Virus</div>
+                      <div class="severity-meter-bg">
+                        <div id="stream-severity-bar" class="severity-meter-bar" style="width: 2.8%;"></div>
+                      </div>
+                    </div>
+                    <div style="text-align:right; margin-left:var(--space-3);">
+                      <div style="font-size:0.6875rem; color:var(--md-sys-color-on-surface-variant); text-transform:uppercase; letter-spacing:0.04em;">Severity Index</div>
+                      <div id="stream-severity-val" style="font-weight:700; font-size:1.125rem; color:#fff; font-family:'JetBrains Mono',monospace;">2.8%</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Inflow Stream Controls -->
+            <div class="stream-control-bar">
+              <button class="md3-btn md3-btn-filled" id="btn-stream-toggle" onclick="toggleDroneStream()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Start Drone Inflow
+              </button>
+              <button class="md3-btn md3-btn-tonal" id="btn-stream-step" onclick="stepDroneStream(true)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+                Step Next Frame
+              </button>
+              <button class="md3-btn md3-btn-outlined" onclick="resetDroneStream()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><polyline points="3 3 3 8 8 8"/></svg>
+                Reset Stream
+              </button>
+              <span style="font-size:0.8125rem; color:var(--md-sys-color-on-surface-variant); margin-left:auto;">
+                Rate: <strong>1.0 Hz</strong> (2.5 m/s transect)
+              </span>
+            </div>
+
+            <!-- Prescriptive Action Banner -->
+            <div id="stream-rx-banner" style="margin-top:var(--space-3); padding:10px 14px; border-radius:8px; background:rgba(56, 239, 125, 0.08); font-size:0.875rem;">
+              <span style="color:var(--md-sys-color-primary); font-weight:700;">✓ CANOPY HEALTHY:</span> Zero chemical application required.
+            </div>
+          </div>
+
+          <!-- Right: Real-Time Hardware Diagnostic Engine -->
+          <div class="md3-card">
+            <div class="md3-card-header">
+              <div>
+                <h2 class="md3-card-title">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                  Hardware Diagnostics &amp; Subsystems
+                </h2>
+                <p class="md3-card-subtitle">Continuous verification of MAVLink serial bus, LiPo power delivery, CSI-2 optical pipe, and local SQLite journal.</p>
+              </div>
+              <button class="md3-btn md3-btn-tonal" onclick="loadDiagnostics()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                Refresh
+              </button>
+            </div>
+
+            <!-- Cards Grid for Subsystems -->
+            <div class="diag-cards-grid" id="diag-cards-container" style="grid-template-columns: 1fr;">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================================================================
+           MODULE 3: PEST SIGNATURE DATABASE MANAGER
+           ====================================================================== -->
+      <div id="module3" class="tab-pane">
+        <div style="display:grid; grid-template-columns: 2fr 1fr; gap:var(--space-5);">
+          <!-- Left: Table of Signatures -->
+          <div class="md3-card">
+            <div class="md3-card-header">
+              <div>
+                <h2 class="md3-card-title">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+                  Regional Pest Signature &amp; Treatment Matrix Database
+                </h2>
+                <p class="md3-card-subtitle">38 ResNet-9 plant pathology classifications linked to agronomic dosages and chemical active ingredients.</p>
+              </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="search-filter-bar">
+              <div class="search-input-wrapper">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="pest-search" class="md3-input" placeholder="Search pest name, host crop, or chemical..." oninput="filterPestTable()" />
+              </div>
+            </div>
+
+            <div class="md3-table-container">
+              <table class="md3-table" id="pest-table">
+                <thead>
+                  <tr>
+                    <th>Identifier / Pathogen</th>
+                    <th>Host Crop</th>
+                    <th>Class</th>
+                    <th>Prescribed Chemical</th>
+                    <th>Dosage (ml/L)</th>
+                    <th>Severity Range</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Right: Register New Signature Form -->
+          <div class="md3-card">
+            <h3 class="md3-card-title" style="margin-bottom:var(--space-3);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+              Register Regional Signature
+            </h3>
+            <p class="md3-card-subtitle" style="margin-bottom:var(--space-4);">Add new field-calibrated pathogen signatures to the local SQLite database.</p>
+
+            <form id="add-pest-form" onsubmit="submitPest(event)">
+              <div class="md3-field">
+                <label class="md3-label" for="p-name">Pathogen / Pest Name</label>
+                <input type="text" id="p-name" class="md3-input" placeholder="e.g. Corn___Borer" required />
+              </div>
+              <div class="md3-field">
+                <label class="md3-label" for="p-crop">Host Crop</label>
+                <input type="text" id="p-crop" class="md3-input" placeholder="e.g. Corn_(maize)" required />
+              </div>
+              <div class="md3-field">
+                <label class="md3-label" for="p-class">Morphological Class</label>
+                <input type="text" id="p-class" class="md3-input" placeholder="e.g. Lepidopteran Larva" required />
+              </div>
+              <div class="md3-field">
+                <label class="md3-label" for="p-chem">Chemical Formulation</label>
+                <input type="text" id="p-chem" class="md3-input" placeholder="e.g. Chlorantraniliprole 18.5% SC" required />
+              </div>
+              <div class="md3-field">
+                <label class="md3-label" for="p-dose">Prescribed Dosage (ml/L)</label>
+                <input type="number" step="0.1" id="p-dose" class="md3-input" placeholder="0.5" required />
+              </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div class="md3-field">
+                  <label class="md3-label" for="p-min">Min Severity (%)</label>
+                  <input type="number" id="p-min" class="md3-input" value="15" required />
+                </div>
+                <div class="md3-field">
+                  <label class="md3-label" for="p-max">Max Severity (%)</label>
+                  <input type="number" id="p-max" class="md3-input" value="70" required />
+                </div>
+              </div>
+              <button class="md3-btn md3-btn-filled" type="submit" style="width:100%; margin-top:var(--space-2);">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Save Signature to Database
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================================================================
+           MODULE 4: FIELD PRESCRIPTION EXPORTER & TELEMETRY
+           ====================================================================== -->
+      <div id="module4" class="tab-pane">
+        <div class="md3-card">
+          <div class="md3-card-header">
+            <div>
+              <h2 class="md3-card-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                Georeferenced Prescription Matrix &amp; Flight Log
+              </h2>
+              <p class="md3-card-subtitle">Export spot-spraying chemical prescriptions for tractor booms and variable-rate injection nozzles.</p>
+            </div>
+            <div class="btn-group">
+              <a class="md3-btn md3-btn-filled" href="/download/csv">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download CSV Log
+              </a>
+              <a class="md3-btn md3-btn-tonal" href="/download/geojson">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+                Export GeoJSON Map
+              </a>
+            </div>
+          </div>
+
+          <div class="md3-table-container">
+            <table class="md3-table" id="rx-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Latitude</th>
+                  <th>Longitude</th>
+                  <th>Alt (m)</th>
+                  <th>Target Pathogen</th>
+                  <th>Severity</th>
+                  <th>Prescribed Treatment</th>
+                  <th>Dosage Rate</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================================================================
+           MODULE 5: SENSOR CALIBRATION & MAINTENANCE
+           ====================================================================== -->
+      <div id="module5" class="tab-pane">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:var(--space-5);">
+          <!-- Left: Optical Sensor Calibration -->
+          <div class="md3-card">
+            <div class="md3-card-header">
+              <div>
+                <h2 class="md3-card-title">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                  Sony IMX219 Optical Calibration
+                </h2>
+                <p class="md3-card-subtitle">Adjust exposure and Harmattan dust compensation boost for optical sensors.</p>
+              </div>
+            </div>
+
+            <form onsubmit="saveCameraConfig(event)">
+              <div class="md3-field">
+                <label class="md3-label" for="cfg-exposure">Exposure Program Mode</label>
+                <select id="cfg-exposure" class="md3-select">
+                  <option value="auto">Auto (Continuous AE)</option>
+                  <option value="sports">Sports (High Shutter Speed)</option>
+                  <option value="off">Manual Lock</option>
+                </select>
+              </div>
+              <div class="md3-field">
+                <label class="md3-label" for="cfg-iso">ISO Sensitivity</label>
+                <input type="number" id="cfg-iso" class="md3-input" value="100" />
+              </div>
+              <div class="md3-field">
+                <label class="md3-label" for="cfg-dust">Harmattan Dust Adaptive Boost</label>
+                <select id="cfg-dust" class="md3-select">
+                  <option value="true">Enabled (+15 Contrast, +10 Saturation Boost)</option>
+                  <option value="false">Disabled (Standard Daylight)</option>
+                </select>
+              </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div class="md3-field">
+                  <label class="md3-label" for="cfg-width">Horizontal Resolution (px)</label>
+                  <input type="number" id="cfg-width" class="md3-input" value="1280" />
+                </div>
+                <div class="md3-field">
+                  <label class="md3-label" for="cfg-height">Vertical Resolution (px)</label>
+                  <input type="number" id="cfg-height" class="md3-input" value="720" />
+                </div>
+              </div>
+              <button class="md3-btn md3-btn-filled" type="submit" style="width:100%; margin-top:var(--space-2);">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Update Camera Calibration
+              </button>
+            </form>
+          </div>
+
+          <!-- Right: Preventive Maintenance Checklist -->
+          <div class="md3-card">
+            <div class="md3-card-header">
+              <div>
+                <h2 class="md3-card-title">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><polyline points="9 15 11 17 15 13"/></svg>
+                  Pre-Flight Checklist &amp; Structural Clearance
+                </h2>
+                <p class="md3-card-subtitle">Mandatory 5-point hardware verification before arming drone motors.</p>
+              </div>
+              <span id="checklist-summary" class="status-text-indicator" style="color:var(--md-sys-color-primary);">
+                5 / 5 Pre-Flight Clear
+              </span>
+            </div>
+
+            <div class="checklist-container">
+              <div class="checklist-row cleared" onclick="toggleCheckItem(this)">
+                <div class="checklist-circle">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px; height:14px;"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <span class="checklist-text">Carbon-fiber motor mount torque inspection (tightness verification)</span>
+              </div>
+              <div class="checklist-row cleared" onclick="toggleCheckItem(this)">
+                <div class="checklist-circle">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px; height:14px;"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <span class="checklist-text">Brushless 800KV motor bearing smooth rotation &amp; lubrication</span>
+              </div>
+              <div class="checklist-row cleared" onclick="toggleCheckItem(this)">
+                <div class="checklist-circle">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px; height:14px;"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <span class="checklist-text">Sony IMX219 optical lens inspection &amp; isopropanol wipe</span>
+              </div>
+              <div class="checklist-row cleared" onclick="toggleCheckItem(this)">
+                <div class="checklist-circle">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px; height:14px;"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <span class="checklist-text">LiPo internal cell resistance check (&lt; 5mΩ/cell parity balance)</span>
+              </div>
+              <div class="checklist-row cleared" onclick="toggleCheckItem(this)">
+                <div class="checklist-circle">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px; height:14px;"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <span class="checklist-text">SQLite WAL database integrity, vacuum &amp; indexes verified</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Emergency RTL Modal Sheet -->
+  <div class="md3-modal-scrim" id="rtl-modal">
+    <div class="md3-modal-card">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+        <div style="width:40px; height:40px; border-radius:50%; background:var(--md-sys-color-error-container); display:flex; align-items:center; justify-content:center; color:var(--md-sys-color-error);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px; height:24px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div>
+          <h3 style="font-size:1.125rem; font-weight:700;">Initiate Emergency RTL?</h3>
+          <p style="font-size:0.8125rem; color:var(--md-sys-color-on-surface-variant);">Return-to-Launch Autopilot Command</p>
+        </div>
+      </div>
+      <p style="font-size:0.875rem; color:var(--md-sys-color-on-surface); line-height:1.5; margin-bottom:20px;">
+        This will immediately abort the active survey transect mission and command the Pixhawk autopilot to climb to safe RTL altitude (15m AGL) and return to the home takeoff coordinates.
+      </p>
+      <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <button class="md3-btn md3-btn-tonal" onclick="closeRtlModal()">Cancel</button>
+        <button class="md3-btn md3-btn-destructive" onclick="confirmEmergencyRtl()">Confirm RTL Abort</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       3. CLIENT APPLICATION LOGIC
+       ========================================================================== -->
+  <script>
+    let map;
+    let drawnItems;
+    let transectLayer;
+    let markerLayer;
+    let drawControl;
+    let currentBoundaryCoords = [];
+    let currentWaypoints = [];
+    let hotspotCenter = null;
+    let currentAreaHa = 2.0;
+    let allPestsData = [];
+    let currentOpticalParams = {
+      alt: 5.0,
+      speed: 2.5,
+      overlapPct: 60,
+      hfov: 62.2,
+      swathWidth: 6.03,
+      trackSpacing: 2.41
+    };
+
+    // Toggle Sunlight Anti-Glare Mode vs Tactical Dark Mode
+    function toggleSunlightMode() {
+      const htmlEl = document.documentElement;
+      const current = htmlEl.getAttribute('data-theme') || 'dark';
+      const target = (current === 'dark') ? 'sunlight' : 'dark';
+      htmlEl.setAttribute('data-theme', target);
+      localStorage.setItem('precision_agro_theme', target);
+      showAlert(`Switched to ${target === 'sunlight' ? 'Outdoor Sunlight Mode (High-Contrast)' : 'Tactical Dark Mode'}.`, 'info');
+    }
+
+    // Initialize Theme Preference
+    const savedTheme = localStorage.getItem('precision_agro_theme');
+    if (savedTheme) {
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    }
+
+    // Tab Navigation
+    function switchTab(tabId, el) {
+      document.querySelectorAll('.tab-pane').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.nav-destination').forEach(btn => btn.classList.remove('active'));
+      const target = document.getElementById(tabId);
+      if (target) target.classList.add('active');
+      if (el) el.classList.add('active');
+
+      const titleMap = {
+        'module1': 'Mission Boundary & Grid Planner',
+        'module2': 'System Diagnostics & Telemetry',
+        'module3': 'Pest Signature Database Manager',
+        'module4': 'Field Prescription Exporter',
+        'module5': 'Sensor Calibration & Maintenance'
+      };
+      document.getElementById('page-title').innerText = titleMap[tabId] || 'Precision Agro GCS';
+
+      if (tabId === 'module1') setTimeout(() => { if (map) map.invalidateSize(); }, 200);
+      if (tabId === 'module2') { loadDiagnostics(); loadDroneStreamState(); }
+      if (tabId === 'module3') loadPests();
+      if (tabId === 'module4') loadPrescriptions();
+    }
+
+    // Leaflet Map Initialization
+    function initMap() {
+      map = L.map('map', {
+        zoomControl: true,
+        attributionControl: false
+      }).setView([5.0377, 7.9128], 17);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19
+      }).addTo(map);
+
+      drawnItems = new L.FeatureGroup().addTo(map);
+      transectLayer = new L.layerGroup().addTo(map);
+      markerLayer = new L.layerGroup().addTo(map);
+
+      drawControl = new L.Control.Draw({
+        draw: {
+          polygon: {
+            allowIntersection: false,
+            showArea: true,
+            shapeOptions: { color: '#38ef7d', fillOpacity: 0.22, weight: 2.5 }
+          },
+          rectangle: {
+            shapeOptions: { color: '#38ef7d', fillOpacity: 0.22, weight: 2.5 }
+          },
+          circle: false,
+          polyline: false,
+          circlemarker: false,
+          marker: false
+        },
+        edit: {
+          featureGroup: drawnItems
+        }
+      });
+      map.addControl(drawControl);
+
+      map.on(L.Draw.Event.CREATED, function (e) {
+        drawnItems.clearLayers();
+        drawnItems.addLayer(e.layer);
+        extractBoundaryFromLayer(e.layer);
+        updateBoundaryStatus("● Custom Farm Boundary Defined", "var(--md-sys-color-primary)");
+      });
+
+      map.on(L.Draw.Event.EDITED, function (e) {
+        e.layers.eachLayer(layer => {
+          extractBoundaryFromLayer(layer);
+        });
+      });
+
+      map.on(L.Draw.Event.DELETED, function () {
+        clearBoundaryAndGrid();
+      });
+
+      // Pointer coordinate tracker
+      map.on('mousemove', function (e) {
+        const hud = document.getElementById('map-cursor-coords');
+        if (hud) hud.innerHTML = `<span>GPS: ${e.latlng.lat.toFixed(6)}°N, ${e.latlng.lng.toFixed(6)}°E</span>`;
+      });
+
+      map.on('click', function (e) {
+        const pattern = document.getElementById('plan-pattern').value;
+        if (pattern === 'orbit') {
+          hotspotCenter = { lat: e.latlng.lat, lng: e.latlng.lng };
+          generateTransectsFromCurrentBoundary();
+          showAlert(`Target hotspot centered at [${hotspotCenter.lat.toFixed(6)}, ${hotspotCenter.lng.toFixed(6)}]`, "info");
+        }
+      });
+
+      updateOpticalSizingAndRegenerate();
+    }
+
+    function startDrawPolygon() {
+      new L.Draw.Polygon(map, drawControl.options.draw.polygon).enable();
+    }
+    function startDrawRectangle() {
+      new L.Draw.Rectangle(map, drawControl.options.draw.rectangle).enable();
+    }
+
+    function extractBoundaryFromLayer(layer) {
+      let latlngs = layer.getLatLngs();
+      while (Array.isArray(latlngs) && latlngs.length > 0 && Array.isArray(latlngs[0])) {
+        latlngs = latlngs[0];
+      }
+      currentBoundaryCoords = latlngs.map(p => ({ lat: p.lat, lng: p.lng }));
+      const areaM2 = computeGeodesicArea(currentBoundaryCoords);
+      currentAreaHa = areaM2 / 10000.0;
+      const acres = currentAreaHa * 2.47105;
+      document.getElementById('metric-area').innerText = `${currentAreaHa.toFixed(2)} ha (${acres.toFixed(2)} ac)`;
+
+      generateTransectsFromCurrentBoundary();
+    }
+
+    function computeGeodesicArea(latlngs) {
+      if (!latlngs || latlngs.length < 3) return 0;
+      let total = 0;
+      const rad = Math.PI / 180.0;
+      const R = 6378137.0;
+      for (let i = 0; i < latlngs.length; i++) {
+        const p1 = latlngs[i];
+        const p2 = latlngs[(i + 1) % latlngs.length];
+        total += (p2.lng * rad - p1.lng * rad) * (2 + Math.sin(p1.lat * rad) + Math.sin(p2.lat * rad));
+      }
+      return Math.abs(total * R * R / 2.0);
+    }
+
+    function haversineDistMeters(lat1, lon1, lat2, lon2) {
+      const R = 6378137.0;
+      const dLat = (lat2 - lat1) * Math.PI / 180.0;
+      const dLon = (lon2 - lon1) * Math.PI / 180.0;
+      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180.0) * Math.cos(lat2 * Math.PI / 180.0) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+    }
+
+    function updateOpticalSizingAndRegenerate() {
+      const alt = parseFloat(document.getElementById('plan-altitude').value) || 5.0;
+      const speed = parseFloat(document.getElementById('plan-speed').value) || 2.5;
+      const overlapPct = parseFloat(document.getElementById('plan-overlap').value) || 60;
+      const hfov = 62.2;
+
+      const swathWidth = 2.0 * alt * Math.tan((hfov / 2.0) * (Math.PI / 180.0));
+      const trackSpacing = swathWidth * (1.0 - (overlapPct / 100.0));
+
+      document.getElementById('metric-swath').innerText = `${swathWidth.toFixed(2)} m`;
+      document.getElementById('metric-spacing').innerText = `${trackSpacing.toFixed(2)} m`;
+      const swathSub = document.getElementById('metric-swath-sub');
+      if (swathSub) swathSub.innerText = `Ground Swath: ${swathWidth.toFixed(2)}m (${overlapPct}% overlap)`;
+
+      const scaleChip = document.getElementById('map-scale-chip');
+      if (scaleChip) scaleChip.innerHTML = `<span>ALTITUDE: ${alt.toFixed(1)}m AGL</span>`;
+
+      currentOpticalParams = { alt, speed, overlapPct, hfov, swathWidth, trackSpacing };
+
+      if (currentBoundaryCoords && currentBoundaryCoords.length >= 3) {
+        generateTransectsFromCurrentBoundary();
+      }
+    }
+
+    function onPatternChange() {
+      const pattern = document.getElementById('plan-pattern').value;
+      const orbitBox = document.getElementById('orbit-options');
+      const perimeterBox = document.getElementById('perimeter-options');
+
+      if (orbitBox) orbitBox.style.display = (pattern === 'orbit') ? 'block' : 'none';
+      if (perimeterBox) perimeterBox.style.display = (pattern === 'perimeter') ? 'block' : 'none';
+
+      generateTransectsFromCurrentBoundary();
+    }
+
+    function computePolygonCentroid(coords) {
+      if (!coords || coords.length === 0) return { lat: 5.0377, lng: 7.9128 };
+      let latSum = 0, lngSum = 0;
+      for (let i = 0; i < coords.length; i++) {
+        latSum += coords[i].lat;
+        lngSum += coords[i].lng;
+      }
+      return { lat: latSum / coords.length, lng: lngSum / coords.length };
+    }
+
+    function findLongestEdgeAngle(coords) {
+      if (!coords || coords.length < 2) return 0;
+      const latMid = coords[0].lat;
+      const cosLat = Math.cos(latMid * (Math.PI / 180.0));
+      let maxDistSq = 0;
+      let bestAngle = 0;
+
+      for (let i = 0; i < coords.length; i++) {
+        const p1 = coords[i];
+        const p2 = coords[(i + 1) % coords.length];
+        const dx = (p2.lng - p1.lng) * 111139.0 * cosLat;
+        const dy = (p2.lat - p1.lat) * 111139.0;
+        const dSq = dx * dx + dy * dy;
+        if (dSq > maxDistSq) {
+          maxDistSq = dSq;
+          bestAngle = Math.atan2(dy, dx);
+        }
+      }
+      return bestAngle;
+    }
+
+    function findSweepAngle(coords) {
+      return findLongestEdgeAngle(coords) + (Math.PI / 2.0);
+    }
+
+    const BEZIER_STEPS = 4;
+
+    function generateBoustrophedon(coords, opt, angleRad) {
+      if (!coords || coords.length < 3) return { waypoints: [], passCount: 0 };
+
+      const centroid = computePolygonCentroid(coords);
+      const cosLat = Math.cos(centroid.lat * (Math.PI / 180.0));
+      const cosA = Math.cos(-angleRad);
+      const sinA = Math.sin(-angleRad);
+
+      const rotatedPoly = coords.map(p => {
+        const x = (p.lng - centroid.lng) * 111139.0 * cosLat;
+        const y = (p.lat - centroid.lat) * 111139.0;
+        const rx = x * cosA - y * sinA;
+        const ry = x * sinA + y * cosA;
+        return { rx, ry };
+      });
+
+      const rys = rotatedPoly.map(p => p.ry);
+      const rxs = rotatedPoly.map(p => p.rx);
+      const minRy = Math.min(...rys);
+      const maxRy = Math.max(...rys);
+      const minRx = Math.min(...rxs);
+      const maxRx = Math.max(...rxs);
+      const step = Math.max(1.0, opt.trackSpacing);
+      const n = rotatedPoly.length;
+
+      const cosBack = Math.cos(angleRad);
+      const sinBack = Math.sin(angleRad);
+
+      const scanLines = [];
+      for (let y = minRy + step * 0.5; y <= maxRy - step * 0.5 + 1e-6; y += step) {
+        scanLines.push(y);
+      }
+      const lastY = scanLines.length > 0 ? scanLines[scanLines.length - 1] : minRy + step * 0.5;
+      if (lastY + step * 0.5 < maxRy - 1e-6) scanLines.push(maxRy - step * 0.5);
+      if (scanLines.length === 0) scanLines.push((minRy + maxRy) * 0.5);
+
+      function scanIntersections(y, isLast) {
+        const ints = [];
+        for (let i = 0; i < n; i++) {
+          const p1 = rotatedPoly[i], p2 = rotatedPoly[(i + 1) % n];
+          const dy = p2.ry - p1.ry;
+          if (Math.abs(dy) < 1e-9) continue;
+          const yLo = Math.min(p1.ry, p2.ry), yHi = Math.max(p1.ry, p2.ry);
+          if (y >= yLo - 1e-9 && (y < yHi + 1e-9 || (isLast && y <= yHi + 1e-9))) {
+            const tc = Math.max(0.0, Math.min(1.0, (y - p1.ry) / dy));
+            ints.push(Math.max(minRx, Math.min(maxRx, p1.rx + tc * (p2.rx - p1.rx))));
+          }
+        }
+        return ints.sort((a, b) => a - b);
+      }
+
+      const passes = [];
+      let sweepDir = true;
+      for (let si = 0; si < scanLines.length; si++) {
+        const y = scanLines[si];
+        const ints = scanIntersections(y, si === scanLines.length - 1);
+        for (let k = 0; k + 1 < ints.length; k += 2) {
+          const xL = ints[k], xR = ints[k + 1];
+          passes.push({
+            startRx: sweepDir ? xL : xR,
+            endRx:   sweepDir ? xR : xL,
+            ry: y
+          });
+          sweepDir = !sweepDir;
+        }
+      }
+
+      function toWP(rx, ry, cmd) {
+        const wx = rx * cosBack - ry * sinBack;
+        const wy = rx * sinBack + ry * cosBack;
+        return {
+          index: 0,
+          lat: centroid.lat + wy / 111139.0,
+          lon: centroid.lng + wx / (111139.0 * cosLat),
+          alt: opt.alt,
+          command: cmd || 'WAYPOINT'
+        };
+      }
+
+      function bezier2(t, r0x, r0y, r1x, r1y, r2x, r2y) {
+        const mt = 1.0 - t;
+        return {
+          rx: mt*mt*r0x + 2*mt*t*r1x + t*t*r2x,
+          ry: mt*mt*r0y + 2*mt*t*r1y + t*t*r2y
+        };
+      }
+
+      const waypoints = [];
+      for (let pi = 0; pi < passes.length; pi++) {
+        const p = passes[pi];
+        waypoints.push(toWP(p.startRx, p.ry));
+        waypoints.push(toWP(p.endRx,   p.ry));
+
+        if (pi < passes.length - 1) {
+          const q = passes[pi + 1];
+          for (let b = 1; b <= BEZIER_STEPS; b++) {
+            const t = b / (BEZIER_STEPS + 1);
+            const pt = bezier2(t, p.endRx, p.ry, p.endRx, q.ry, q.startRx, q.ry);
+            waypoints.push(toWP(pt.rx, pt.ry, 'WAYPOINT'));
+          }
+        }
+      }
+
+      waypoints.forEach((wp, i) => { wp.index = i + 1; });
+      return { waypoints, passCount: passes.length };
+    }
+
+    function generatePerimeterScout(coords, opt, rings) {
+      if (!coords || coords.length < 3) return { waypoints: [], passCount: 0 };
+      const centroid = computePolygonCentroid(coords);
+      const waypoints = [];
+      const numRings = Math.max(1, Math.min(3, rings));
+
+      for (let r = 0; r < numRings; r++) {
+        const offsetM = r * opt.trackSpacing;
+        for (let i = 0; i <= coords.length; i++) {
+          const orig = coords[i % coords.length];
+          const distToCentroid = haversineDistMeters(orig.lat, orig.lng, centroid.lat, centroid.lng);
+          const ratio = (distToCentroid > 0) ? Math.max(0.1, (distToCentroid - offsetM) / distToCentroid) : 1.0;
+          const lat = centroid.lat + (orig.lat - centroid.lat) * ratio;
+          const lon = centroid.lng + (orig.lng - centroid.lng) * ratio;
+          waypoints.push({
+            index: waypoints.length + 1,
+            lat: lat,
+            lon: lon,
+            alt: opt.alt,
+            command: 'WAYPOINT'
+          });
+        }
+      }
+      return { waypoints, passCount: numRings };
+    }
+
+    function generateHotspotOrbit(center, opt, radiusM, pointsCount) {
+      const waypoints = [];
+      const pts = Math.max(8, pointsCount);
+      const cosLat = Math.cos(center.lat * (Math.PI / 180.0));
+
+      for (let i = 0; i <= pts; i++) {
+        const angle = (i / pts) * 2.0 * Math.PI;
+        const dx = radiusM * Math.cos(angle);
+        const dy = radiusM * Math.sin(angle);
+        const lat = center.lat + (dy / 111139.0);
+        const lon = center.lng + (dx / (111139.0 * cosLat));
+        waypoints.push({
+          index: waypoints.length + 1,
+          lat: lat,
+          lon: lon,
+          alt: Math.min(opt.alt, 3.5),
+          command: 'WAYPOINT'
+        });
+      }
+      return { waypoints, passCount: 1 };
+    }
+
+    function generateTransectsFromCurrentBoundary() {
+      if (!currentBoundaryCoords || currentBoundaryCoords.length < 3) {
+        showAlert("Please define a farm boundary first by drawing a polygon or box.", "error");
+        return;
+      }
+
+      const opt = currentOpticalParams;
+      const pattern = document.getElementById('plan-pattern').value;
+      let result = { waypoints: [], passCount: 0 };
+
+      if (pattern === 'boustrophedon') {
+        result = generateBoustrophedon(currentBoundaryCoords, opt, 0);
+      } else if (pattern === 'long_axis') {
+        const angle = findSweepAngle(currentBoundaryCoords);
+        result = generateBoustrophedon(currentBoundaryCoords, opt, angle);
+      } else if (pattern === 'crosshatch') {
+        const angle = findSweepAngle(currentBoundaryCoords);
+        const pass1 = generateBoustrophedon(currentBoundaryCoords, opt, angle);
+        const pass2 = generateBoustrophedon(currentBoundaryCoords, opt, angle + (Math.PI / 2.0));
+        const combined = pass1.waypoints.concat(pass2.waypoints.map((wp, idx) => ({
+          ...wp,
+          index: pass1.waypoints.length + idx + 1
+        })));
+        result = { waypoints: combined, passCount: pass1.passCount + pass2.passCount };
+      } else if (pattern === 'perimeter') {
+        const rings = parseInt(document.getElementById('perimeter-rings').value) || 2;
+        result = generatePerimeterScout(currentBoundaryCoords, opt, rings);
+      } else if (pattern === 'orbit') {
+        if (!hotspotCenter) {
+          hotspotCenter = computePolygonCentroid(currentBoundaryCoords);
+        }
+        const radiusM = parseFloat(document.getElementById('orbit-radius').value) || 12.0;
+        const pts = parseInt(document.getElementById('orbit-points').value) || 16;
+        result = generateHotspotOrbit(hotspotCenter, opt, radiusM, pts);
+      }
+
+      if (result.waypoints.length > 0) {
+        result.waypoints[0].command = 'TAKEOFF';
+      }
+
+      currentWaypoints = result.waypoints;
+
+      let totalDistance = 0;
+      for (let i = 0; i < currentWaypoints.length - 1; i++) {
+        totalDistance += haversineDistMeters(currentWaypoints[i].lat, currentWaypoints[i].lon, currentWaypoints[i + 1].lat, currentWaypoints[i + 1].lon);
+      }
+      const flightDurationS = opt.speed > 0 ? (totalDistance / opt.speed) : 0;
+      const minutes = Math.floor(flightDurationS / 60);
+      const seconds = Math.floor(flightDurationS % 60);
+
+      document.getElementById('metric-passes').innerText = (pattern === 'orbit') ? "1 Orbit Loop" : `${result.passCount} passes`;
+      document.getElementById('metric-waypoints').innerText = `${currentWaypoints.length} points`;
+      document.getElementById('metric-distance').innerText = `~${Math.round(totalDistance).toLocaleString()} m`;
+      document.getElementById('metric-duration').innerText = `~${minutes} min ${seconds} s`;
+      const distSub = document.getElementById('metric-distance-sub');
+      if (distSub) distSub.innerText = `Flight path: ~${Math.round(totalDistance).toLocaleString()} m`;
+
+      renderTransectsOnMap(currentWaypoints);
+      updateWaypointAccordionTable(currentWaypoints);
+    }
+
+    function renderTransectsOnMap(waypoints) {
+      transectLayer.clearLayers();
+      markerLayer.clearLayers();
+      if (!waypoints || waypoints.length === 0) return;
+
+      const pattern = document.getElementById('plan-pattern').value;
+      const latlngs = waypoints.map(w => [w.lat, w.lon]);
+      const pathColor = (pattern === 'orbit') ? '#58a6ff' : ((pattern === 'crosshatch') ? '#f0b429' : '#38ef7d');
+
+      L.polyline(latlngs, {
+        color: pathColor,
+        weight: 3,
+        dashArray: (pattern === 'orbit' ? 'solid' : '6, 8')
+      }).addTo(transectLayer);
+
+      if (pattern === 'orbit' && hotspotCenter) {
+        const radiusM = parseFloat(document.getElementById('orbit-radius').value) || 12;
+        L.circle([hotspotCenter.lat, hotspotCenter.lng], {
+          radius: radiusM,
+          color: '#f85149',
+          weight: 2,
+          dashArray: '3, 6',
+          fillOpacity: 0.12,
+          fillColor: '#f85149'
+        }).addTo(markerLayer);
+
+        L.circleMarker([hotspotCenter.lat, hotspotCenter.lng], {
+          color: '#f85149',
+          fillColor: '#f85149',
+          fillOpacity: 0.95,
+          radius: 8
+        }).bindPopup("<strong>Target Hotspot Center</strong><br/>Click anywhere on map to reposition.").addTo(markerLayer);
+      }
+
+      // Takeoff marker
+      L.circleMarker([waypoints[0].lat, waypoints[0].lon], {
+        color: '#58a6ff',
+        fillColor: '#58a6ff',
+        fillOpacity: 0.9,
+        radius: 8
+      }).bindPopup("<strong>Waypoint #1: TAKEOFF</strong><br/>Altitude: " + waypoints[0].alt + "m AGL").addTo(markerLayer);
+
+      // Intermediate turning waypoints
+      const step = waypoints.length > 50 ? 2 : 1;
+      for (let i = 1; i < waypoints.length - 1; i += step) {
+        L.circleMarker([waypoints[i].lat, waypoints[i].lon], {
+          color: pathColor,
+          fillColor: pathColor,
+          fillOpacity: 0.65,
+          radius: 3
+        }).bindPopup("Waypoint #" + (i + 1) + "<br/>Alt: " + waypoints[i].alt + "m").addTo(markerLayer);
+      }
+
+      // Final landing marker
+      const last = waypoints[waypoints.length - 1];
+      L.circleMarker([last.lat, last.lon], {
+        color: '#f0b429',
+        fillColor: '#f0b429',
+        fillOpacity: 0.9,
+        radius: 8
+      }).bindPopup("<strong>Waypoint #" + waypoints.length + ": END SCAN</strong><br/>Return to Launch").addTo(markerLayer);
+
+      map.fitBounds(L.latLngBounds(latlngs).pad(0.1));
+    }
+
+    function toggleWaypointAccordion() {
+      const el = document.getElementById('wp-accordion');
+      if (!el) return;
+      el.classList.toggle('open');
+      const arrow = document.getElementById('accordion-arrow');
+      if (arrow) {
+        arrow.innerText = el.classList.contains('open') ? "▲ Collapse Details" : "▼ Expand Details";
+      }
+    }
+
+    function updateWaypointAccordionTable(waypoints) {
+      const countEl = document.getElementById('accordion-wp-count');
+      if (countEl) countEl.innerText = waypoints.length;
+      const tbody = document.getElementById('wp-table-body');
+      if (!tbody) return;
+      if (!waypoints || waypoints.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--md-sys-color-on-surface-variant);">No waypoints generated yet.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = waypoints.map(w => `
+        <tr>
+          <td><span style="font-family:'JetBrains Mono',monospace; font-weight:600; color:var(--md-sys-color-on-surface-variant);">#${w.index}</span></td>
+          <td style="font-weight:600; color:${w.command === 'TAKEOFF' ? 'var(--md-sys-color-secondary)' : 'var(--md-sys-color-on-surface)'}">${w.command}</td>
+          <td style="font-family:'JetBrains Mono',monospace;">${w.lat.toFixed(6)}</td>
+          <td style="font-family:'JetBrains Mono',monospace;">${w.lon.toFixed(6)}</td>
+          <td>${w.alt.toFixed(1)}m</td>
+        </tr>
+      `).join('');
+    }
+
+    async function uploadMissionToDrone() {
+      if (!currentWaypoints || currentWaypoints.length === 0) {
+        showAlert("Cannot upload: No survey transects generated yet.", "error");
+        return;
+      }
+
+      let totalDist = 0;
+      for (let i = 0; i < currentWaypoints.length - 1; i++) {
+        totalDist += haversineDistMeters(currentWaypoints[i].lat, currentWaypoints[i].lon, currentWaypoints[i + 1].lat, currentWaypoints[i + 1].lon);
+      }
+      const durationS = currentOpticalParams.speed > 0 ? (totalDist / currentOpticalParams.speed) : 0;
+
+      const payload = {
+        mission_id: "mission_" + Date.now(),
+        created_at: new Date().toISOString(),
+        field_name: "Farmer Demarcated Parcel",
+        pattern_preset: document.getElementById('plan-pattern').value,
+        area_hectares: currentAreaHa,
+        flight_parameters: {
+          altitude_agl_m: currentOpticalParams.alt,
+          speed_mps: currentOpticalParams.speed,
+          side_overlap_pct: currentOpticalParams.overlapPct,
+          camera_hfov_deg: currentOpticalParams.hfov,
+          swath_width_m: currentOpticalParams.swathWidth,
+          track_spacing_m: currentOpticalParams.trackSpacing,
+          alt: currentOpticalParams.alt,
+          speed: currentOpticalParams.speed
+        },
+        boundary_geojson: {
+          type: "Polygon",
+          coordinates: [
+            currentBoundaryCoords.map(p => [p.lng, p.lat]).concat([[currentBoundaryCoords[0].lng, currentBoundaryCoords[0].lat]])
+          ]
+        },
+        waypoints: currentWaypoints,
+        estimated_distance_m: Math.round(totalDist),
+        estimated_duration_s: Math.round(durationS)
+      };
+
+      try {
+        const res = await fetch('/api/mission/plan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+          showAlert(`✓ Mission plan successfully uploaded to drone! ${data.waypoints_count} waypoints synchronized across ${data.area_hectares.toFixed(2)} ha.`, "success");
+          updateBoundaryStatus("● Mission Plan Active on Flight Controller", "var(--md-sys-color-primary)");
+        } else {
+          showAlert(`Upload failed: ${data.message}`, "error");
+        }
+      } catch (err) {
+        showAlert(`Error uploading mission: ${err.message}`, "error");
+      }
+    }
+
+    async function loadSavedMissionPlan() {
+      try {
+        const res = await fetch('/api/mission/plan');
+        const plan = await res.json();
+        if (plan && plan.boundary_geojson && plan.boundary_geojson.coordinates) {
+          const rawCoords = plan.boundary_geojson.coordinates[0];
+          currentBoundaryCoords = rawCoords.map(c => ({ lat: c[1], lng: c[0] }));
+          drawnItems.clearLayers();
+          L.polygon(currentBoundaryCoords.map(p => [p.lat, p.lng]), {
+            color: '#38ef7d',
+            fillOpacity: 0.22,
+            weight: 2.5
+          }).addTo(drawnItems);
+          const areaM2 = computeGeodesicArea(currentBoundaryCoords);
+          currentAreaHa = areaM2 / 10000.0;
+          document.getElementById('metric-area').innerText = `${currentAreaHa.toFixed(2)} ha (${(currentAreaHa * 2.47105).toFixed(2)} ac)`;
+
+          if (plan.pattern_preset) {
+            document.getElementById('plan-pattern').value = plan.pattern_preset;
+            onPatternChange();
+          }
+          if (plan.flight_parameters) {
+            if (plan.flight_parameters.altitude_agl_m) document.getElementById('plan-altitude').value = plan.flight_parameters.altitude_agl_m;
+            if (plan.flight_parameters.speed_mps) document.getElementById('plan-speed').value = plan.flight_parameters.speed_mps;
+            if (plan.flight_parameters.side_overlap_pct) document.getElementById('plan-overlap').value = plan.flight_parameters.side_overlap_pct;
+            updateOpticalSizingAndRegenerate();
+          } else {
+            generateTransectsFromCurrentBoundary();
+          }
+          updateBoundaryStatus("● Saved Mission Loaded from Flight Controller", "var(--md-sys-color-primary)");
+        } else {
+          loadDefaultUyoField();
+        }
+      } catch (e) {
+        loadDefaultUyoField();
+      }
+    }
+
+    function loadDefaultUyoField() {
+      drawnItems.clearLayers();
+      currentBoundaryCoords = [
+        { lat: 5.037700, lng: 7.912800 },
+        { lat: 5.037700, lng: 7.914300 },
+        { lat: 5.039450, lng: 7.914300 },
+        { lat: 5.039450, lng: 7.912800 }
+      ];
+      L.polygon(currentBoundaryCoords.map(p => [p.lat, p.lng]), {
+        color: '#38ef7d',
+        fillOpacity: 0.22,
+        weight: 2.5
+      }).addTo(drawnItems);
+      const areaM2 = computeGeodesicArea(currentBoundaryCoords);
+      currentAreaHa = areaM2 / 10000.0;
+      document.getElementById('metric-area').innerText = `${currentAreaHa.toFixed(2)} ha (${(currentAreaHa * 2.47105).toFixed(2)} ac)`;
+      updateBoundaryStatus("● Default Uyo Test Grid Loaded", "var(--md-sys-color-secondary)");
+      generateTransectsFromCurrentBoundary();
+    }
+
+    function clearBoundaryAndGrid() {
+      drawnItems.clearLayers();
+      transectLayer.clearLayers();
+      markerLayer.clearLayers();
+      currentBoundaryCoords = [];
+      currentWaypoints = [];
+      document.getElementById('metric-area').innerText = "0.00 ha (0.00 ac)";
+      document.getElementById('metric-passes').innerText = "0 passes";
+      document.getElementById('metric-waypoints').innerText = "0 points";
+      document.getElementById('metric-distance').innerText = "0 m";
+      document.getElementById('metric-duration').innerText = "0 min 0 s";
+      updateBoundaryStatus("○ No Boundary Defined", "var(--md-sys-color-on-surface-variant)");
+      updateWaypointAccordionTable([]);
+      showAlert("Boundary cleared. Draw a new polygon or box on the map.", "info");
+    }
+
+    function updateBoundaryStatus(text, color) {
+      const badge = document.getElementById('boundary-status-badge');
+      if (badge) {
+        badge.innerText = text;
+        badge.style.color = color;
+      }
+    }
+
+    function showAlert(msg, type) {
+      const el = document.getElementById('global-alert');
+      if (!el) return;
+      el.style.display = 'flex';
+      el.className = `md3-alert ${type || 'info'}`;
+      el.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px; height:20px; flex-shrink:0;">
+          ${type === 'success'
+            ? '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>'
+            : (type === 'error'
+              ? '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>'
+              : '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>')}
+        </svg>
+        <span>${msg}</span>
+      `;
+      setTimeout(() => { el.style.display = 'none'; }, 6000);
+    }
+
+    // =========================================================================
+    // Drone Optical Stream & Inflow Engine
+    // =========================================================================
+    let droneStreamInterval = null;
+    let isDroneStreaming = false;
+    let liveDroneMarker = null;
+
+    async function loadDroneStreamState() {
+      try {
+        const res = await fetch('/api/drone/stream_status');
+        const state = await res.json();
+        updateDroneStreamUI(state);
+      } catch (err) {
+        console.error("Error loading stream state:", err);
+      }
+    }
+
+    function updateDroneStreamUI(state) {
+      if (!state) return;
+
+      const img = document.getElementById('drone-live-feed-img');
+      if (img) {
+        img.src = '/api/drone/frame_image?t=' + Date.now();
+      }
+
+      const counter = document.getElementById('stream-frame-counter');
+      if (counter) counter.innerText = `FRAME ${String(state.frame_index || 1).padStart(2, '0')} / ${state.total_frames || 63}`;
+
+      const fname = document.getElementById('stream-filename');
+      if (fname) fname.innerText = state.filename || '---';
+
+      const gps = document.getElementById('stream-gps');
+      if (gps) gps.innerText = `GPS: ${(state.lat || 5.0377).toFixed(6)}°N, ${(state.lon || 7.9128).toFixed(6)}°E`;
+
+      const alt = document.getElementById('stream-alt');
+      if (alt) alt.innerText = `ALT: ${state.alt || 5.0}m AGL`;
+
+      const pest = document.getElementById('stream-pest-name');
+      if (pest) pest.innerText = (state.pest_name || 'Healthy Canopy').replace(/_/g, ' ');
+
+      const sev = document.getElementById('stream-severity-val');
+      if (sev) sev.innerText = `${(state.severity_pct || 0).toFixed(1)}%`;
+
+      const sevBar = document.getElementById('stream-severity-bar');
+      if (sevBar) {
+        sevBar.style.width = `${Math.min(100, Math.max(3, state.severity_pct || 0))}%`;
+        if ((state.severity_pct || 0) > 40) {
+          sevBar.style.backgroundColor = 'var(--md-sys-color-error)';
+        } else if ((state.severity_pct || 0) > 10) {
+          sevBar.style.backgroundColor = 'var(--md-sys-color-tertiary)';
+        } else {
+          sevBar.style.backgroundColor = 'var(--md-sys-color-primary)';
+        }
+      }
+
+      const latency = document.getElementById('stream-latency-val');
+      if (latency) latency.innerText = `${(state.latency_ms || 141.6).toFixed(1)} ms`;
+
+      const rxBanner = document.getElementById('stream-rx-banner');
+      if (rxBanner) {
+        if (state.action === 'SPOT_SPRAY') {
+          rxBanner.innerHTML = `<span style="color:var(--md-sys-color-error); font-weight:700;">● SPOT SPRAY ACTION:</span> ${state.chemical} @ ${state.dosage} ml/L`;
+          rxBanner.style.background = 'rgba(248, 81, 73, 0.12)';
+        } else {
+          rxBanner.innerHTML = `<span style="color:var(--md-sys-color-primary); font-weight:700;">✓ CANOPY HEALTHY:</span> Zero chemical application required.`;
+          rxBanner.style.background = 'rgba(56, 239, 125, 0.08)';
+        }
+      }
+
+      const streamBtn = document.getElementById('btn-stream-toggle');
+      if (streamBtn) {
+        if (state.is_streaming) {
+          streamBtn.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+            Pause Inflow
+          `;
+          streamBtn.classList.remove('md3-btn-filled');
+          streamBtn.classList.add('md3-btn-secondary');
+        } else {
+          streamBtn.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Start Drone Inflow
+          `;
+          streamBtn.classList.remove('md3-btn-secondary');
+          streamBtn.classList.add('md3-btn-filled');
+        }
+      }
+
+      // Synchronize live drone marker on Leaflet map
+      if (typeof map !== 'undefined' && map && state.lat && state.lon) {
+        updateDroneMarkerOnMap(state.lat, state.lon, state);
+      }
+    }
+
+    async function toggleDroneStream() {
+      try {
+        const url = isDroneStreaming ? '/api/drone/stream/pause' : '/api/drone/stream/start';
+        const res = await fetch(url, { method: 'POST' });
+        const data = await res.json();
+        isDroneStreaming = !isDroneStreaming;
+        if (isDroneStreaming) {
+          if (!droneStreamInterval) {
+            droneStreamInterval = setInterval(async () => {
+              await stepDroneStream(false);
+            }, 1200);
+          }
+        } else {
+          if (droneStreamInterval) {
+            clearInterval(droneStreamInterval);
+            droneStreamInterval = null;
+          }
+        }
+        updateDroneStreamUI(data.state || { is_streaming: isDroneStreaming });
+      } catch (err) {
+        console.error("Stream toggle error:", err);
+      }
+    }
+
+    async function stepDroneStream(showAlertToast = true) {
+      try {
+        const res = await fetch('/api/drone/stream/step', { method: 'POST' });
+        const data = await res.json();
+        if (data.status === 'success') {
+          updateDroneStreamUI(data.state);
+          if (showAlertToast && data.state.action === 'SPOT_SPRAY') {
+            showAlert(`[Optical Alert] ${data.state.pest_name}: Spot spray ${data.state.chemical} @ ${data.state.dosage} ml/L logged.`, "tertiary");
+          }
+        }
+      } catch (err) {
+        console.error("Error stepping stream:", err);
+      }
+    }
+
+    function resetDroneStream() {
+      if (droneStreamInterval) {
+        clearInterval(droneStreamInterval);
+        droneStreamInterval = null;
+      }
+      isDroneStreaming = false;
+      fetch('/api/drone/stream/pause', { method: 'POST' }).then(() => {
+        loadDroneStreamState();
+      });
+    }
+
+    function updateDroneMarkerOnMap(lat, lon, state) {
+      if (!map) return;
+      if (!liveDroneMarker) {
+        const droneIcon = L.divIcon({
+          className: 'drone-live-marker',
+          html: `<div style="background:#38ef7d; width:22px; height:22px; border-radius:50%; box-shadow:0 2px 10px rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; color:#000; font-size:12px; font-weight:900;">✈</div>`,
+          iconSize: [24, 24],
+          iconAnchor: [12, 12]
+        });
+        liveDroneMarker = L.marker([lat, lon], { icon: droneIcon }).addTo(map);
+      } else {
+        liveDroneMarker.setLatLng([lat, lon]);
+      }
+      liveDroneMarker.bindTooltip(`Drone Payload: ${state.pest_name || 'Scanning'} (${state.severity_pct || 0}%)`, {
+        permanent: false,
+        direction: 'top'
+      });
+    }
+
+    // Diagnostics Engine
+    async function loadDiagnostics() {
+      try {
+        const res = await fetch('/api/diagnostics');
+        const data = await res.json();
+        const container = document.getElementById('diag-cards-container');
+        if (!container) return;
+        container.innerHTML = '';
+
+        for (const [k, v] of Object.entries(data)) {
+          const isNominal = v.includes("ONLINE") || v.includes("READY") || v.includes("PASSED") || v.includes("Normal");
+          const color = isNominal ? "var(--md-sys-color-primary)" : "var(--md-sys-color-tertiary)";
+
+          container.innerHTML += `
+            <div class="diag-card">
+              <div class="diag-card-header">
+                <span class="diag-card-name">${k.replace(/_/g, ' ')}</span>
+                <span class="status-text-indicator" style="color:${color}; font-size:0.75rem; font-weight:700;">
+                  ${isNominal ? '● NOMINAL' : '▲ ADVISORY'}
+                </span>
+              </div>
+              <div class="diag-card-value">${v}</div>
+            </div>
+          `;
+        }
+      } catch (err) {
+        console.error("Error loading diagnostics:", err);
+      }
+    }
+
+    // Pest DB
+    async function loadPests() {
+      try {
+        const res = await fetch('/api/pests');
+        allPestsData = await res.json();
+        renderPestTable(allPestsData);
+      } catch (err) {
+        console.error("Error loading pests:", err);
+      }
+    }
+
+    function renderPestTable(data) {
+      const tbody = document.querySelector('#pest-table tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      if (!data || data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state-box"><h4>No Pest Signatures Found</h4><p>No matching pathology signatures in the local agronomic database.</p></div></td></tr>`;
+        return;
+      }
+      data.forEach(p => {
+        tbody.innerHTML += `
+          <tr>
+            <td><strong>${p.name}</strong></td>
+            <td><span style="color:var(--md-sys-color-secondary); font-weight:500;">${p.crop}</span></td>
+            <td><span style="color:var(--md-sys-color-on-surface-variant); font-size:0.8125rem;">${p.class}</span></td>
+            <td style="color:var(--md-sys-color-primary); font-weight:600;">${p.chemical}</td>
+            <td style="font-family:'JetBrains Mono',monospace;">${p.dosage}</td>
+            <td style="font-family:'JetBrains Mono',monospace;">${p.interval}</td>
+          </tr>
+        `;
+      });
+    }
+
+    function filterPestTable() {
+      const query = (document.getElementById('pest-search').value || '').toLowerCase();
+      if (!query) {
+        renderPestTable(allPestsData);
+        return;
+      }
+      const filtered = allPestsData.filter(p =>
+        (p.name && p.name.toLowerCase().includes(query)) ||
+        (p.crop && p.crop.toLowerCase().includes(query)) ||
+        (p.chemical && p.chemical.toLowerCase().includes(query)) ||
+        (p.class && p.class.toLowerCase().includes(query))
+      );
+      renderPestTable(filtered);
+    }
+
+    async function submitPest(e) {
+      e.preventDefault();
+      const payload = {
+        pest_name: document.getElementById('p-name').value,
+        crop_type: document.getElementById('p-crop').value,
+        severity_class: document.getElementById('p-class').value,
+        chemical: document.getElementById('p-chem').value,
+        dosage: document.getElementById('p-dose').value,
+        min_sev: document.getElementById('p-min').value,
+        max_sev: document.getElementById('p-max').value
+      };
+      await fetch('/api/add_pest', { method: 'POST', body: JSON.stringify(payload) });
+      showAlert("✓ New regional pest signature registered in SQLite database.", "success");
+      document.getElementById('add-pest-form').reset();
+      loadPests();
+    }
+
+    // Prescription Exporter
+    async function loadPrescriptions() {
+      try {
+        const res = await fetch('/api/prescriptions');
+        const data = await res.json();
+        const tbody = document.querySelector('#rx-table tbody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        if (!data || data.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="8">
+                <div class="empty-state-box">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                  </svg>
+                  <h4>No Prescription Logs Generated Yet</h4>
+                  <p>Autonomous drone flights and onboard edge computer vision sweeps populate georeferenced spot-spraying chemical prescriptions here automatically.</p>
+                </div>
+              </td>
+            </tr>
+          `;
+          return;
+        }
+        data.forEach(r => {
+          tbody.innerHTML += `
+            <tr>
+              <td>${r.Timestamp || '-'}</td>
+              <td style="font-family:'JetBrains Mono',monospace;">${r.Latitude || '-'}</td>
+              <td style="font-family:'JetBrains Mono',monospace;">${r.Longitude || '-'}</td>
+              <td>${r.Altitude_m || '-'} m</td>
+              <td><strong>${r.Target_Pest_Name || '-'}</strong></td>
+              <td><span style="color:var(--md-sys-color-tertiary); font-weight:600; font-family:'JetBrains Mono',monospace;">${r.Severity_Percentage || '0'}%</span></td>
+              <td style="color:var(--md-sys-color-primary); font-weight:600;">${r.Recommended_Chemical || '-'}</td>
+              <td>${r.Dosage_ml_per_Litre || '-'} ml/L</td>
+            </tr>
+          `;
+        });
+      } catch (err) {
+        console.error("Error loading prescriptions:", err);
+      }
+    }
+
+    // Camera Config
+    async function saveCameraConfig(e) {
+      e.preventDefault();
+      const payload = {
+        exposure_mode: document.getElementById('cfg-exposure').value,
+        iso: parseInt(document.getElementById('cfg-iso').value),
+        harmattan_dust_adaptive_mode: { enabled: document.getElementById('cfg-dust').value === 'true' },
+        resolution: {
+          width: parseInt(document.getElementById('cfg-width').value),
+          height: parseInt(document.getElementById('cfg-height').value)
+        }
+      };
+      await fetch('/api/config', { method: 'POST', body: JSON.stringify(payload) });
+      showAlert("✓ Sony IMX219 optical calibration saved to camera_config.json.", "success");
+    }
+
+    // Checklist Inspection
+    function toggleCheckItem(el) {
+      el.classList.toggle('cleared');
+      const icon = el.querySelector('.checklist-circle');
+      if (el.classList.contains('cleared')) {
+        icon.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px; height:14px;"><polyline points="20 6 9 17 4 12"/></svg>`;
+      } else {
+        icon.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px; height:14px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+      }
+      updateInspectionCount();
+    }
+
+    function updateInspectionCount() {
+      const total = document.querySelectorAll('.checklist-row').length;
+      const cleared = document.querySelectorAll('.checklist-row.cleared').length;
+      const badge = document.getElementById('checklist-summary');
+      if (badge) {
+        badge.innerText = `${cleared} / ${total} Pre-Flight Clear`;
+        badge.style.color = (cleared === total) ? "var(--md-sys-color-primary)" : "var(--md-sys-color-tertiary)";
+      }
+    }
+
+    // RTL Modal Sheet
+    function openRtlModal() {
+      document.getElementById('rtl-modal').classList.add('open');
+    }
+    function closeRtlModal() {
+      document.getElementById('rtl-modal').classList.remove('open');
+    }
+    function confirmEmergencyRtl() {
+      closeRtlModal();
+      showAlert("⚠️ Emergency Return-to-Launch signal dispatched to Pixhawk Autopilot!", "error");
+      const armStatus = document.getElementById('arm-status-text');
+      if (armStatus) {
+        armStatus.innerText = "RTL IN PROGRESS";
+        armStatus.style.color = "var(--md-sys-color-error)";
+      }
+    }
+
+    window.onload = () => {
+      initMap();
+      loadDiagnostics();
+      loadDroneStreamState();
+      loadPests();
+      loadSavedMissionPlan();
+    };
+  </script>
+</body>
+</html>

@@ -76,10 +76,46 @@ def generate_synthetic_descriptors(seed=42, n_features=100):
     return keypoints.tobytes(), descriptors.tobytes()
 
 
-def seed_agronomic_records(db_path='crop_health_edge.db'):
+def extract_real_or_synthetic_descriptors(pest_name, pest_dir='pest_database', seed=42, n_features=300):
+    """
+    Extract real OpenCV ORB keypoints and descriptors from pest database images if available.
+    Falls back to synthetic descriptors if images are not present.
+    """
+    if os.path.exists(pest_dir):
+        class_folder = os.path.join(pest_dir, pest_name)
+        if os.path.isdir(class_folder):
+            try:
+                import cv2
+                orb = cv2.ORB_create(nfeatures=n_features)
+                all_descs = []
+                all_kps = []
+                # Scan up to 10 representative images from the class
+                image_files = sorted([f for f in os.listdir(class_folder) if f.lower().endswith(('.jpg', '.jpeg', '.png'))])[:10]
+                for fname in image_files:
+                    fpath = os.path.join(class_folder, fname)
+                    img = cv2.imread(fpath, cv2.IMREAD_GRAYSCALE)
+                    if img is not None:
+                        kp, des = orb.detectAndCompute(img, None)
+                        if des is not None and len(des) > 0:
+                            all_descs.append(des)
+                            pts = np.array([p.pt for p in kp], dtype=np.float32)
+                            all_kps.append(pts)
+                            if sum(len(d) for d in all_descs) >= n_features:
+                                break
+                if all_descs:
+                    stacked_des = np.vstack(all_descs)[:n_features].astype(np.uint8)
+                    stacked_kps = np.vstack(all_kps)[:n_features].astype(np.float32)
+                    return stacked_kps.tobytes(), stacked_des.tobytes()
+            except Exception as e:
+                print(f"[DB] Notice: Could not extract OpenCV descriptors for {pest_name} ({e}). Using synthetic fallback.")
+
+    return generate_synthetic_descriptors(seed=seed, n_features=n_features)
+
+
+def seed_agronomic_records(db_path='crop_health_edge.db', pest_dir='pest_database'):
     """
     Populate standard agronomic prescription matrices for:
-    - Maize / Corn (Fall Armyworm, Common Rust, Leaf Blight)
+    - Maize / Corn (Fall Armyworm, Stem Borer, Ear Rot, Common Rust, Leaf Blight)
     - Cassava (Cassava Mosaic Disease, Bacterial Blight)
     - Tomato & Potato (Early/Late Blight, Yellow Leaf Curl)
     """
@@ -100,9 +136,9 @@ def seed_agronomic_records(db_path='crop_health_edge.db'):
         VALUES (?, ?, ?)
         ''', (crop_type, color, stage))
 
-    # Seed Pest Signatures & Prescriptions
+    # Seed Pest Signatures & Prescriptions from the Archive Database
     pests_data = [
-        # 1. Fall Armyworm in Maize
+        # 1. Fall Armyworm in Maize (from archive)
         {
             "name": "Corn_(maize)___Fall_Armyworm_lesion",
             "crop": "Corn_(maize)",
@@ -114,7 +150,31 @@ def seed_agronomic_records(db_path='crop_health_edge.db'):
                 (70.1, 100.0, "Spinetoram 11.7% SC (Spot Over-Dose)", 0.8, "Spinosyn", 14),
             ]
         },
-        # 2. Maize Common Rust
+        # 2. Stem Borer in Maize (from archive)
+        {
+            "name": "Corn_(maize)___Stem_Borer",
+            "crop": "Corn_(maize)",
+            "class": "Lepidopteran Borer (Busseola fusca)",
+            "seed": 109,
+            "prescriptions": [
+                (10.0, 40.0, "Deltamethrin 2.8% EC", 0.5, "Pyrethroid", 10),
+                (40.1, 75.0, "Chlorantraniliprole 18.5% SC", 0.6, "Anthranilic Diamide", 14),
+                (75.1, 100.0, "Carbosulfan 25% EC Spot Barrier", 1.0, "Carbamate", 21),
+            ]
+        },
+        # 3. Ear Rot in Maize (from archive)
+        {
+            "name": "Corn_(maize)___Ear_Rot",
+            "crop": "Corn_(maize)",
+            "class": "Fungal Pathology (Fusarium / Aspergillus)",
+            "seed": 110,
+            "prescriptions": [
+                (10.0, 40.0, "Azoxystrobin 23% SC", 0.8, "Strobilurin", 14),
+                (40.1, 75.0, "Tebuconazole 250 EC", 1.0, "Triazole", 21),
+                (75.1, 100.0, "Flutriafol + Azoxystrobin Dual Action", 1.2, "Dual Action Fungicide", 28),
+            ]
+        },
+        # 4. Maize Common Rust
         {
             "name": "Corn_(maize)___Common_rust_",
             "crop": "Corn_(maize)",
@@ -125,7 +185,7 @@ def seed_agronomic_records(db_path='crop_health_edge.db'):
                 (45.1, 100.0, "Azoxystrobin 23% SC", 1.0, "Strobilurin", 14),
             ]
         },
-        # 3. Maize Northern Leaf Blight
+        # 5. Maize Northern Leaf Blight
         {
             "name": "Corn_(maize)___Northern_Leaf_Blight",
             "crop": "Corn_(maize)",
@@ -136,7 +196,7 @@ def seed_agronomic_records(db_path='crop_health_edge.db'):
                 (50.1, 100.0, "Pyraclostrobin + Fluxapyroxad", 1.2, "Dual Action Fungicide", 21),
             ]
         },
-        # 4. Cassava Mosaic Disease
+        # 6. Cassava Mosaic Disease
         {
             "name": "Cassava___Cassava_Mosaic_Disease",
             "crop": "Cassava",
@@ -148,7 +208,7 @@ def seed_agronomic_records(db_path='crop_health_edge.db'):
                 (75.1, 100.0, "Uprooting & Destruction Notice + Imidacloprid Perimeter", 1.0, "Total Quarantine", 0),
             ]
         },
-        # 5. Tomato Early Blight
+        # 7. Tomato Early Blight
         {
             "name": "Tomato___Early_blight",
             "crop": "Tomato",
@@ -160,7 +220,7 @@ def seed_agronomic_records(db_path='crop_health_edge.db'):
                 (75.1, 100.0, "Azoxystrobin 20% + Difenoconazole 12.5% SC", 1.2, "Strobilurin + Triazole", 14),
             ]
         },
-        # 6. Tomato Yellow Leaf Curl Virus
+        # 8. Tomato Yellow Leaf Curl Virus
         {
             "name": "Tomato___Tomato_Yellow_Leaf_Curl_Virus",
             "crop": "Tomato",
@@ -171,7 +231,7 @@ def seed_agronomic_records(db_path='crop_health_edge.db'):
                 (50.1, 100.0, "Pyriproxyfen 10% EC (Insect Growth Regulator)", 1.5, "IGR", 14),
             ]
         },
-        # 7. Potato Early Blight
+        # 9. Potato Early Blight
         {
             "name": "Potato___Early_blight",
             "crop": "Potato",
@@ -182,7 +242,7 @@ def seed_agronomic_records(db_path='crop_health_edge.db'):
                 (50.1, 100.0, "Famoxadone + Cymoxanil", 1.0, "Oxazolidinedione", 14),
             ]
         },
-        # 8. Potato Late Blight
+        # 10. Potato Late Blight
         {
             "name": "Potato___Late_blight",
             "crop": "Potato",
@@ -196,11 +256,20 @@ def seed_agronomic_records(db_path='crop_health_edge.db'):
     ]
 
     for item in pests_data:
-        kp_blob, desc_blob = generate_synthetic_descriptors(seed=item["seed"])
+        kp_blob, desc_blob = extract_real_or_synthetic_descriptors(
+            pest_name=item["name"],
+            pest_dir=pest_dir,
+            seed=item["seed"],
+            n_features=300
+        )
         cursor.execute('''
-        INSERT OR IGNORE INTO Pest_Signature_Table 
+        INSERT INTO Pest_Signature_Table 
         (pest_name, crop_type, keypoints_blob, descriptors_blob, severity_class)
         VALUES (?, ?, ?, ?, ?)
+        ON CONFLICT(pest_name) DO UPDATE SET
+            keypoints_blob=excluded.keypoints_blob,
+            descriptors_blob=excluded.descriptors_blob,
+            severity_class=excluded.severity_class
         ''', (item["name"], item["crop"], kp_blob, desc_blob, item["class"]))
 
         # Retrieve pest_id
@@ -224,3 +293,4 @@ if __name__ == "__main__":
     db_file = "crop_health_edge.db"
     create_pest_database(db_file)
     seed_agronomic_records(db_file)
+

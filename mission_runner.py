@@ -27,15 +27,27 @@ class AutonomousMissionRunner:
     Executes the autonomous precision scouting mission over agricultural parcel.
     """
 
-    def __init__(self, db_path='crop_health_edge.db', mode='hybrid', log_file='field_prescription_log.csv'):
+    def __init__(self, db_path='crop_health_edge.db', mode='hybrid', log_file='field_prescription_log.csv', captures_dir='realtime_captures'):
         self.db_path = db_path
         self.log_file = log_file
+        self.captures_dir = captures_dir
 
         # Ensure database is present and seeded
         if not os.path.exists(db_path):
             print("[MissionRunner] Database not found. Initializing and seeding...")
             create_pest_database(db_path)
             seed_agronomic_records(db_path)
+
+        # Inflow frame list from real-time captures
+        self.capture_frames = []
+        if os.path.isdir(self.captures_dir):
+            import glob
+            self.capture_frames = sorted(
+                glob.glob(os.path.join(self.captures_dir, '*.jpg')) +
+                glob.glob(os.path.join(self.captures_dir, '*.png'))
+            )
+            if self.capture_frames:
+                print(f"[MissionRunner] Loaded {len(self.capture_frames)} real-time drone capture frames from '{self.captures_dir}'.")
 
         # Initialize Subsystems
         print("[MissionRunner] Initializing Vision Engine...")
@@ -51,27 +63,32 @@ class AutonomousMissionRunner:
         self.db_latencies = []
         self.write_latencies = []
 
+    def get_drone_inflow_frame(self, node_index, target_type='healthy'):
+        """
+        Acquire optical frame from drone camera payload.
+        Prioritizes real downscaled plant capture imagery, with synthetic fallback.
+        """
+        if self.capture_frames:
+            fpath = self.capture_frames[(node_index - 1) % len(self.capture_frames)]
+            return fpath, os.path.basename(fpath)
+        return self.generate_simulated_frame(target_type=target_type), f"synth_node_{node_index:03d}.raw"
+
     def generate_simulated_frame(self, target_type='healthy'):
         """
-        Generate realistic RGB optical frames representing crop vegetation
-        with or without pathological lesions.
+        Fallback synthetic frame generator (256x256x3) if no capture images exist.
         """
-        # Create base green canopy (256x256x3)
         rng = np.random.default_rng()
         frame = np.zeros((256, 256, 3), dtype=np.uint8)
 
         if target_type == 'healthy':
-            # Lush green foliage
-            frame[:, :, 0] = rng.integers(20, 45, size=(256, 256))   # Blue
-            frame[:, :, 1] = rng.integers(120, 180, size=(256, 256)) # Green
-            frame[:, :, 2] = rng.integers(30, 60, size=(256, 256))   # Red
+            frame[:, :, 0] = rng.integers(20, 45, size=(256, 256))
+            frame[:, :, 1] = rng.integers(120, 180, size=(256, 256))
+            frame[:, :, 2] = rng.integers(30, 60, size=(256, 256))
         else:
-            # Canopy with brown/rust lesions or mosaic chlorosis
             frame[:, :, 0] = rng.integers(30, 70, size=(256, 256))
             frame[:, :, 1] = rng.integers(80, 140, size=(256, 256))
             frame[:, :, 2] = rng.integers(90, 160, size=(256, 256))
-            # Center lesion patch
-            frame[80:180, 80:180, 2] = rng.integers(160, 220, size=(100, 100)) # Rust/necrosis
+            frame[80:180, 80:180, 2] = rng.integers(160, 220, size=(100, 100))
 
         return frame
 
@@ -105,13 +122,14 @@ class AutonomousMissionRunner:
             target_class, actual_label = scenarios[(i - 1) % len(scenarios)]
             is_actually_infected = (target_class != "healthy")
 
-            frame = self.generate_simulated_frame(target_type=target_class)
+            # 1. Optical Frame Inflow Acquisition from Drone Camera
+            frame, frame_name = self.get_drone_inflow_frame(i, target_type=target_class)
 
-            # 1. Telemetry Capture
+            # 2. Telemetry Capture
             lat, lon, alt, tel_lat_ms = self.drone.get_current_telemetry()
             self.telemetry_latencies.append(tel_lat_ms)
 
-            # 2. Edge Vision Classification
+            # 3. Edge Vision Classification
             detected_pest, severity_pct, vis_lat_ms = self.vision.evaluate_frame(frame)
             self.vision_latencies.append(vis_lat_ms)
 
@@ -132,13 +150,13 @@ class AutonomousMissionRunner:
             elif is_actually_infected and not is_predicted_infected:
                 fn += 1
 
-            # 3. Prescriptive Decision Query
+            # 4. Prescriptive Decision Query
             t_db0 = time.perf_counter()
             rx = self.prescription.get_prescription(detected_pest, severity_pct)
             db_lat_ms = (time.perf_counter() - t_db0) * 1000.0
             self.db_latencies.append(db_lat_ms)
 
-            # 4. Prescription Logging (CSV)
+            # 5. Prescription Logging (CSV)
             if rx["action"] != "NO_ACTION":
                 write_lat_ms = self.drone.log_prescription(
                     pest_name=rx["pest_name"],
@@ -151,7 +169,7 @@ class AutonomousMissionRunner:
             else:
                 action_str = "CANOPY HEALTHY (No Chemical Needed)"
 
-            print(f"Node #{i:02d} | Lat: {lat:.6f}, Lon: {lon:.6f} | Pest: {detected_pest[:28]:<28} | Sev: {severity_pct:5.1f}% | {action_str}")
+            print(f"Node #{i:02d} [{frame_name[:20]}] | Lat: {lat:.6f}, Lon: {lon:.6f} | Pest: {detected_pest[:25]:<25} | Sev: {severity_pct:5.1f}% | {action_str}")
             time.sleep(0.05)  # Simulate frame interval
 
         # Export GeoJSON Prescription Map

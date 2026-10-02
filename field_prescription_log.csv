@@ -39,3 +39,13 @@ Timestamp,Latitude,Longitude,Altitude_m,Target_Pest_Name,Severity_Percentage,Rec
 2026-09-28 21:54:36,5.037725,7.913200,5.0,Cassava___Cassava_Mosaic_Disease,48.50,Acetamiprid 20% SP + Roguing Rogue Nodes,0.60
 2026-09-28 21:54:37,5.037725,7.913125,5.0,Tomato___Early_blight,48.50,Difenoconazole 25% EC,0.80
 2026-09-28 21:54:37,5.037725,7.913050,5.0,Potato___Late_blight,48.50,Dimethomorph 50% WP,1.50
+2026-10-02 08:50:02,5.037700,7.912875,5.0,Corn_(maize)___Common_rust_,48.50,Azoxystrobin 23% SC,1.00
+2026-10-02 08:50:02,5.037700,7.912950,5.0,Corn_(maize)___Fall_Armyworm_lesion,48.50,Chlorantraniliprole 18.5% SC,0.50
+2026-10-02 08:50:03,5.037700,7.913000,5.0,Cassava___Cassava_Mosaic_Disease,48.50,Acetamiprid 20% SP + Roguing Rogue Nodes,0.60
+2026-10-02 08:50:03,5.037700,7.913075,5.0,Tomato___Early_blight,48.50,Difenoconazole 25% EC,0.80
+2026-10-02 08:50:04,5.037700,7.913150,5.0,Potato___Late_blight,48.50,Dimethomorph 50% WP,1.50
+2026-10-02 08:50:05,5.037700,7.913250,5.0,Corn_(maize)___Common_rust_,48.50,Azoxystrobin 23% SC,1.00
+2026-10-02 08:50:05,5.037725,7.913250,5.0,Corn_(maize)___Fall_Armyworm_lesion,48.50,Chlorantraniliprole 18.5% SC,0.50
+2026-10-02 08:50:06,5.037725,7.913200,5.0,Cassava___Cassava_Mosaic_Disease,48.50,Acetamiprid 20% SP + Roguing Rogue Nodes,0.60
+2026-10-02 08:50:06,5.037725,7.913125,5.0,Tomato___Early_blight,48.50,Difenoconazole 25% EC,0.80
+2026-10-02 08:50:07,5.037725,7.913050,5.0,Potato___Late_blight,48.50,Dimethomorph 50% WP,1.50

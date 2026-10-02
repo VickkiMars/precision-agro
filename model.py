@@ -237,4 +237,11 @@ def load_trained_resnet(model_path=None, num_classes=len(PLANT_CLASSES), device=
             print(f"[ModelLoader] Model path '{model_path}' not found. Using initialized ResNet-9.")
 
     model.eval()
-    return model
+    try:
+        dummy_in = torch.zeros(1, 3, 256, 256, device=device)
+        traced = torch.jit.trace(model, dummy_in)
+        frozen = torch.jit.freeze(traced)
+        optimized = torch.jit.optimize_for_inference(frozen)
+        return optimized
+    except Exception:
+        return model

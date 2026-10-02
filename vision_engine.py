@@ -75,19 +75,42 @@ class EdgeVisionEngine:
             self.model = None
             self.classes = []
 
+        # 3. Model Warm-Up for Consistent Low Latency (< 200 ms benchmark)
+        if TORCH_AVAILABLE and self.model is not None:
+            try:
+                _dummy = np.zeros((256, 256, 3), dtype=np.uint8)
+                self.evaluate_frame(_dummy)
+            except Exception:
+                pass
+
     def preprocess_canopy(self, frame):
         """
         Isolate crop foliage canopy from soil, rocks, and background artifacts
-        using HSV color segmentation.
+        using HSV color segmentation. Accepts numpy array, PIL Image, or file path.
         """
-        if not OPENCV_AVAILABLE or frame is None:
+        if frame is None:
+            return None
+
+        # If a filepath was passed, load it
+        if isinstance(frame, str) and os.path.exists(frame):
+            if OPENCV_AVAILABLE:
+                frame = cv2.imread(frame)
+            elif TORCH_AVAILABLE:
+                frame = Image.open(frame).convert('RGB')
+
+        if not OPENCV_AVAILABLE or not isinstance(frame, np.ndarray):
             return frame
 
         # Convert RGB/BGR to HSV for vegetation isolation
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         mask = cv2.inRange(hsv, self.lower_green, self.upper_green)
-        canopy = cv2.bitwise_and(frame, frame, mask=mask)
-        return canopy
+        
+        # Only apply canopy mask if a reasonable proportion of green foliage is present
+        green_ratio = np.count_nonzero(mask) / (frame.shape[0] * frame.shape[1] + 1e-5)
+        if green_ratio > 0.05:
+            canopy = cv2.bitwise_and(frame, frame, mask=mask)
+            return canopy
+        return frame
 
     # ==========================================
     # Pipeline 1: Deep Learning CNN Inference
@@ -106,6 +129,8 @@ class EdgeVisionEngine:
             if OPENCV_AVAILABLE and isinstance(canopy_frame, np.ndarray):
                 rgb_frame = cv2.cvtColor(canopy_frame, cv2.COLOR_BGR2RGB)
                 pil_img = Image.fromarray(rgb_frame)
+            elif isinstance(canopy_frame, str) and os.path.exists(canopy_frame):
+                pil_img = Image.open(canopy_frame).convert('RGB')
             elif isinstance(canopy_frame, Image.Image):
                 pil_img = canopy_frame
             else:
@@ -114,7 +139,7 @@ class EdgeVisionEngine:
 
             tensor = self.transform(pil_img).unsqueeze(0).to(self.device)
 
-            with torch.no_grad():
+            with torch.inference_mode():
                 outputs = self.model(tensor)
                 probabilities = torch.softmax(outputs, dim=1)
                 confidence, pred_idx = torch.max(probabilities, dim=1)

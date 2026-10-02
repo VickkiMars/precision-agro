@@ -26,7 +26,7 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 COPY gcs_server.py db_init.py prescription_engine.py \
      crop_health_edge.db camera_config.json \
      field_prescription_log.csv field_prescription_map.geojson \
-     plant_classes.json \
+     plant_classes.json index.html \
      requirements.txt \
      /app/
 
