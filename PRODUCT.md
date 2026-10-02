@@ -36,8 +36,8 @@ A zero-cloud, fully offline cyber-physical drone solution pairing an onboard dee
 ## Brand Commitments
 
 - **Name:** Precision Agriculture Drone Ground Control Station (Precision Agro GCS).
-- **Visual Voice:** High-contrast tactical operations aesthetic built on deep obsidian dark tones (`#0d1117`, `#161b22`), sharp borders (`#30363d`), crisp typography (`Inter` + `JetBrains Mono`), and clear semantic status indicators.
-- **Color Discipline:** Emerald green (`#3fb950` / `#2ea043`) for nominal flight status and active transects, cobalt blue (`#58a6ff`) for telemetry and takeoff nodes, amber (`#d29922`) for crosshatch/maintenance warnings, and crimson (`#f85149`) for hotspot triage and alerts.
+- **Visual Voice:** High-contrast field-edge aesthetic strictly disciplined around **White, Gray, and Green** (`#ffffff`, `#f8fafc`, `#f1f5f9`, `#e2e8f0`, `#15803d`), crisp typography (`Inter` + `JetBrains Mono`), and clear semantic status indicators without hard borders, loud badges, or visual clutter.
+- **Color Discipline:** Luminous crisp white (`#ffffff`) for elevated cards, modals, and navigation controls; calm slate and cool grays (`#f8fafc` canvas, `#f1f5f9` containers, `#475569` secondary actions, `#0f172a` high-contrast typography); and rich agronomic greens (`#15803d` primary emerald, `#14532d` forest, `#dcfce7` tint container) for nominal flight status, field boundaries, waypoints, and active transects.
 
 ## Evidence on Hand
 

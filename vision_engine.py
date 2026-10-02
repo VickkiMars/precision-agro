@@ -76,10 +76,13 @@ class EdgeVisionEngine:
             self.classes = []
 
         # 3. Model Warm-Up for Consistent Low Latency (< 200 ms benchmark)
+        self._signatures_cache = None
         if TORCH_AVAILABLE and self.model is not None:
             try:
                 _dummy = np.zeros((256, 256, 3), dtype=np.uint8)
-                self.evaluate_frame(_dummy)
+                _dummy[:, :, 1] = 150
+                for _ in range(2):
+                    self.evaluate_frame(_dummy)
             except Exception:
                 pass
 
@@ -125,19 +128,19 @@ class EdgeVisionEngine:
             return "Corn_(maize)___Common_rust_", 88.5
 
         try:
-            # Convert frame to PIL Image
             if OPENCV_AVAILABLE and isinstance(canopy_frame, np.ndarray):
+                if canopy_frame.shape[0] != 256 or canopy_frame.shape[1] != 256:
+                    canopy_frame = cv2.resize(canopy_frame, (256, 256), interpolation=cv2.INTER_LINEAR)
                 rgb_frame = cv2.cvtColor(canopy_frame, cv2.COLOR_BGR2RGB)
-                pil_img = Image.fromarray(rgb_frame)
+                tensor = torch.from_numpy(np.ascontiguousarray(rgb_frame.transpose(2, 0, 1))).float().div_(255.0).unsqueeze(0).to(self.device)
             elif isinstance(canopy_frame, str) and os.path.exists(canopy_frame):
                 pil_img = Image.open(canopy_frame).convert('RGB')
+                tensor = self.transform(pil_img).unsqueeze(0).to(self.device)
             elif isinstance(canopy_frame, Image.Image):
-                pil_img = canopy_frame
+                tensor = self.transform(canopy_frame).unsqueeze(0).to(self.device)
             else:
-                # Synthetic dummy image
                 pil_img = Image.new('RGB', (256, 256), color=(46, 125, 50))
-
-            tensor = self.transform(pil_img).unsqueeze(0).to(self.device)
+                tensor = self.transform(pil_img).unsqueeze(0).to(self.device)
 
             with torch.inference_mode():
                 outputs = self.model(tensor)
@@ -164,26 +167,40 @@ class EdgeVisionEngine:
         keypoints, descriptors = self.orb.detectAndCompute(gray, None)
         return keypoints, descriptors
 
+    def _load_signatures_cache(self):
+        if not os.path.exists(self.db_path) or not OPENCV_AVAILABLE:
+            self._signatures_cache = []
+            return
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            cursor.execute("SELECT pest_id, pest_name, descriptors_blob FROM Pest_Signature_Table")
+            rows = cursor.fetchall()
+            conn.close()
+            cache = []
+            for pest_id, pest_name, desc_blob in rows:
+                if desc_blob:
+                    db_descriptors = np.frombuffer(desc_blob, dtype=np.uint8).reshape(-1, 32)
+                    cache.append((pest_name, db_descriptors))
+            self._signatures_cache = cache
+        except Exception:
+            self._signatures_cache = []
+
     def match_against_db(self, live_descriptors):
         """
         Match extracted live descriptors against SQLite Pest_Signature_Table
         using Hamming distance.
         """
-        if live_descriptors is None or not os.path.exists(self.db_path) or not OPENCV_AVAILABLE:
+        if live_descriptors is None or not OPENCV_AVAILABLE:
             return None, 0.0
 
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
-        cursor.execute("SELECT pest_id, pest_name, descriptors_blob FROM Pest_Signature_Table")
-        rows = cursor.fetchall()
+        if self._signatures_cache is None:
+            self._load_signatures_cache()
 
         best_match_pest = None
         highest_match_count = 0
 
-        for pest_id, pest_name, desc_blob in rows:
-            if not desc_blob:
-                continue
-            db_descriptors = np.frombuffer(desc_blob, dtype=np.uint8).reshape(-1, 32)
+        for pest_name, db_descriptors in self._signatures_cache:
             try:
                 matches = self.bf.match(live_descriptors, db_descriptors)
                 # Apply distance ratio threshold
@@ -194,8 +211,6 @@ class EdgeVisionEngine:
                     best_match_pest = pest_name
             except Exception:
                 continue
-
-        conn.close()
 
         # Severity percentage scaled against saturation benchmark of 150 matches
         severity_pct = min(100.0, (highest_match_count / 150.0) * 100.0)
@@ -216,7 +231,7 @@ class EdgeVisionEngine:
 
         canopy = self.preprocess_canopy(frame)
 
-        if self.mode == 'deep_learning' or (self.mode == 'hybrid' and TORCH_AVAILABLE):
+        if self.mode == 'deep_learning':
             pest_name, severity_pct = self.classify_deep_learning(canopy)
         else:
             _, descriptors = self.process_orb_frame(canopy)

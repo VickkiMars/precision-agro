@@ -13,6 +13,13 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+if hasattr(torch, 'set_flush_denormal'):
+    try:
+        torch.set_flush_denormal(True)
+    except Exception:
+        pass
+torch.set_num_threads(4)
+
 # The 38 classes from the New Plant Diseases Dataset (Augmented)
 # Covering staple crops including Maize/Corn, Potato, Tomato, Apple, etc.
 PLANT_CLASSES = [

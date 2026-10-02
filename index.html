@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <title>Precision Agriculture Drone Ground Control Station</title>
@@ -19,104 +19,57 @@
 
   <style>
     /* ==========================================================================
-       MATERIAL DESIGN 3 (MD3) DESIGN TOKEN SYSTEM
+       WHITE, GRAY & GREEN DESIGN TOKEN SYSTEM
        ========================================================================== */
-    :root, [data-theme="dark"] {
-      /* MD3 Surface Containers - Tactical Dark Operations */
-      --md-sys-color-surface: #0a0e14;
-      --md-sys-color-surface-dim: #070a0f;
-      --md-sys-color-surface-bright: #1c2430;
-      --md-sys-color-surface-container-lowest: #04070a;
-      --md-sys-color-surface-container-low: #0f141c;
-      --md-sys-color-surface-container: #141b24;
-      --md-sys-color-surface-container-high: #1b2330;
-      --md-sys-color-surface-container-highest: #232d3d;
-
-      --md-sys-color-on-surface: #e6edf3;
-      --md-sys-color-on-surface-variant: #9da7b3;
-      --md-sys-color-outline: #303c4c;
-      --md-sys-color-outline-variant: #1e2633;
-
-      /* Primary - Agronomic Emerald */
-      --md-sys-color-primary: #38ef7d;
-      --md-sys-color-on-primary: #003915;
-      --md-sys-color-primary-container: #005322;
-      --md-sys-color-on-primary-container: #5bff97;
-
-      /* Secondary - MAVLink Telemetry Cobalt */
-      --md-sys-color-secondary: #58a6ff;
-      --md-sys-color-on-secondary: #002d5d;
-      --md-sys-color-secondary-container: #0c437a;
-      --md-sys-color-on-secondary-container: #c8e1ff;
-
-      /* Tertiary - Optical & Maintenance Amber */
-      --md-sys-color-tertiary: #f0b429;
-      --md-sys-color-on-tertiary: #3b2a00;
-      --md-sys-color-tertiary-container: #5c4200;
-      --md-sys-color-on-tertiary-container: #ffe399;
-
-      /* Error / Hotspot Alert - Crimson */
-      --md-sys-color-error: #f85149;
-      --md-sys-color-on-error: #450005;
-      --md-sys-color-error-container: #79000d;
-      --md-sys-color-on-error-container: #ffb3b0;
-
-      /* Success / Clearance */
-      --md-sys-color-success: #3fb950;
-      --md-sys-color-on-success: #003a11;
-      --md-sys-color-success-container: #0e4419;
-
-      /* Map Tile Filter for Tactical Dark */
-      --map-tile-filter: brightness(0.72) invert(1) contrast(3.2) hue-rotate(200deg) saturate(0.35);
-      --map-tile-bg: #090d13;
-    }
-
-    /* Sunlight Mode (Field Edge Anti-Glare High-Contrast) */
-    [data-theme="sunlight"] {
-      --md-sys-color-surface: #f1f4f8;
-      --md-sys-color-surface-dim: #e4e8ef;
+    :root, [data-theme="light"], [data-theme="dark"], [data-theme="sunlight"] {
+      /* White & Gray Surfaces */
+      --md-sys-color-surface: #f8fafc;
+      --md-sys-color-surface-dim: #f1f5f9;
       --md-sys-color-surface-bright: #ffffff;
       --md-sys-color-surface-container-lowest: #ffffff;
       --md-sys-color-surface-container-low: #f8fafc;
       --md-sys-color-surface-container: #ffffff;
-      --md-sys-color-surface-container-high: #e9eef5;
-      --md-sys-color-surface-container-highest: #dde3ec;
+      --md-sys-color-surface-container-high: #f1f5f9;
+      --md-sys-color-surface-container-highest: #e2e8f0;
 
-      --md-sys-color-on-surface: #0a0f18;
-      --md-sys-color-on-surface-variant: #3a4756;
-      --md-sys-color-outline: #8c9ba8;
-      --md-sys-color-outline-variant: #c8d3de;
+      /* High-Contrast Slate Typography & Grays */
+      --md-sys-color-on-surface: #0f172a;
+      --md-sys-color-on-surface-variant: #475569;
+      --md-sys-color-outline: #cbd5e1;
+      --md-sys-color-outline-variant: #e2e8f0;
 
-      /* Sunlight Primary - Deep High-Contrast Emerald */
-      --md-sys-color-primary: #198754;
+      /* Primary - Agronomic Emerald Green */
+      --md-sys-color-primary: #15803d;
       --md-sys-color-on-primary: #ffffff;
-      --md-sys-color-primary-container: #d1f2dd;
-      --md-sys-color-on-primary-container: #003a15;
+      --md-sys-color-primary-container: #dcfce7;
+      --md-sys-color-on-primary-container: #14532d;
 
-      /* Sunlight Secondary - Deep High-Contrast Navy/Cobalt */
-      --md-sys-color-secondary: #0d6efd;
+      /* Secondary - Professional Slate Gray */
+      --md-sys-color-secondary: #475569;
       --md-sys-color-on-secondary: #ffffff;
-      --md-sys-color-secondary-container: #cfe2ff;
-      --md-sys-color-on-secondary-container: #00224d;
+      --md-sys-color-secondary-container: #f1f5f9;
+      --md-sys-color-on-secondary-container: #0f172a;
 
-      /* Sunlight Tertiary - Deep Ochre */
-      --md-sys-color-tertiary: #b07200;
+      /* Tertiary - Deep Forest Green */
+      --md-sys-color-tertiary: #166534;
       --md-sys-color-on-tertiary: #ffffff;
-      --md-sys-color-tertiary-container: #ffe8b3;
-      --md-sys-color-on-tertiary-container: #472b00;
+      --md-sys-color-tertiary-container: #dcfce7;
+      --md-sys-color-on-tertiary-container: #14532d;
 
-      /* Sunlight Error */
-      --md-sys-color-error: #dc3545;
+      /* High-Contrast Charcoal Gray & Subtle Container */
+      --md-sys-color-error: #1e293b;
       --md-sys-color-on-error: #ffffff;
-      --md-sys-color-error-container: #f8d7da;
-      --md-sys-color-on-error-container: #58151c;
+      --md-sys-color-error-container: #f1f5f9;
+      --md-sys-color-on-error-container: #0f172a;
 
-      --md-sys-color-success: #198754;
+      /* Success / Clearance - Vibrant Agronomic Green */
+      --md-sys-color-success: #15803d;
       --md-sys-color-on-success: #ffffff;
-      --md-sys-color-success-container: #d1f2dd;
+      --md-sys-color-success-container: #dcfce7;
 
-      --map-tile-filter: contrast(1.1) saturate(1.15);
-      --map-tile-bg: #e6ebf2;
+      /* Map Tile Filter: Pure Natural Render (NO inversion, NO darkness) */
+      --map-tile-filter: none;
+      --map-tile-bg: #e2e8f0;
     }
 
     /* MD3 Shape Hierarchy */
@@ -191,7 +144,7 @@
       background: var(--md-sys-color-outline);
     }
     :focus-visible {
-      outline: 2px solid var(--md-sys-color-secondary);
+      outline: 2px solid var(--md-sys-color-primary);
       outline-offset: 2px;
     }
 
@@ -214,7 +167,7 @@
       width: 52px;
       height: 52px;
       border-radius: var(--md-sys-shape-corner-large);
-      background: linear-gradient(135deg, var(--md-sys-color-primary-container), var(--md-sys-color-secondary-container));
+      background: linear-gradient(135deg, var(--md-sys-color-primary-container), var(--md-sys-color-surface-container-high));
       display: flex;
       align-items: center;
       justify-content: center;
@@ -507,7 +460,7 @@
     .md3-card-title svg {
       width: 20px;
       height: 20px;
-      color: var(--md-sys-color-secondary);
+      color: var(--md-sys-color-primary);
       flex-shrink: 0;
     }
     .md3-card-subtitle {
@@ -602,7 +555,7 @@
     }
     .md3-btn-filled:hover {
       filter: brightness(1.06);
-      box-shadow: 0 4px 12px rgba(56, 239, 125, 0.25);
+      box-shadow: 0 4px 12px rgba(21, 128, 61, 0.25);
     }
 
     .md3-btn-tonal {
@@ -678,22 +631,28 @@
       cursor: not-allowed;
     }
 
-    /* Map View Container */
+    /* Map View Container - Clean White & Green */
     #map-wrapper {
       position: relative;
+      width: 100%;
       border-radius: var(--md-sys-shape-corner-medium);
       overflow: hidden;
       margin-bottom: var(--space-3);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22);
+      background: #e2e8f0;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
     }
     #map {
-      height: 460px;
+      height: 480px;
       width: 100%;
-      background: var(--map-tile-bg);
+      background: #e2e8f0;
       z-index: 1;
     }
     .leaflet-tile {
-      filter: var(--map-tile-filter);
+      filter: none !important;
+    }
+    .leaflet-container {
+      font-family: inherit;
+      background: #e2e8f0;
     }
 
     /* Floating Map HUD Readout */
@@ -708,8 +667,8 @@
       pointer-events: none;
     }
     .map-hud-readout {
-      background: rgba(10, 14, 20, 0.88);
-      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(8px);
       color: var(--md-sys-color-on-surface);
       padding: 6px 12px;
       border-radius: var(--md-sys-shape-corner-small);
@@ -719,10 +678,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-    }
-    [data-theme="sunlight"] .map-hud-readout {
-      background: rgba(255, 255, 255, 0.92);
-      color: #0a0f18;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
     /* Waypoints Preview Accordion Drawer */
@@ -845,7 +801,7 @@
     }
     .checklist-row:not(.cleared) .checklist-text {
       color: var(--md-sys-color-on-surface-variant);
-      text-decoration: line-through rgba(248, 81, 73, 0.4);
+      text-decoration: line-through var(--md-sys-color-outline);
     }
 
     /* Empty State */
@@ -920,10 +876,10 @@
       position: relative;
       width: 100%;
       height: 380px;
-      background: #080c10;
+      background: var(--md-sys-color-surface-container-high);
       border-radius: var(--md-sys-shape-corner-medium);
       overflow: hidden;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
     }
     .drone-feed-img {
       width: 100%;
@@ -939,7 +895,7 @@
       flex-direction: column;
       justify-content: space-between;
       padding: var(--space-3);
-      background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 25%, rgba(0,0,0,0) 65%, rgba(0,0,0,0.85) 100%);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0) 22%, rgba(255, 255, 255, 0) 68%, rgba(255, 255, 255, 0.94) 100%);
     }
     .feed-hud-top {
       display: flex;
@@ -958,9 +914,10 @@
       font-weight: 700;
       font-family: 'JetBrains Mono', monospace;
       letter-spacing: 0.04em;
-      background: rgba(13, 17, 23, 0.88);
+      background: rgba(255, 255, 255, 0.94);
       backdrop-filter: blur(8px);
-      color: #fff;
+      color: var(--md-sys-color-on-surface);
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.1);
     }
     .feed-hud-tag.live-indicator {
       color: var(--md-sys-color-primary);
@@ -973,20 +930,20 @@
       height: 120px;
       border-radius: 8px;
       pointer-events: none;
-      outline: 1px dashed rgba(56, 239, 125, 0.35);
+      outline: 1.5px dashed rgba(21, 128, 61, 0.45);
     }
     .feed-reticle::before {
       content: '';
       position: absolute;
       top: 50%; left: -10px; right: -10px; height: 1px;
-      background: rgba(56, 239, 125, 0.7);
+      background: rgba(21, 128, 61, 0.85);
       transform: translateY(-50%);
     }
     .feed-reticle::after {
       content: '';
       position: absolute;
       left: 50%; top: -10px; bottom: -10px; width: 1px;
-      background: rgba(56, 239, 125, 0.7);
+      background: rgba(21, 128, 61, 0.85);
       transform: translateX(-50%);
     }
     .feed-hud-bottom {
@@ -999,27 +956,33 @@
       justify-content: space-between;
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.75rem;
-      color: rgba(255, 255, 255, 0.85);
-      text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+      color: var(--md-sys-color-on-surface);
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      padding: 4px 10px;
+      border-radius: var(--md-sys-shape-corner-extra-small);
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+      font-weight: 600;
     }
     .feed-hud-diagnosis {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: var(--space-2);
-      background: rgba(13, 17, 23, 0.92);
+      background: rgba(255, 255, 255, 0.96);
       padding: 8px 12px;
       border-radius: var(--md-sys-shape-corner-small);
       backdrop-filter: blur(10px);
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.1);
     }
     .feed-diag-name {
       font-weight: 700;
       font-size: 0.875rem;
-      color: #fff;
+      color: var(--md-sys-color-on-surface);
     }
     .feed-diag-rx {
       font-size: 0.75rem;
-      color: var(--md-sys-color-secondary);
+      color: var(--md-sys-color-primary);
       font-weight: 600;
     }
     .stream-control-bar {
@@ -1031,7 +994,7 @@
     }
     .severity-meter-bg {
       height: 6px;
-      background: rgba(255,255,255,0.15);
+      background: var(--md-sys-color-surface-container-highest);
       border-radius: 3px;
       overflow: hidden;
       margin-top: 4px;
@@ -1263,11 +1226,12 @@
 
       /* Mobile Map */
       #map-wrapper {
-        height: 280px;
-        margin-bottom: 8px;
+        height: 320px;
+        margin-bottom: 12px;
       }
       #map {
         height: 100%;
+        min-height: 320px;
       }
 
       /* Action Buttons */
@@ -1510,7 +1474,7 @@
 
         <!-- GPS Satellite Lock -->
         <div class="hud-item" title="GNSS Multi-Constellation RTK/3D Lock">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--md-sys-color-secondary);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--md-sys-color-primary);">
             <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/>
             <path d="M12 6v6l4 2"/>
           </svg>
@@ -1519,9 +1483,9 @@
         </div>
 
         <!-- Safety Arm Status -->
-        <div class="hud-item" style="background:rgba(56, 239, 125, 0.08);">
+        <div class="hud-item" style="background:var(--md-sys-color-primary-container);">
           <span class="status-dot"></span>
-          <span style="font-weight:700; color:var(--md-sys-color-primary);" id="arm-status-text">SYSTEM ARMED</span>
+          <span style="font-weight:700; color:var(--md-sys-color-on-primary-container);" id="arm-status-text">SYSTEM ARMED</span>
         </div>
       </div>
     </header>
@@ -1615,14 +1579,14 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
                 Recompute Transects
               </button>
-              <button class="md3-btn md3-btn-filled" style="background:#238636;" onclick="uploadMissionToDrone()">
+              <button class="md3-btn md3-btn-filled" onclick="uploadMissionToDrone()">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                 Upload Mission to Drone
               </button>
               <button class="md3-btn md3-btn-tonal" onclick="loadDefaultUyoField()">
                 Reset Uyo Parcel
               </button>
-              <button class="md3-btn md3-btn-outlined" style="color:var(--md-sys-color-error); " onclick="clearBoundaryAndGrid()">
+              <button class="md3-btn md3-btn-outlined" style="color:var(--md-sys-color-on-surface-variant);" onclick="clearBoundaryAndGrid()">
                 Clear Map
               </button>
             </div>
@@ -1631,7 +1595,7 @@
             <div class="waypoints-accordion" id="wp-accordion">
               <div class="waypoints-accordion-header" onclick="toggleWaypointAccordion()">
                 <span style="display:flex; align-items:center; gap:8px;">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px; color:var(--md-sys-color-secondary);"><circle cx="12" cy="12" r="10"/><polygon points="12 8 8 12 12 16 12 8"/></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px; height:16px; color:var(--md-sys-color-primary);"><circle cx="12" cy="12" r="10"/><polygon points="12 8 8 12 12 16 12 8"/></svg>
                   <span>Generated Pixhawk Waypoints List (<span id="accordion-wp-count">0</span> points)</span>
                 </span>
                 <span id="accordion-arrow">▼ Expand Details</span>
@@ -1779,20 +1743,20 @@
                   <div class="feed-hud-telemetry">
                     <span id="stream-gps">GPS: 5.037700°N, 7.912800°E</span>
                     <span id="stream-alt">ALT: 5.0m AGL</span>
-                    <span id="stream-filename" style="color:rgba(255,255,255,0.6);">20260930_093313.jpg</span>
+                    <span id="stream-filename" style="color:var(--md-sys-color-on-surface-variant);">20260930_093313.jpg</span>
                   </div>
 
                   <div class="feed-hud-diagnosis">
                     <div style="flex:1;">
                       <div style="font-size:0.6875rem; color:var(--md-sys-color-on-surface-variant); text-transform:uppercase; letter-spacing:0.04em;">Classified Pathology</div>
-                      <div id="stream-pest-name" class="feed-diag-name">Tomato Mosaic Virus</div>
+                      <div id="stream-pest-name" class="feed-diag-name" style="color:var(--md-sys-color-on-surface);">Tomato Mosaic Virus</div>
                       <div class="severity-meter-bg">
                         <div id="stream-severity-bar" class="severity-meter-bar" style="width: 2.8%;"></div>
                       </div>
                     </div>
                     <div style="text-align:right; margin-left:var(--space-3);">
                       <div style="font-size:0.6875rem; color:var(--md-sys-color-on-surface-variant); text-transform:uppercase; letter-spacing:0.04em;">Severity Index</div>
-                      <div id="stream-severity-val" style="font-weight:700; font-size:1.125rem; color:#fff; font-family:'JetBrains Mono',monospace;">2.8%</div>
+                      <div id="stream-severity-val" style="font-weight:700; font-size:1.125rem; color:var(--md-sys-color-on-surface); font-family:'JetBrains Mono',monospace;">2.8%</div>
                     </div>
                   </div>
                 </div>
@@ -1819,7 +1783,7 @@
             </div>
 
             <!-- Prescriptive Action Banner -->
-            <div id="stream-rx-banner" style="margin-top:var(--space-3); padding:10px 14px; border-radius:8px; background:rgba(56, 239, 125, 0.08); font-size:0.875rem;">
+            <div id="stream-rx-banner" style="margin-top:var(--space-3); padding:10px 14px; border-radius:8px; background:var(--md-sys-color-primary-container); color:var(--md-sys-color-on-primary-container); font-size:0.875rem;">
               <span style="color:var(--md-sys-color-primary); font-weight:700;">✓ CANOPY HEALTHY:</span> Zero chemical application required.
             </div>
           </div>
@@ -2146,7 +2110,8 @@
     }
 
     // Initialize Theme Preference
-    const savedTheme = localStorage.getItem('precision_agro_theme');
+    localStorage.setItem('precision_agro_theme', 'light');
+    const savedTheme = 'light';
     if (savedTheme) {
       document.documentElement.setAttribute('data-theme', savedTheme);
     }
@@ -2174,16 +2139,38 @@
       if (tabId === 'module4') loadPrescriptions();
     }
 
-    // Leaflet Map Initialization
+    // Leaflet Map Initialization - Robust White & Green
     function initMap() {
       map = L.map('map', {
         zoomControl: true,
-        attributionControl: false
+        attributionControl: true
       }).setView([5.0377, 7.9128], 17);
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19
-      }).addTo(map);
+      // Base Map Tile Layers
+      const osmStreets = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap'
+      });
+
+      const esriSatellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 19,
+        attribution: '&copy; Esri &mdash; Orthomosaic'
+      });
+
+      const cartoLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19,
+        attribution: '&copy; CARTO'
+      });
+
+      // Default to OSM Streets with Carto and Satellite options
+      osmStreets.addTo(map);
+
+      const baseMaps = {
+        "Farm Survey Map": osmStreets,
+        "Clean Field Map": cartoLight,
+        "Satellite Orthomosaic": esriSatellite
+      };
+      L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
 
       drawnItems = new L.FeatureGroup().addTo(map);
       transectLayer = new L.layerGroup().addTo(map);
@@ -2194,10 +2181,10 @@
           polygon: {
             allowIntersection: false,
             showArea: true,
-            shapeOptions: { color: '#38ef7d', fillOpacity: 0.22, weight: 2.5 }
+            shapeOptions: { color: '#15803d', fillColor: '#15803d', fillOpacity: 0.22, weight: 2.5 }
           },
           rectangle: {
-            shapeOptions: { color: '#38ef7d', fillOpacity: 0.22, weight: 2.5 }
+            shapeOptions: { color: '#15803d', fillColor: '#15803d', fillOpacity: 0.22, weight: 2.5 }
           },
           circle: false,
           polyline: false,
@@ -2209,6 +2196,11 @@
         }
       });
       map.addControl(drawControl);
+
+      // Ensure proper map sizing across window resize and layout shifts
+      window.addEventListener('resize', () => { if (map) map.invalidateSize(); });
+      setTimeout(() => { if (map) map.invalidateSize(); }, 150);
+      setTimeout(() => { if (map) map.invalidateSize(); }, 600);
 
       map.on(L.Draw.Event.CREATED, function (e) {
         drawnItems.clearLayers();
@@ -2584,7 +2576,7 @@
 
       const pattern = document.getElementById('plan-pattern').value;
       const latlngs = waypoints.map(w => [w.lat, w.lon]);
-      const pathColor = (pattern === 'orbit') ? '#58a6ff' : ((pattern === 'crosshatch') ? '#f0b429' : '#38ef7d');
+      const pathColor = (pattern === 'orbit') ? '#16a34a' : ((pattern === 'crosshatch') ? '#15803d' : '#22c55e');
 
       L.polyline(latlngs, {
         color: pathColor,
@@ -2596,26 +2588,26 @@
         const radiusM = parseFloat(document.getElementById('orbit-radius').value) || 12;
         L.circle([hotspotCenter.lat, hotspotCenter.lng], {
           radius: radiusM,
-          color: '#f85149',
+          color: '#14532d',
           weight: 2,
           dashArray: '3, 6',
-          fillOpacity: 0.12,
-          fillColor: '#f85149'
+          fillOpacity: 0.15,
+          fillColor: '#15803d'
         }).addTo(markerLayer);
 
         L.circleMarker([hotspotCenter.lat, hotspotCenter.lng], {
-          color: '#f85149',
-          fillColor: '#f85149',
+          color: '#14532d',
+          fillColor: '#15803d',
           fillOpacity: 0.95,
           radius: 8
         }).bindPopup("<strong>Target Hotspot Center</strong><br/>Click anywhere on map to reposition.").addTo(markerLayer);
       }
 
-      // Takeoff marker
+      // Takeoff marker - Crisp Emerald Green
       L.circleMarker([waypoints[0].lat, waypoints[0].lon], {
-        color: '#58a6ff',
-        fillColor: '#58a6ff',
-        fillOpacity: 0.9,
+        color: '#15803d',
+        fillColor: '#15803d',
+        fillOpacity: 0.95,
         radius: 8
       }).bindPopup("<strong>Waypoint #1: TAKEOFF</strong><br/>Altitude: " + waypoints[0].alt + "m AGL").addTo(markerLayer);
 
@@ -2625,17 +2617,17 @@
         L.circleMarker([waypoints[i].lat, waypoints[i].lon], {
           color: pathColor,
           fillColor: pathColor,
-          fillOpacity: 0.65,
+          fillOpacity: 0.7,
           radius: 3
         }).bindPopup("Waypoint #" + (i + 1) + "<br/>Alt: " + waypoints[i].alt + "m").addTo(markerLayer);
       }
 
-      // Final landing marker
+      // Final landing marker - Refined Slate Gray
       const last = waypoints[waypoints.length - 1];
       L.circleMarker([last.lat, last.lon], {
-        color: '#f0b429',
-        fillColor: '#f0b429',
-        fillOpacity: 0.9,
+        color: '#334155',
+        fillColor: '#475569',
+        fillOpacity: 0.95,
         radius: 8
       }).bindPopup("<strong>Waypoint #" + waypoints.length + ": END SCAN</strong><br/>Return to Launch").addTo(markerLayer);
 
@@ -2738,7 +2730,7 @@
           currentBoundaryCoords = rawCoords.map(c => ({ lat: c[1], lng: c[0] }));
           drawnItems.clearLayers();
           L.polygon(currentBoundaryCoords.map(p => [p.lat, p.lng]), {
-            color: '#38ef7d',
+            color: '#15803d', fillColor: '#15803d',
             fillOpacity: 0.22,
             weight: 2.5
           }).addTo(drawnItems);
@@ -2776,7 +2768,7 @@
         { lat: 5.039450, lng: 7.912800 }
       ];
       L.polygon(currentBoundaryCoords.map(p => [p.lat, p.lng]), {
-        color: '#38ef7d',
+        color: '#15803d', fillColor: '#15803d',
         fillOpacity: 0.22,
         weight: 2.5
       }).addTo(drawnItems);
@@ -2876,11 +2868,11 @@
       if (sevBar) {
         sevBar.style.width = `${Math.min(100, Math.max(3, state.severity_pct || 0))}%`;
         if ((state.severity_pct || 0) > 40) {
-          sevBar.style.backgroundColor = 'var(--md-sys-color-error)';
-        } else if ((state.severity_pct || 0) > 10) {
-          sevBar.style.backgroundColor = 'var(--md-sys-color-tertiary)';
-        } else {
           sevBar.style.backgroundColor = 'var(--md-sys-color-primary)';
+        } else if ((state.severity_pct || 0) > 10) {
+          sevBar.style.backgroundColor = '#16a34a';
+        } else {
+          sevBar.style.backgroundColor = '#22c55e';
         }
       }
 
@@ -2890,11 +2882,13 @@
       const rxBanner = document.getElementById('stream-rx-banner');
       if (rxBanner) {
         if (state.action === 'SPOT_SPRAY') {
-          rxBanner.innerHTML = `<span style="color:var(--md-sys-color-error); font-weight:700;">● SPOT SPRAY ACTION:</span> ${state.chemical} @ ${state.dosage} ml/L`;
-          rxBanner.style.background = 'rgba(248, 81, 73, 0.12)';
+          rxBanner.innerHTML = `<span style="color:var(--md-sys-color-on-surface); font-weight:700;">● SPOT SPRAY ACTION:</span> ${state.chemical} @ ${state.dosage} ml/L`;
+          rxBanner.style.background = 'var(--md-sys-color-surface-container-highest)';
+          rxBanner.style.color = 'var(--md-sys-color-on-surface)';
         } else {
           rxBanner.innerHTML = `<span style="color:var(--md-sys-color-primary); font-weight:700;">✓ CANOPY HEALTHY:</span> Zero chemical application required.`;
-          rxBanner.style.background = 'rgba(56, 239, 125, 0.08)';
+          rxBanner.style.background = 'var(--md-sys-color-primary-container)';
+          rxBanner.style.color = 'var(--md-sys-color-on-primary-container)';
         }
       }
 
@@ -2978,7 +2972,7 @@
       if (!liveDroneMarker) {
         const droneIcon = L.divIcon({
           className: 'drone-live-marker',
-          html: `<div style="background:#38ef7d; width:22px; height:22px; border-radius:50%; box-shadow:0 2px 10px rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; color:#000; font-size:12px; font-weight:900;">✈</div>`,
+          html: `<div style="background:#15803d; color:#ffffff; width:24px; height:24px; border-radius:50%; box-shadow:0 2px 8px rgba(15,23,42,0.25); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:900;">✈</div>`,
           iconSize: [24, 24],
           iconAnchor: [12, 12]
         });
@@ -3003,7 +2997,7 @@
 
         for (const [k, v] of Object.entries(data)) {
           const isNominal = v.includes("ONLINE") || v.includes("READY") || v.includes("PASSED") || v.includes("Normal");
-          const color = isNominal ? "var(--md-sys-color-primary)" : "var(--md-sys-color-tertiary)";
+          const color = isNominal ? "var(--md-sys-color-primary)" : "var(--md-sys-color-secondary)";
 
           container.innerHTML += `
             <div class="diag-card">
@@ -3045,7 +3039,7 @@
         tbody.innerHTML += `
           <tr>
             <td><strong>${p.name}</strong></td>
-            <td><span style="color:var(--md-sys-color-secondary); font-weight:500;">${p.crop}</span></td>
+            <td><span style="color:var(--md-sys-color-on-surface); font-weight:500;">${p.crop}</span></td>
             <td><span style="color:var(--md-sys-color-on-surface-variant); font-size:0.8125rem;">${p.class}</span></td>
             <td style="color:var(--md-sys-color-primary); font-weight:600;">${p.chemical}</td>
             <td style="font-family:'JetBrains Mono',monospace;">${p.dosage}</td>
@@ -3122,7 +3116,7 @@
               <td style="font-family:'JetBrains Mono',monospace;">${r.Longitude || '-'}</td>
               <td>${r.Altitude_m || '-'} m</td>
               <td><strong>${r.Target_Pest_Name || '-'}</strong></td>
-              <td><span style="color:var(--md-sys-color-tertiary); font-weight:600; font-family:'JetBrains Mono',monospace;">${r.Severity_Percentage || '0'}%</span></td>
+              <td><span style="color:var(--md-sys-color-primary); font-weight:600; font-family:'JetBrains Mono',monospace;">${r.Severity_Percentage || '0'}%</span></td>
               <td style="color:var(--md-sys-color-primary); font-weight:600;">${r.Recommended_Chemical || '-'}</td>
               <td>${r.Dosage_ml_per_Litre || '-'} ml/L</td>
             </tr>
@@ -3167,7 +3161,7 @@
       const badge = document.getElementById('checklist-summary');
       if (badge) {
         badge.innerText = `${cleared} / ${total} Pre-Flight Clear`;
-        badge.style.color = (cleared === total) ? "var(--md-sys-color-primary)" : "var(--md-sys-color-tertiary)";
+        badge.style.color = (cleared === total) ? "var(--md-sys-color-primary)" : "var(--md-sys-color-secondary)";
       }
     }
 
