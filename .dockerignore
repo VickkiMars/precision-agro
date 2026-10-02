@@ -34,5 +34,4 @@ test_prescription_log.csv
 test_prescription_map.geojson
 
 # Edge-only hardware bindings (MAVLink / CSI camera — not in a cloud container)
-flight_controller.py
 mission_runner.py

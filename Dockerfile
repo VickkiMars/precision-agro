@@ -24,11 +24,15 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # Copy application source and seeded agronomic data assets
 COPY gcs_server.py db_init.py prescription_engine.py \
+     drone_streamer.py flight_controller.py \
      crop_health_edge.db camera_config.json \
      field_prescription_log.csv field_prescription_map.geojson \
      plant_classes.json index.html \
      requirements.txt \
      /app/
+
+# Copy real-time capture dataset for optical stream simulation
+COPY realtime_captures /app/realtime_captures
 
 # Create writable state directory and assign ownership
 RUN mkdir -p /tmp/gcs && chown -R gcs:gcs /app /tmp/gcs && chmod -R 1777 /tmp/gcs
