@@ -1773,8 +1773,8 @@
                 </h2>
                 <p class="md3-card-subtitle">Draw farm parcel boundaries or load GPS coordinates directly on the map.</p>
               </div>
-              <span id="boundary-status-badge" class="status-text-indicator" style="color:var(--md-sys-color-primary);">
-                ● Default Uyo Test Grid Loaded
+              <span id="boundary-status-badge" class="status-text-indicator" style="color:var(--md-sys-color-on-surface-variant);">
+                ○ No Boundary Defined
               </span>
             </div>
 
@@ -1870,17 +1870,6 @@
               <button class="md3-btn md3-btn-tonal" id="btn-draw-rect" onclick="startDrawRectangle()">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
                 Draw Box Area
-              </button>
-              <button class="md3-btn md3-btn-secondary" onclick="generateTransectsFromCurrentBoundary()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                Recompute Transects
-              </button>
-              <button class="md3-btn md3-btn-filled" onclick="uploadMissionToDrone()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                Upload Mission to Drone
-              </button>
-              <button class="md3-btn md3-btn-tonal" onclick="loadDefaultUyoField()">
-                Reset Uyo Parcel
               </button>
               <button class="md3-btn md3-btn-outlined" style="color:var(--md-sys-color-on-surface-variant);" onclick="clearBoundaryAndGrid()">
                 Clear Map
@@ -2916,63 +2905,6 @@
       `).join('');
     }
 
-    async function uploadMissionToDrone() {
-      if (!currentWaypoints || currentWaypoints.length === 0) {
-        showAlert("Cannot upload: No survey transects generated yet.", "error");
-        return;
-      }
-
-      let totalDist = 0;
-      for (let i = 0; i < currentWaypoints.length - 1; i++) {
-        totalDist += haversineDistMeters(currentWaypoints[i].lat, currentWaypoints[i].lon, currentWaypoints[i + 1].lat, currentWaypoints[i + 1].lon);
-      }
-      const durationS = currentOpticalParams.speed > 0 ? (totalDist / currentOpticalParams.speed) : 0;
-
-      const payload = {
-        mission_id: "mission_" + Date.now(),
-        created_at: new Date().toISOString(),
-        field_name: "Farmer Demarcated Parcel",
-        pattern_preset: document.getElementById('plan-pattern').value,
-        area_hectares: currentAreaHa,
-        flight_parameters: {
-          altitude_agl_m: currentOpticalParams.alt,
-          speed_mps: currentOpticalParams.speed,
-          side_overlap_pct: currentOpticalParams.overlapPct,
-          camera_hfov_deg: currentOpticalParams.hfov,
-          swath_width_m: currentOpticalParams.swathWidth,
-          track_spacing_m: currentOpticalParams.trackSpacing,
-          alt: currentOpticalParams.alt,
-          speed: currentOpticalParams.speed
-        },
-        boundary_geojson: {
-          type: "Polygon",
-          coordinates: [
-            currentBoundaryCoords.map(p => [p.lng, p.lat]).concat([[currentBoundaryCoords[0].lng, currentBoundaryCoords[0].lat]])
-          ]
-        },
-        waypoints: currentWaypoints,
-        estimated_distance_m: Math.round(totalDist),
-        estimated_duration_s: Math.round(durationS)
-      };
-
-      try {
-        const res = await fetch('/api/mission/plan', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        if (data.status === 'success') {
-          showAlert(`✓ Mission plan successfully uploaded to drone! ${data.waypoints_count} waypoints synchronized across ${data.area_hectares.toFixed(2)} ha.`, "success");
-          updateBoundaryStatus("● Mission Plan Active on Flight Controller", "var(--md-sys-color-primary)");
-        } else {
-          showAlert(`Upload failed: ${data.message}`, "error");
-        }
-      } catch (err) {
-        showAlert(`Error uploading mission: ${err.message}`, "error");
-      }
-    }
-
     async function loadSavedMissionPlan() {
       try {
         const res = await fetch('/api/mission/plan');
@@ -3004,32 +2936,11 @@
           }
           updateBoundaryStatus("● Saved Mission Loaded from Flight Controller", "var(--md-sys-color-primary)");
         } else {
-          loadDefaultUyoField();
+          updateBoundaryStatus("○ No Boundary Defined", "var(--md-sys-color-on-surface-variant)");
         }
       } catch (e) {
-        loadDefaultUyoField();
+        updateBoundaryStatus("○ No Boundary Defined", "var(--md-sys-color-on-surface-variant)");
       }
-    }
-
-    function loadDefaultUyoField() {
-      if (!drawnItems) return;
-      drawnItems.clearLayers();
-      currentBoundaryCoords = [
-        { lat: 5.037700, lng: 7.912800 },
-        { lat: 5.037700, lng: 7.914300 },
-        { lat: 5.039450, lng: 7.914300 },
-        { lat: 5.039450, lng: 7.912800 }
-      ];
-      L.polygon(currentBoundaryCoords.map(p => [p.lat, p.lng]), {
-        color: '#15803d', fillColor: '#15803d',
-        fillOpacity: 0.22,
-        weight: 2.5
-      }).addTo(drawnItems);
-      const areaM2 = computeGeodesicArea(currentBoundaryCoords);
-      currentAreaHa = areaM2 / 10000.0;
-      document.getElementById('metric-area').innerText = `${currentAreaHa.toFixed(2)} ha (${(currentAreaHa * 2.47105).toFixed(2)} ac)`;
-      updateBoundaryStatus("● Default Uyo Test Grid Loaded", "var(--md-sys-color-secondary)");
-      generateTransectsFromCurrentBoundary();
     }
 
     function clearBoundaryAndGrid() {
@@ -3160,10 +3071,7 @@
       // 1. Switch to Mission Planner tab if not already active
       switchTab('module1', document.getElementById('nav-btn-module1'));
 
-      // 2. Ensure waypoints exist; if none, auto-load default field
-      if (!currentWaypoints || currentWaypoints.length < 2) {
-        loadDefaultUyoField();
-      }
+      // 2. Ensure waypoints exist
       if (!currentWaypoints || currentWaypoints.length < 2) {
         showAlert("Please define a farm boundary to compute flight transects before starting the scan.", "warning");
         return;

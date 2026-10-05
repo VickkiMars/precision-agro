@@ -292,28 +292,6 @@ class GCSRequestHandler(http.server.SimpleHTTPRequestHandler):
             except Exception as e:
                 self.send_json({"status": "error", "message": str(e)}, code=400)
 
-        elif path == '/api/mission/plan':
-            try:
-                data = json.loads(post_body)
-                with open(MISSION_FILE, 'w') as f:
-                    json.dump(data, f, indent=2)
-                # Keep BASE_DIR copy in sync if DATA_DIR differs
-                base_mission = os.path.join(BASE_DIR, 'active_mission.json')
-                if DATA_DIR != BASE_DIR:
-                    try:
-                        with open(base_mission, 'w') as f:
-                            json.dump(data, f, indent=2)
-                    except Exception:
-                        pass
-                self.send_json({
-                    "status": "success",
-                    "message": "Mission plan saved and synchronized with flight controller.",
-                    "waypoints_count": len(data.get("waypoints", [])),
-                    "area_hectares": data.get("area_hectares", 0.0)
-                })
-            except Exception as e:
-                self.send_json({"status": "error", "message": str(e)}, code=400)
-
         elif path == '/api/add_pest':
             try:
                 data = json.loads(post_body)
